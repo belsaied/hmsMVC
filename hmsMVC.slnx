@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="HMS.BLL/HMS.BLL.csproj" />
+  <Project Path="HMS.DAL/HMS.DAL.csproj" />
+  <Project Path="HMS.PL/HMS.PL.csproj" />
+</Solution>
