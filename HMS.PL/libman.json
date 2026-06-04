@@ -36,7 +36,7 @@
       "destination": "wwwroot/lib/jquery"
     },
     {
-      "library": "jquery-validation@1.21.0",
+      "library": "jquery-validation@1.19.5",
       "destination": "wwwroot/lib/jquery-validation"
     },
     {

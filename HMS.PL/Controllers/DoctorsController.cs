@@ -1,0 +1,295 @@
+﻿using HMS.BLL.ServicesAbstraction.Contracts;
+using HMS.BLL.Shared.Dtos.DoctorModule.DoctorDtos;
+using HMS.BLL.Shared.Parameters;
+using HMS.DAL.Models.Enums.DoctorEnums;
+using HMS.DAL.Models.Enums.PatientEnums;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+
+namespace HMS.PL.Controllers
+{
+    public class DoctorsController : Controller
+    {
+        private readonly IServiceManager _services;
+
+        public DoctorsController(IServiceManager services)
+        {
+            _services = services;
+        }
+
+        // GET: /Doctors
+        public async Task<IActionResult> Index(string? search, string? status,
+            string? specialization, int? departmentId, int pageIndex = 1)
+        {
+            var parameters = new DoctorSpecificationParameters
+            {
+                Search = search,
+                Status = string.IsNullOrEmpty(status) ? null : Enum.Parse<DoctorStatus>(status),
+                Specialization = specialization,
+                DepartmentId = departmentId,
+                PageIndex = pageIndex,
+                PageSize = 10
+            };
+
+            var result = await _services.DoctorService.GetAllDoctorsAsync(parameters);
+            var departments = await _services.DepartmentService.GetAllDepartmentAsync();
+
+            ViewBag.Search = search;
+            ViewBag.Status = status;
+            ViewBag.Specialization = specialization;
+            ViewBag.DepartmentId = departmentId;
+            ViewBag.StatusList = GetStatusSelectList(status);
+            ViewBag.DepartmentList = new SelectList(departments, "Id", "Name", departmentId);
+
+            return View(result);
+        }
+
+        // GET: /Doctors/Details/5
+        public async Task<IActionResult> Details(int id)
+        {
+            try
+            {
+                var doctor = await _services.DoctorService.GetDoctorWithDetailsAsync(id);
+                return View(doctor);
+            }
+            catch
+            {
+                TempData["Error"] = "Doctor not found.";
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        // GET: /Doctors/Create
+        public async Task<IActionResult> Create()
+        {
+            await PopulateDropdownsAsync();
+            return View(new CreateDoctorDto());
+        }
+
+        // POST: /Doctors/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(CreateDoctorDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                await PopulateDropdownsAsync();
+                return View(dto);
+            }
+
+            try
+            {
+                var created = await _services.DoctorService.RegisterDoctorAsync(dto);
+                TempData["Success"] = $"Dr. {created.FullName} registered successfully (ID: {created.Id}).";
+                return RedirectToAction(nameof(Details), new { id = created.Id });
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                await PopulateDropdownsAsync();
+                return View(dto);
+            }
+        }
+
+        // GET: /Doctors/Edit/5
+        public async Task<IActionResult> Edit(int id)
+        {
+            try
+            {
+                var doctor = await _services.DoctorService.GetDoctorByIdAsync(id);
+                var dto = new UpdateDoctorDto
+                {
+                    FirstName = doctor.FirstName,
+                    LastName = doctor.LastName,
+                    Phone = doctor.Phone,
+                    Email = doctor.Email,
+                    Specialization = doctor.Specialization,
+                    DepartmentId = doctor.DepartmentId,
+                    YearsOfExperience = doctor.YearsOfExperience,
+                    ConsultationFee = doctor.ConsultationFee,
+                    Bio = doctor.Bio,
+                    PictureUrl = doctor.PictureUrl,
+                    Status = Enum.Parse<DoctorStatus>(doctor.Status)
+                };
+                ViewBag.DoctorId = id;
+                ViewBag.DoctorName = doctor.FullName;
+                await PopulateDropdownsAsync(doctor.Status);
+                return View(dto);
+            }
+            catch
+            {
+                TempData["Error"] = "Doctor not found.";
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        // POST: /Doctors/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, UpdateDoctorDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                ViewBag.DoctorId = id;
+                await PopulateDropdownsAsync(dto.Status?.ToString());
+                return View(dto);
+            }
+
+            try
+            {
+                await _services.DoctorService.UpdateDoctorAsync(id, dto);
+                TempData["Success"] = "Doctor updated successfully.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                ViewBag.DoctorId = id;
+                await PopulateDropdownsAsync(dto.Status?.ToString());
+                return View(dto);
+            }
+        }
+
+        // POST: /Doctors/Deactivate/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Deactivate(int id)
+        {
+            try
+            {
+                await _services.DoctorService.DeactivateDoctorAsync(id);
+                TempData["Success"] = "Doctor deactivated successfully.";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+            }
+            return RedirectToAction(nameof(Index));
+        }
+
+        // GET: /Doctors/Schedule/5
+        public async Task<IActionResult> Schedule(int id)
+        {
+            try
+            {
+                var doctor = await _services.DoctorService.GetDoctorByIdAsync(id);
+                var schedules = await _services.DoctorService.GetScheduleAsync(id);
+                ViewBag.DoctorId = id;
+                ViewBag.DoctorName = doctor.FullName;
+                ViewBag.DayOfWeekList = GetDayOfWeekSelectList();
+                return View(schedules);
+            }
+            catch
+            {
+                TempData["Error"] = "Doctor not found.";
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        // POST: /Doctors/AddSchedule
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddSchedule(int doctorId, CreateScheduleDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                TempData["Error"] = "Invalid schedule data. Please check all fields.";
+                return RedirectToAction(nameof(Schedule), new { id = doctorId });
+            }
+
+            try
+            {
+                await _services.DoctorService.SetScheduleAsync(doctorId, dto);
+                TempData["Success"] = $"Schedule added for {dto.DayOfWeek}.";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+            }
+            return RedirectToAction(nameof(Schedule), new { id = doctorId });
+        }
+
+        // GET: /Doctors/Qualifications/5
+        public async Task<IActionResult> Qualifications(int id)
+        {
+            try
+            {
+                var doctor = await _services.DoctorService.GetDoctorWithDetailsAsync(id);
+                ViewBag.DoctorId = id;
+                ViewBag.DoctorName = doctor.FullName;
+                return View(doctor.Qualifications);
+            }
+            catch
+            {
+                TempData["Error"] = "Doctor not found.";
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        // POST: /Doctors/AddQualification
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddQualification(int doctorId, CreateQualificationDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                TempData["Error"] = "Invalid qualification data.";
+                return RedirectToAction(nameof(Qualifications), new { id = doctorId });
+            }
+
+            try
+            {
+                await _services.DoctorService.AddQualificationAsync(doctorId, dto);
+                TempData["Success"] = $"Qualification '{dto.Degree}' added successfully.";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+            }
+            return RedirectToAction(nameof(Qualifications), new { id = doctorId });
+        }
+
+        // POST: /Doctors/RemoveQualification
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemoveQualification(int doctorId, int qualId)
+        {
+            try
+            {
+                await _services.DoctorService.RemoveQualificationAsync(doctorId, qualId);
+                TempData["Success"] = "Qualification removed.";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+            }
+            return RedirectToAction(nameof(Qualifications), new { id = doctorId });
+        }
+
+        // ── Helpers ───────────────────────────────────────────────────────
+
+        private async Task PopulateDropdownsAsync(string? selectedStatus = null)
+        {
+            var departments = await _services.DepartmentService.GetAllDepartmentAsync();
+            ViewBag.DepartmentList = new SelectList(departments, "Id", "Name");
+            ViewBag.GenderList = new SelectList(Enum.GetNames(typeof(Gender)));
+            ViewBag.StatusList = GetStatusSelectList(selectedStatus);
+        }
+
+        private static SelectList GetStatusSelectList(string? selected = null)
+        {
+            var items = Enum.GetNames(typeof(DoctorStatus))
+                .Select(n => new SelectListItem { Value = n, Text = n })
+                .ToList();
+            return new SelectList(items, "Value", "Text", selected);
+        }
+
+        private static SelectList GetDayOfWeekSelectList()
+        {
+            var items = Enum.GetNames(typeof(DayOfWeek))
+                .Select(n => new SelectListItem { Value = n, Text = n })
+                .ToList();
+            return new SelectList(items, "Value", "Text");
+        }
+    }
+}
