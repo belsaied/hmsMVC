@@ -3,7 +3,7 @@
     public enum DoctorStatus
     {
         Active =1 ,
-        Onleave =2 ,
+        OnLeave =2 ,
         Inactive =3 ,
         Suspended=4
     }
