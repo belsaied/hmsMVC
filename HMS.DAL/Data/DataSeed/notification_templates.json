@@ -1,0 +1,93 @@
+[
+  {
+    "NotificationType": "AppointmentConfirmed",
+    "Channel": "Email",
+    "SubjectTemplate": "Appointment Confirmed — Dr. {{DoctorName}}",
+    "BodyTemplate": "<h2>Hello {{PatientName}},</h2><p>Your appointment has been <strong>confirmed</strong>.</p><ul><li><strong>Doctor:</strong> Dr. {{DoctorName}}</li><li><strong>Date:</strong> {{AppointmentDate}}</li><li><strong>Time:</strong> {{StartTime}}</li><li><strong>Confirmation #:</strong> {{ConfirmationNumber}}</li></ul><p>Please arrive 10 minutes early. Thank you for choosing HMS.</p>",
+    "IsActive": true
+  },
+  {
+    "NotificationType": "AppointmentConfirmed",
+    "Channel": "SMS",
+    "SubjectTemplate": null,
+    "BodyTemplate": "Appointment confirmed with Dr. {{DoctorName}} on {{AppointmentDate}} at {{StartTime}}. Ref: {{ConfirmationNumber}}",
+    "IsActive": true
+  },
+  {
+    "NotificationType": "AppointmentCancelled",
+    "Channel": "Email",
+    "SubjectTemplate": "Appointment Cancelled",
+    "BodyTemplate": "<h2>Hello {{PatientName}},</h2><p>We regret to inform you that your appointment has been <strong>cancelled</strong>.</p><ul><li><strong>Doctor:</strong> Dr. {{DoctorName}}</li><li><strong>Date:</strong> {{AppointmentDate}}</li><li><strong>Time:</strong> {{StartTime}}</li></ul><p>Please contact us to reschedule. We apologize for any inconvenience.</p>",
+    "IsActive": true
+  },
+  {
+    "NotificationType": "AppointmentCancelled",
+    "Channel": "SMS",
+    "SubjectTemplate": null,
+    "BodyTemplate": "Your appointment with Dr. {{DoctorName}} on {{AppointmentDate}} at {{StartTime}} has been cancelled. Please contact HMS to reschedule.",
+    "IsActive": true
+  },
+  {
+    "NotificationType": "AppointmentReminder",
+    "Channel": "Email",
+    "SubjectTemplate": "Reminder: Appointment Tomorrow — Dr. {{DoctorName}}",
+    "BodyTemplate": "<h2>Hello {{PatientName}},</h2><p>This is a friendly reminder that you have an appointment <strong>tomorrow</strong>.</p><ul><li><strong>Doctor:</strong> Dr. {{DoctorName}}</li><li><strong>Date:</strong> {{AppointmentDate}}</li><li><strong>Time:</strong> {{StartTime}}</li><li><strong>Confirmation #:</strong> {{ConfirmationNumber}}</li></ul><p>Please ensure you arrive on time. See you soon!</p>",
+    "IsActive": true
+  },
+  {
+    "NotificationType": "AppointmentReminder",
+    "Channel": "SMS",
+    "SubjectTemplate": null,
+    "BodyTemplate": "Reminder: Appointment with Dr. {{DoctorName}} tomorrow at {{StartTime}}. Ref: {{ConfirmationNumber}}",
+    "IsActive": true
+  },
+  {
+    "NotificationType": "AbnormalLabResult",
+    "Channel": "Email",
+    "SubjectTemplate": "ALERT: Abnormal Lab Result — {{PatientName}}",
+    "BodyTemplate": "<h2>Dear Dr. {{DoctorName}},</h2><p>A <strong>critical lab result</strong> requires your immediate attention.</p><ul><li><strong>Patient:</strong> {{PatientName}}</li><li><strong>Test:</strong> {{TestName}}</li><li><strong>Result:</strong> {{ResultValue}}</li><li><strong>Normal Range:</strong> {{NormalRange}}</li></ul><p>Please review and take appropriate action as soon as possible.</p>",
+    "IsActive": true
+  },
+  {
+    "NotificationType": "AbnormalLabResult",
+    "Channel": "Push",
+    "SubjectTemplate": "Critical Lab Alert",
+    "BodyTemplate": "Critical lab result for {{PatientName}}: {{TestName}} = {{ResultValue}}",
+    "IsActive": true
+  },
+  {
+    "NotificationType": "PrescriptionExpiryWarning",
+    "Channel": "Email",
+    "SubjectTemplate": "Prescription Expiring Soon",
+    "BodyTemplate": "<h2>Hello {{PatientName}},</h2><p>Your prescription for <strong>{{MedicationName}}</strong> is expiring on <strong>{{ExpiryDate}}</strong>.</p><p>Please contact your doctor to arrange a renewal before the expiry date to avoid any interruption in your treatment.</p>",
+    "IsActive": true
+  },
+  {
+    "NotificationType": "PrescriptionExpiryWarning",
+    "Channel": "SMS",
+    "SubjectTemplate": null,
+    "BodyTemplate": "Reminder: Your prescription for {{MedicationName}} expires on {{ExpiryDate}}. Contact your doctor to renew.",
+    "IsActive": true
+  },
+  {
+    "NotificationType": "InvoiceIssued",
+    "Channel": "Email",
+    "SubjectTemplate": "Invoice {{InvoiceNumber}} — {{TotalAmount}} EGP",
+    "BodyTemplate": "<h2>Hello {{PatientName}},</h2><p>Your invoice has been issued. Please find the details below.</p><ul><li><strong>Invoice #:</strong> {{InvoiceNumber}}</li><li><strong>Total Amount:</strong> {{TotalAmount}} EGP</li><li><strong>Due Date:</strong> {{DueDate}}</li></ul><p>The invoice PDF is attached to this email. Please make payment before the due date.</p><p>Thank you for choosing HMS.</p>",
+    "IsActive": true
+  },
+  {
+    "NotificationType": "PaymentReceived",
+    "Channel": "Email",
+    "SubjectTemplate": "Payment Received — Thank You",
+    "BodyTemplate": "<h2>Hello {{PatientName}},</h2><p>We have received your payment. Thank you!</p><ul><li><strong>Invoice #:</strong> {{InvoiceNumber}}</li><li><strong>Amount Paid:</strong> {{AmountPaid}} EGP</li><li><strong>Payment Date:</strong> {{PaidAt}}</li></ul><p>Your account balance has been updated accordingly. Thank you for choosing HMS.</p>",
+    "IsActive": true
+  },
+  {
+    "NotificationType": "InvoiceOverdue",
+    "Channel": "Email",
+    "SubjectTemplate": "OVERDUE: Invoice {{InvoiceNumber}} — Action Required",
+    "BodyTemplate": "<h2>Hello {{PatientName}},</h2><p>Your invoice is <strong>overdue</strong> and requires immediate attention.</p><ul><li><strong>Invoice #:</strong> {{InvoiceNumber}}</li><li><strong>Total Amount:</strong> {{TotalAmount}} EGP</li><li><strong>Due Date:</strong> {{DueDate}}</li><li><strong>Outstanding Balance:</strong> {{OutstandingBalance}} EGP</li></ul><p>Please make payment as soon as possible to avoid further action. Contact us if you need assistance.</p>",
+    "IsActive": true
+  }
+]

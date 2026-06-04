@@ -1,0 +1,92 @@
+[
+  {
+    "Name": "Cardiology",
+    "Description": "Diagnosis and treatment of heart and cardiovascular diseases",
+    "HeadDoctorId": null,
+    "PhoneExtension": "1001"
+  },
+  {
+    "Name": "Pediatrics",
+    "Description": "Medical care for infants, children, and adolescents",
+    "HeadDoctorId": null,
+    "PhoneExtension": "1002"
+  },
+  {
+    "Name": "Orthopedics",
+    "Description": "Treatment of musculoskeletal system disorders and injuries",
+    "HeadDoctorId": null,
+    "PhoneExtension": "1003"
+  },
+  {
+    "Name": "Neurology",
+    "Description": "Diagnosis and treatment of nervous system disorders",
+    "HeadDoctorId": null,
+    "PhoneExtension": "1004"
+  },
+  {
+    "Name": "Emergency",
+    "Description": "Acute care for life-threatening conditions",
+    "HeadDoctorId": null,
+    "PhoneExtension": "1005"
+  },
+  {
+    "Name": "Dermatology",
+    "Description": "Diagnosis and treatment of skin, hair, and nail conditions",
+    "HeadDoctorId": null,
+    "PhoneExtension": "1006"
+  },
+  {
+    "Name": "Oncology",
+    "Description": "Diagnosis and treatment of cancer",
+    "HeadDoctorId": null,
+    "PhoneExtension": "1007"
+  },
+  {
+    "Name": "Psychiatry",
+    "Description": "Diagnosis and treatment of mental health disorders",
+    "HeadDoctorId": null,
+    "PhoneExtension": "1008"
+  },
+  {
+    "Name": "Ophthalmology",
+    "Description": "Diagnosis and treatment of eye disorders and vision problems",
+    "HeadDoctorId": null,
+    "PhoneExtension": "1009"
+  },
+  {
+    "Name": "ENT",
+    "Description": "Ear, Nose and Throat disorders diagnosis and treatment",
+    "HeadDoctorId": null,
+    "PhoneExtension": "1010"
+  },
+  {
+    "Name": "Gynecology",
+    "Description": "Women's reproductive health and obstetrics",
+    "HeadDoctorId": null,
+    "PhoneExtension": "1011"
+  },
+  {
+    "Name": "Dentistry",
+    "Description": "Diagnosis and treatment of oral and dental conditions",
+    "HeadDoctorId": null,
+    "PhoneExtension": "1012"
+  },
+  {
+    "Name": "Urology",
+    "Description": "Diagnosis and treatment of urinary tract and male reproductive disorders",
+    "HeadDoctorId": null,
+    "PhoneExtension": "1013"
+  },
+  {
+    "Name": "Internal Medicine",
+    "Description": "Comprehensive diagnosis and treatment of adult diseases",
+    "HeadDoctorId": null,
+    "PhoneExtension": "1014"
+  },
+  {
+    "Name": "General Surgery",
+    "Description": "Surgical procedures for a wide range of conditions",
+    "HeadDoctorId": null,
+    "PhoneExtension": "1015"
+  }
+]

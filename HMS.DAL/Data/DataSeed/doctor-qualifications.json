@@ -1,0 +1,58 @@
+[
+  {
+    "DoctorId": 1,
+    "Degree": "MD",
+    "Institution": "Cairo University Faculty of Medicine",
+    "YearAwarded": 2003,
+    "Country": "Egypt"
+  },
+  {
+    "DoctorId": 1,
+    "Degree": "Fellowship in Interventional Cardiology",
+    "Institution": "Cleveland Clinic",
+    "YearAwarded": 2007,
+    "Country": "USA"
+  },
+  {
+    "DoctorId": 2,
+    "Degree": "MBBS",
+    "Institution": "Ain Shams University",
+    "YearAwarded": 2009,
+    "Country": "Egypt"
+  },
+  {
+    "DoctorId": 2,
+    "Degree": "PhD in Pediatric Neurology",
+    "Institution": "University of London",
+    "YearAwarded": 2014,
+    "Country": "UK"
+  },
+  {
+    "DoctorId": 3,
+    "Degree": "MD",
+    "Institution": "Alexandria University",
+    "YearAwarded": 2000,
+    "Country": "Egypt"
+  },
+  {
+    "DoctorId": 3,
+    "Degree": "Board Certification in Orthopedic Surgery",
+    "Institution": "American Board of Orthopaedic Surgery",
+    "YearAwarded": 2005,
+    "Country": "USA"
+  },
+  {
+    "DoctorId": 4,
+    "Degree": "MBBS",
+    "Institution": "Cairo University Faculty of Medicine",
+    "YearAwarded": 2014,
+    "Country": "Egypt"
+  },
+  {
+    "DoctorId": 5,
+    "Degree": "MD",
+    "Institution": "Mansoura University",
+    "YearAwarded": 2007,
+    "Country": "Egypt"
+  }
+]

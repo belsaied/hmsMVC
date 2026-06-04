@@ -1,0 +1,42 @@
+[
+  {
+    "PatientId": 1,
+    "Type": "Drugs",
+    "Severity": "Severe",
+    "Description": "Penicillin allergy - causes severe rash and breathing difficulties",
+    "RecordDate": "2024-01-15T10:35:00",
+    "RecordedBy": "Dr. Sarah Ahmed"
+  },
+  {
+    "PatientId": 2,
+    "Type": "Food",
+    "Severity": "Moderate",
+    "Description": "Peanut allergy - causes hives and swelling",
+    "RecordDate": "2024-02-20T14:30:00",
+    "RecordedBy": "Dr. Mohamed Karim"
+  },
+  {
+    "PatientId": 2,
+    "Type": "Environmental",
+    "Severity": "Mild",
+    "Description": "Dust mites - seasonal sneezing and watery eyes",
+    "RecordDate": "2024-02-20T14:35:00",
+    "RecordedBy": "Dr. Mohamed Karim"
+  },
+  {
+    "PatientId": 3,
+    "Type": "Drugs",
+    "Severity": "LifeThreatening",
+    "Description": "Aspirin allergy - anaphylactic shock risk",
+    "RecordDate": "2023-11-05T09:15:00",
+    "RecordedBy": "Dr. Layla Hassan"
+  },
+  {
+    "PatientId": 4,
+    "Type": "Food",
+    "Severity": "Mild",
+    "Description": "Lactose intolerance - digestive discomfort",
+    "RecordDate": "2024-03-10T12:00:00",
+    "RecordedBy": "Dr. Ahmed Farouk"
+  }
+]

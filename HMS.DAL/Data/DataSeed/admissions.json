@@ -1,0 +1,22 @@
+[
+  {
+    "PatientId": 1,
+    "BedId": 2,
+    "AdmittingDoctorId": 1,
+    "AdmissionDate": "2026-03-01T08:00:00",
+    "ExpectedDischargeDate": "2026-03-10",
+    "AdmissionReason": "Chest pain and cardiac monitoring following outpatient diagnosis of stable angina",
+    "Status": "Active",
+    "AdmittedBy": "Nurse Hana Ali"
+  },
+  {
+    "PatientId": 2,
+    "BedId": 7,
+    "AdmittingDoctorId": 2,
+    "AdmissionDate": "2026-03-02T10:30:00",
+    "ExpectedDischargeDate": "2026-03-07",
+    "AdmissionReason": "Seizure episode requiring continuous monitoring and IV medication",
+    "Status": "Active",
+    "AdmittedBy": "Nurse Sara Mohamed"
+  }
+]

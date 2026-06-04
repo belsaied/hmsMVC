@@ -1,0 +1,80 @@
+[
+  {
+    "PatientId": 1,
+    "ConditionType": "Chronic",
+    "Diagnosis": "Type 2 Diabetes Mellitus",
+    "DiagnosisDate": "2020-05-10T00:00:00",
+    "Treatment": "Metformin 500mg twice daily, diet modification",
+    "TreatmentStartDate": "2020-05-10T00:00:00",
+    "ResolutionDate": null,
+    "IsActive": true,
+    "RecordedBy": "Dr. Sarah Ahmed",
+    "RecordedDate": "2024-01-15T10:40:00",
+    "Notes": "Patient shows good compliance with medication and dietary restrictions"
+  },
+  {
+    "PatientId": 1,
+    "ConditionType": "Past",
+    "Diagnosis": "Appendicitis",
+    "DiagnosisDate": "2015-08-20T00:00:00",
+    "Treatment": "Appendectomy performed",
+    "TreatmentStartDate": "2015-08-21T00:00:00",
+    "ResolutionDate": "2015-09-05T00:00:00",
+    "IsActive": false,
+    "RecordedBy": "Dr. Sarah Ahmed",
+    "RecordedDate": "2024-01-15T10:42:00",
+    "Notes": "Successful surgery, no complications"
+  },
+  {
+    "PatientId": 2,
+    "ConditionType": "Chronic",
+    "Diagnosis": "Hypertension",
+    "DiagnosisDate": "2022-03-15T00:00:00",
+    "Treatment": "Lisinopril 10mg daily",
+    "TreatmentStartDate": "2022-03-15T00:00:00",
+    "ResolutionDate": null,
+    "IsActive": true,
+    "RecordedBy": "Dr. Mohamed Karim",
+    "RecordedDate": "2024-02-20T14:45:00",
+    "Notes": "Blood pressure controlled with current medication"
+  },
+  {
+    "PatientId": 3,
+    "ConditionType": "Acute",
+    "Diagnosis": "Acute Bronchitis",
+    "DiagnosisDate": "2024-01-10T00:00:00",
+    "Treatment": "Antibiotics and rest",
+    "TreatmentStartDate": "2024-01-10T00:00:00",
+    "ResolutionDate": "2024-01-24T00:00:00",
+    "IsActive": false,
+    "RecordedBy": "Dr. Layla Hassan",
+    "RecordedDate": "2024-01-10T09:30:00",
+    "Notes": "Full recovery after 2 weeks of treatment"
+  },
+  {
+    "PatientId": 3,
+    "ConditionType": "Chronic",
+    "Diagnosis": "Osteoarthritis - Knee",
+    "DiagnosisDate": "2019-06-12T00:00:00",
+    "Treatment": "NSAIDs as needed, physical therapy",
+    "TreatmentStartDate": "2019-06-12T00:00:00",
+    "ResolutionDate": null,
+    "IsActive": true,
+    "RecordedBy": "Dr. Layla Hassan",
+    "RecordedDate": "2023-11-05T09:25:00",
+    "Notes": "Patient manages pain with medication and regular exercise"
+  },
+  {
+    "PatientId": 4,
+    "ConditionType": "Past",
+    "Diagnosis": "Pneumonia",
+    "DiagnosisDate": "2023-12-05T00:00:00",
+    "Treatment": "Antibiotics and hospitalization",
+    "TreatmentStartDate": "2023-12-05T00:00:00",
+    "ResolutionDate": "2023-12-20T00:00:00",
+    "IsActive": false,
+    "RecordedBy": "Dr. Ahmed Farouk",
+    "RecordedDate": "2024-03-10T12:10:00",
+    "Notes": "Fully recovered, no residual effects"
+  }
+]

@@ -1,0 +1,133 @@
+[
+  {
+    "RoomId": 1,
+    "BedNumber": "A",
+    "BedType": "Standard",
+    "Status": "Available",
+    "Notes": "Near window"
+  },
+  {
+    "RoomId": 1,
+    "BedNumber": "B",
+    "BedType": "Standard",
+    "Status": "Available",
+    "Notes": null
+  },
+  {
+    "RoomId": 1,
+    "BedNumber": "C",
+    "BedType": "Standard",
+    "Status": "Maintenance",
+    "Notes": "Awaiting repair"
+  },
+
+  {
+    "RoomId": 2,
+    "BedNumber": "A",
+    "BedType": "Standard",
+    "Status": "Available",
+    "Notes": null
+  },
+  {
+    "RoomId": 2,
+    "BedNumber": "B",
+    "BedType": "Standard",
+    "Status": "Available",
+    "Notes": null
+  },
+  {
+    "RoomId": 2,
+    "BedNumber": "C",
+    "BedType": "Standard",
+    "Status": "Reserved",
+    "Notes": "Pre-reserved for incoming patient"
+  },
+
+  {
+    "RoomId": 3,
+    "BedNumber": "A",
+    "BedType": "ICU",
+    "Status": "Available",
+    "Notes": "Oxygen supply available"
+  },
+  {
+    "RoomId": 3,
+    "BedNumber": "B",
+    "BedType": "ICU",
+    "Status": "Available",
+    "Notes": null
+  },
+  {
+    "RoomId": 3,
+    "BedNumber": "C",
+    "BedType": "Isolation",
+    "Status": "Maintenance",
+    "Notes": null
+  },
+
+  {
+    "RoomId": 4,
+    "BedNumber": "A",
+    "BedType": "ICU",
+    "Status": "Available",
+    "Notes": null
+  },
+  {
+    "RoomId": 4,
+    "BedNumber": "B",
+    "BedType": "ICU",
+    "Status": "Available",
+    "Notes": null
+  },
+  {
+    "RoomId": 4,
+    "BedNumber": "C",
+    "BedType": "ICU",
+    "Status": "Available",
+    "Notes": null
+  },
+
+  {
+    "RoomId": 5,
+    "BedNumber": "A",
+    "BedType": "Pediatric",
+    "Status": "Available",
+    "Notes": null
+  },
+  {
+    "RoomId": 5,
+    "BedNumber": "B",
+    "BedType": "Pediatric",
+    "Status": "Available",
+    "Notes": null
+  },
+  {
+    "RoomId": 5,
+    "BedNumber": "C",
+    "BedType": "Pediatric",
+    "Status": "Available",
+    "Notes": null
+  },
+
+  {
+    "RoomId": 6,
+    "BedNumber": "A",
+    "BedType": "Pediatric",
+    "Status": "Available",
+    "Notes": null
+  },
+  {
+    "RoomId": 6,
+    "BedNumber": "B",
+    "BedType": "Pediatric",
+    "Status": "Available",
+    "Notes": null
+  },
+  {
+    "RoomId": 6,
+    "BedNumber": "C",
+    "BedType": "Pediatric",
+    "Status": "Available",
+    "Notes": null
+  }
+]

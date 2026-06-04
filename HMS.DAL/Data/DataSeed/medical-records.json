@@ -1,0 +1,72 @@
+[
+  {
+    "PatientId": 1,
+    "DoctorId": 1,
+    "AppointmentId": 1,
+    "VisitDate": "2026-03-10T09:00:00",
+    "ChiefComplaint": "Chest pain and shortness of breath during exercise",
+    "Diagnosis": "Stable Angina Pectoris",
+    "IcdCode": "I20.9",
+    "ClinicalNotes": "Patient reports chest tightness occurring during moderate physical activity. Pain resolves with rest. No radiation to arm or jaw. ECG shows minor ST changes.",
+    "TreatmentPlan": "Prescribe Nitrates for acute episodes. Lifestyle modification advised. Schedule stress test within 2 weeks. Follow-up in 4 weeks.",
+    "FollowUpDate": "2026-04-10",
+    "RecordedAt": "2026-03-10T09:30:00",
+    "IsConfidential": false
+  },
+  {
+    "PatientId": 2,
+    "DoctorId": 2,
+    "AppointmentId": 2,
+    "VisitDate": "2026-03-11T10:00:00",
+    "ChiefComplaint": "Frequent headaches and dizziness",
+    "Diagnosis": "Tension-Type Headache",
+    "IcdCode": "G44.2",
+    "ClinicalNotes": "Patient reports bilateral headaches occurring 3-4 times per week. Associated with screen time and stress. No visual aura. Neurological exam normal.",
+    "TreatmentPlan": "Prescribe Ibuprofen for acute episodes. Advise screen breaks every 30 minutes. Stress management techniques recommended.",
+    "FollowUpDate": "2026-04-11",
+    "RecordedAt": "2026-03-11T10:30:00",
+    "IsConfidential": false
+  },
+  {
+    "PatientId": 3,
+    "DoctorId": 3,
+    "AppointmentId": 3,
+    "VisitDate": "2026-02-20T08:00:00",
+    "ChiefComplaint": "Severe knee pain and difficulty walking",
+    "Diagnosis": "Osteoarthritis of the Knee - Grade II",
+    "IcdCode": "M17.11",
+    "ClinicalNotes": "Patient presents with chronic bilateral knee pain worse in the morning. X-ray shows joint space narrowing. ROM restricted to 90 degrees.",
+    "TreatmentPlan": "NSAIDs course for 4 weeks. Physiotherapy referral. Weight reduction advised. Consider cortisone injection if no improvement.",
+    "FollowUpDate": "2026-03-20",
+    "RecordedAt": "2026-02-20T08:45:00",
+    "IsConfidential": false
+  },
+  {
+    "PatientId": 4,
+    "DoctorId": 1,
+    "AppointmentId": 5,
+    "VisitDate": "2026-03-12T09:30:00",
+    "ChiefComplaint": "High blood pressure readings at home",
+    "Diagnosis": "Essential Hypertension - Uncontrolled",
+    "IcdCode": "I10",
+    "ClinicalNotes": "Patient reports home BP readings consistently above 150/95. Currently on Amlodipine 5mg. Dietary compliance poor. No end-organ damage signs.",
+    "TreatmentPlan": "Increase Amlodipine to 10mg. DASH diet counselling. Sodium restriction below 2g/day. BP monitoring diary. Follow-up in 3 weeks.",
+    "FollowUpDate": "2026-04-02",
+    "RecordedAt": "2026-03-12T10:00:00",
+    "IsConfidential": false
+  },
+  {
+    "PatientId": 1,
+    "DoctorId": 1,
+    "AppointmentId": null,
+    "VisitDate": "2026-01-15T11:00:00",
+    "ChiefComplaint": "Routine cardiac follow-up for diabetes management",
+    "Diagnosis": "Type 2 Diabetes with Cardiovascular Risk",
+    "IcdCode": "E11.65",
+    "ClinicalNotes": "Annual cardiac review for known diabetic patient. HbA1c 7.8% - slightly above target. Lipid profile within normal limits. Foot exam normal.",
+    "TreatmentPlan": "Continue Metformin. Add Empagliflozin for cardioprotective benefit. Dietitian referral. Annual eye exam due.",
+    "FollowUpDate": "2026-07-15",
+    "RecordedAt": "2026-01-15T11:30:00",
+    "IsConfidential": false
+  }
+]

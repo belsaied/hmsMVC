@@ -1,0 +1,68 @@
+[
+  {
+    "MedicalRecordId": 1,
+    "PatientId": 1,
+    "DoctorId": 1,
+    "TestName": "Electrocardiogram (ECG)",
+    "TestCode": "LAB-ECG-001",
+    "Priority": "Urgent",
+    "Status": "Completed",
+    "OrderedAt": "2026-03-10T09:30:00",
+    "Notes": "Evaluate ST changes noted during physical exam. Patient reports exertional chest pain."
+  },
+  {
+    "MedicalRecordId": 1,
+    "PatientId": 1,
+    "DoctorId": 1,
+    "TestName": "Lipid Profile",
+    "TestCode": "LAB-LIP-001",
+    "Priority": "Routine",
+    "Status": "Completed",
+    "OrderedAt": "2026-03-10T09:32:00",
+    "Notes": "Baseline lipid check for cardiac risk assessment."
+  },
+  {
+    "MedicalRecordId": 2,
+    "PatientId": 2,
+    "DoctorId": 2,
+    "TestName": "Complete Blood Count (CBC)",
+    "TestCode": "LAB-CBC-001",
+    "Priority": "Routine",
+    "Status": "Completed",
+    "OrderedAt": "2026-03-11T10:30:00",
+    "Notes": "Rule out anaemia as cause of headaches and dizziness."
+  },
+  {
+    "MedicalRecordId": 3,
+    "PatientId": 3,
+    "DoctorId": 3,
+    "TestName": "Knee X-Ray (Bilateral)",
+    "TestCode": "LAB-XRAY-K01",
+    "Priority": "Routine",
+    "Status": "Completed",
+    "OrderedAt": "2026-02-20T08:45:00",
+    "Notes": "Assess joint space narrowing and osteophyte formation."
+  },
+  {
+    "MedicalRecordId": 4,
+    "PatientId": 4,
+    "DoctorId": 1,
+    "TestName": "Renal Function Tests",
+    "TestCode": "LAB-RFT-001",
+    "Priority": "Urgent",
+    "Status": "Pending",
+    "OrderedAt": "2026-03-12T10:00:00",
+    "Notes": "Assess renal function before increasing antihypertensive dose. Patient has uncontrolled hypertension."
+  },
+  {
+    "MedicalRecordId": 5,
+    "PatientId": 1,
+    "DoctorId": 1,
+    "TestName": "HbA1c (Glycated Haemoglobin)",
+    "TestCode": "LAB-HBA-001",
+    "Priority": "Routine",
+    "Status": "Completed",
+    "OrderedAt": "2026-01-15T11:30:00",
+    "Notes": "Annual diabetes monitoring. Previous HbA1c was 7.8%."
+  }
+]

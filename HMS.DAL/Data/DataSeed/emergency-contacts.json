@@ -1,0 +1,68 @@
+[
+  {
+    "PatientId": 1,
+    "Name": "Nadia Hassan",
+    "Relationship": "Spouse",
+    "Phone": "01087654321",
+    "Email": "nadia.hassan@email.com",
+    "IsPrimaryContact": true,
+    "Notes": "Available 24/7",
+    "CreatedAt": "2024-01-15T10:45:00",
+    "UpdatedAt": null
+  },
+  {
+    "PatientId": 1,
+    "Name": "Youssef Hassan",
+    "Relationship": "Child",
+    "Phone": "01123456780",
+    "Email": "youssef.hassan@email.com",
+    "IsPrimaryContact": false,
+    "Notes": "Contact if spouse unavailable",
+    "CreatedAt": "2024-01-15T10:46:00",
+    "UpdatedAt": null
+  },
+  {
+    "PatientId": 2,
+    "Name": "Hossam Mohamed",
+    "Relationship": "Father",
+    "Phone": "01011223344",
+    "Email": "hossam.mohamed@email.com",
+    "IsPrimaryContact": true,
+    "Notes": null,
+    "CreatedAt": "2024-02-20T14:50:00",
+    "UpdatedAt": null
+  },
+  {
+    "PatientId": 3,
+    "Name": "Salma Ibrahim",
+    "Relationship": "Spouse",
+    "Phone": "01055667788",
+    "Email": "salma.ibrahim@email.com",
+    "IsPrimaryContact": true,
+    "Notes": "Prefers text messages",
+    "CreatedAt": "2023-11-05T09:35:00",
+    "UpdatedAt": "2024-01-10T15:00:00"
+  },
+  {
+    "PatientId": 4,
+    "Name": "Mariam Ali",
+    "Relationship": "Mother",
+    "Phone": "01099887766",
+    "Email": "mariam.ali@email.com",
+    "IsPrimaryContact": true,
+    "Notes": null,
+    "CreatedAt": "2024-03-10T12:15:00",
+    "UpdatedAt": null
+  },
+  {
+    "PatientId": 5,
+    "Name": "Amira Mahmoud",
+    "Relationship": "Spouse",
+    "Phone": "01077665544",
+    "Email": "amira.mahmoud@email.com",
+    "IsPrimaryContact": true,
+    "Notes": "Works night shifts",
+    "CreatedAt": "2023-08-12T13:30:00",
+    "UpdatedAt": null
+  }
+]

@@ -1,0 +1,8 @@
+[
+  { "WardId": 1, "RoomNumber": "101", "RoomType": "General",     "Capacity": 3, "IsActive": true, "Notes": null },
+  { "WardId": 1, "RoomNumber": "102", "RoomType": "SemiPrivate", "Capacity": 3, "IsActive": true, "Notes": null },
+  { "WardId": 2, "RoomNumber": "ICU-A", "RoomType": "Isolation", "Capacity": 3, "IsActive": true, "Notes": "Negative pressure room" },
+  { "WardId": 2, "RoomNumber": "ICU-B", "RoomType": "Isolation", "Capacity": 3, "IsActive": true, "Notes": null },
+  { "WardId": 3, "RoomNumber": "P-01",  "RoomType": "General",   "Capacity": 3, "IsActive": true, "Notes": "Pediatric play area nearby" },
+  { "WardId": 3, "RoomNumber": "P-02",  "RoomType": "Private",   "Capacity": 3, "IsActive": true, "Notes": null }
+]

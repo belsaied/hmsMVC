@@ -1,0 +1,72 @@
+[
+  {
+    "MedicalRecordId": 1,
+    "PatientId": 1,
+    "Temperature": 37.1,
+    "BloodPressureSystolic": 145,
+    "BloodPressureDiastolic": 90,
+    "HeartRate": 88,
+    "RespiratoryRate": 18,
+    "OxygenSaturation": 97.5,
+    "Weight": 85.0,
+    "Height": 175.0,
+    "RecordedAt": "2026-03-10T09:05:00",
+    "RecordedBy": "Nurse Hana Ali"
+  },
+  {
+    "MedicalRecordId": 2,
+    "PatientId": 2,
+    "Temperature": 36.8,
+    "BloodPressureSystolic": 118,
+    "BloodPressureDiastolic": 76,
+    "HeartRate": 72,
+    "RespiratoryRate": 16,
+    "OxygenSaturation": 99.0,
+    "Weight": 62.5,
+    "Height": 163.0,
+    "RecordedAt": "2026-03-11T10:05:00",
+    "RecordedBy": "Nurse Sara Mohamed"
+  },
+  {
+    "MedicalRecordId": 3,
+    "PatientId": 3,
+    "Temperature": 36.9,
+    "BloodPressureSystolic": 130,
+    "BloodPressureDiastolic": 82,
+    "HeartRate": 78,
+    "RespiratoryRate": 17,
+    "OxygenSaturation": 98.0,
+    "Weight": 92.0,
+    "Height": 178.0,
+    "RecordedAt": "2026-02-20T08:10:00",
+    "RecordedBy": "Nurse Hana Ali"
+  },
+  {
+    "MedicalRecordId": 4,
+    "PatientId": 4,
+    "Temperature": 37.0,
+    "BloodPressureSystolic": 158,
+    "BloodPressureDiastolic": 97,
+    "HeartRate": 82,
+    "RespiratoryRate": 18,
+    "OxygenSaturation": 98.5,
+    "Weight": 78.0,
+    "Height": 165.0,
+    "RecordedAt": "2026-03-12T09:35:00",
+    "RecordedBy": "Nurse Sara Mohamed"
+  },
+  {
+    "MedicalRecordId": 5,
+    "PatientId": 1,
+    "Temperature": 36.7,
+    "BloodPressureSystolic": 138,
+    "BloodPressureDiastolic": 88,
+    "HeartRate": 80,
+    "RespiratoryRate": 16,
+    "OxygenSaturation": 98.0,
+    "Weight": 84.0,
+    "Height": 175.0,
+    "RecordedAt": "2026-01-15T11:05:00",
+    "RecordedBy": "Nurse Hana Ali"
+  }
+]

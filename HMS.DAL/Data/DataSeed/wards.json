@@ -1,0 +1,26 @@
+[
+  {
+    "Name": "General Medicine",
+    "WardType": "General",
+    "Floor": 1,
+    "PhoneExtension": "2001",
+    "Description": "General medical ward for adult patients",
+    "IsActive": true
+  },
+  {
+    "Name": "ICU",
+    "WardType": "ICU",
+    "Floor": 2,
+    "PhoneExtension": "2002",
+    "Description": "Intensive Care Unit for critical patients",
+    "IsActive": true
+  },
+  {
+    "Name": "Pediatrics",
+    "WardType": "Pediatrics",
+    "Floor": 3,
+    "PhoneExtension": "2003",
+    "Description": "Pediatric ward for children and adolescents",
+    "IsActive": true
+  }
+]

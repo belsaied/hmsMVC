@@ -1,0 +1,64 @@
+﻿[
+  {
+    "PatientId": 1,
+    "DoctorId": 1,
+    "AppointmentDate": "2026-03-10",
+    "StartTime": "09:00:00",
+    "EndTime": "09:30:00",
+    "Status": "Confirmed",
+    "Type": "InPerson",
+    "ReasonForVisit": "Annual cardiac checkup",
+    "ConfirmationNumber": "APT-20260310-A1B2C3",
+    "BookedAt": "2026-03-01T10:00:00"
+  },
+  {
+    "PatientId": 2,
+    "DoctorId": 2,
+    "AppointmentDate": "2026-03-11",
+    "StartTime": "10:00:00",
+    "EndTime": "10:30:00",
+    "Status": "Scheduled",
+    "Type": "Video",
+    "ReasonForVisit": "Follow-up pediatric consultation",
+    "ConfirmationNumber": "APT-20260311-D4E5F6",
+    "BookedAt": "2026-03-02T09:00:00"
+  },
+  {
+    "PatientId": 3,
+    "DoctorId": 3,
+    "AppointmentDate": "2026-02-20",
+    "StartTime": "08:00:00",
+    "EndTime": "08:45:00",
+    "Status": "Completed",
+    "Type": "InPerson",
+    "ReasonForVisit": "Knee pain evaluation",
+    "Notes": "Prescribed NSAIDs. Follow-up in 4 weeks.",
+    "ConfirmationNumber": "APT-20260220-G7H8I9",
+    "BookedAt": "2026-02-10T11:00:00"
+  },
+  {
+    "PatientId": 1,
+    "DoctorId": 5,
+    "AppointmentDate": "2026-02-15",
+    "StartTime": "00:00:00",
+    "EndTime": "00:20:00",
+    "Status": "Cancelled",
+    "Type": "InPerson",
+    "ReasonForVisit": "Emergency triage",
+    "CancellationReason": "Patient recovered before appointment",
+    "ConfirmationNumber": "APT-20260215-J1K2L3",
+    "BookedAt": "2026-02-14T20:00:00"
+  },
+  {
+    "PatientId": 4,
+    "DoctorId": 1,
+    "AppointmentDate": "2026-03-12",
+    "StartTime": "09:30:00",
+    "EndTime": "10:00:00",
+    "Status": "Scheduled",
+    "Type": "Phone",
+    "ReasonForVisit": "Blood pressure review",
+    "ConfirmationNumber": "APT-20260312-M4N5O6",
+    "BookedAt": "2026-03-05T08:00:00"
+  }
+]

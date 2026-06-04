@@ -1,0 +1,102 @@
+[
+  {
+    "FirstName": "Ahmed",
+    "LastName": "Hassan",
+    "DateOfBirth": "1985-03-15T00:00:00",
+    "Gender": "Male",
+    "BloodType": "APositive",
+    "NationalId": "28503151234567",
+    "MedicalRecordNumber": "MRN001",
+    "Phone": "01012345678",
+    "Email": "ahmed.hassan@email.com",
+    "PictureUrl": "images/patients/ahmed.hassan.jpeg",
+    "Address": {
+      "Street": "15 Tahrir Street",
+      "City": "Cairo",
+      "Country": "Egypt",
+      "PostalCode": "11511"
+    },
+    "Status": "Active",
+    "RegistrationDate": "2024-01-15T10:30:00"
+  },
+  {
+    "FirstName": "Fatma",
+    "LastName": "Mohamed",
+    "DateOfBirth": "1990-07-22T00:00:00",
+    "Gender": "Female",
+    "BloodType": "ONegative",
+    "NationalId": "29007221234568",
+    "MedicalRecordNumber": "MRN002",
+    "Phone": "01098765432",
+    "Email": "fatma.mohamed@email.com",
+    "PictureUrl": "images/patients/fatma.mohamed.jpeg",
+    "Address": {
+      "Street": "25 Ramses Street",
+      "City": "Cairo",
+      "Country": "Egypt",
+      "PostalCode": "11522"
+    },
+    "Status": "Active",
+    "RegistrationDate": "2024-02-20T14:15:00"
+  },
+  {
+    "FirstName": "Omar",
+    "LastName": "Ibrahim",
+    "DateOfBirth": "1978-11-10T00:00:00",
+    "Gender": "Male",
+    "BloodType": "BPositive",
+    "NationalId": "27811101234569",
+    "MedicalRecordNumber": "MRN003",
+    "Phone": "01123456789",
+    "Email": "omar.ibrahim@email.com",
+    "PictureUrl": "images/patients/omar.ibrahim.jpeg",
+    "Address": {
+      "Street": "42 Nile Corniche",
+      "City": "Cairo",
+      "Country": "Egypt",
+      "PostalCode": "11533"
+    },
+    "Status": "Active",
+    "RegistrationDate": "2023-11-05T09:00:00"
+  },
+  {
+    "FirstName": "Mona",
+    "LastName": "Ali",
+    "DateOfBirth": "1995-05-18T00:00:00",
+    "Gender": "Female",
+    "BloodType": "ABPositive",
+    "NationalId": "29505181234570",
+    "MedicalRecordNumber": "MRN004",
+    "Phone": "01234567890",
+    "Email": "mona.ali@email.com",
+    "PictureUrl": "images/patients/mona.ali.jpeg",
+    "Address": {
+      "Street": "8 Zamalek Street",
+      "City": "Cairo",
+      "Country": "Egypt",
+      "PostalCode": "11544"
+    },
+    "Status": "Active",
+    "RegistrationDate": "2024-03-10T11:45:00"
+  },
+  {
+    "FirstName": "Khaled",
+    "LastName": "Mahmoud",
+    "DateOfBirth": "1982-09-25T00:00:00",
+    "Gender": "Male",
+    "BloodType": "OPositive",
+    "NationalId": "28209251234571",
+    "MedicalRecordNumber": "MRN005",
+    "Phone": "01098123456",
+    "Email": "khaled.mahmoud@email.com",
+    "PictureUrl": "images/patients/khaled.mahmoud.jpeg",
+    "Address": {
+      "Street": "33 Heliopolis Street",
+      "City": "Cairo",
+      "Country": "Egypt",
+      "PostalCode": "11555"
+    },
+    "Status": "Inactive",
+    "RegistrationDate": "2023-08-12T13:20:00"
+  }
+]
