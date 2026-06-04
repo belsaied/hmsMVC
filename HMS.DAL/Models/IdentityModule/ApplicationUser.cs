@@ -12,7 +12,7 @@ namespace HMS.DAL.Models.IdentityModule
         public int? PatientId { get; set; }
 
         public int FailedLoginAttempts { get; set; } = 0;
-        public DateTime? LockoutEnd { get; set; }
+
         public DateTime? LastLoginAt { get; set; }
 
         public bool IsEmailVerified { get; set; } = false;

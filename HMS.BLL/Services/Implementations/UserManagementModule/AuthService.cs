@@ -196,15 +196,15 @@ namespace HMS.BLL.Services.Implementations.UserManagementModule
             var user = await _userManager.FindByEmailAsync(dto.Email)
                        ?? throw new UnauthorizedException("Invalid email or password.");
 
-            if (user.LockoutEnd.HasValue && user.LockoutEnd > DateTime.UtcNow)
-                throw new AccountLockedException(user.LockoutEnd.Value);
+            if (user.LockoutEnd.HasValue && user.LockoutEnd > DateTimeOffset.UtcNow)
+                throw new AccountLockedException(user.LockoutEnd.Value.DateTime);
 
             var passwordOk = await _userManager.CheckPasswordAsync(user, dto.Password);
             if (!passwordOk)
             {
                 user.FailedLoginAttempts++;
                 if (user.FailedLoginAttempts >= 5)
-                    user.LockoutEnd = DateTime.UtcNow.AddMinutes(15);
+                    user.LockoutEnd = DateTimeOffset.UtcNow.AddMinutes(15);
                 await _userManager.UpdateAsync(user);
                 await _auditService.LogAsync(user.Id, "LOGIN_FAILED");
                 throw new UnauthorizedException("Invalid email or password.");
@@ -238,8 +238,8 @@ namespace HMS.BLL.Services.Implementations.UserManagementModule
             if (user.RefreshTokenExpiry < DateTime.UtcNow)
                 throw new UnauthorizedException("Refresh token has expired.");
 
-            if (user.LockoutEnd.HasValue && user.LockoutEnd > DateTime.UtcNow)
-                throw new AccountLockedException(user.LockoutEnd.Value);
+            if (user.LockoutEnd.HasValue && user.LockoutEnd > DateTimeOffset.UtcNow)
+                throw new AccountLockedException(user.LockoutEnd.Value.DateTime);
 
             var (rawRefresh, hashRefresh) = GenerateRefreshToken();
             user.RefreshTokenHash = hashRefresh;

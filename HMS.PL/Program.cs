@@ -1,5 +1,4 @@
-﻿// HMS.PL/Program.cs
-using Hangfire;
+﻿using Hangfire;
 using HMS.PL.Extensions;
 using HMS.PL.Factories;
 using HMS.PL.Hubs;
@@ -34,7 +33,6 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
 
-app.UseSwaggerMiddlewares();           // swagger available in dev
 app.UseHangfireDashboard("/hangfire");
 
 await app.SeedDatabaseAsync();
@@ -55,7 +53,7 @@ app.MapHub<AppointmentHub>("/hubs/appointments");
 app.MapHub<WardHub>("/hubs/beds");
 app.MapHub<NotificationHub>("/hubs/notifications");
 
-// ── MVC Route ──────────────────────────────────────────────────────────────
+// ── MVC Route ─────────────────────────────────────────────────────────────
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

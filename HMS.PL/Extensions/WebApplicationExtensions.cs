@@ -25,18 +25,6 @@ namespace HMS.PL.Extensions
             return app;
         }
 
-        public static WebApplication UseSwaggerMiddlewares(this WebApplication app)
-        {
-            app.MapOpenApi();
-            app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Hospital API v1");
-                c.RoutePrefix = "swagger";
-            });
-            return app;
-        }
-
         public static WebApplication RegisterBillingRecurringJobs(this WebApplication app)
         {
             RecurringJob.AddOrUpdate<MarkOverdueInvoicesJob>(

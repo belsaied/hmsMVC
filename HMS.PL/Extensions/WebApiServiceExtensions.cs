@@ -1,5 +1,4 @@
 ﻿using HMS.PL.Factories;
-using Microsoft.AspNetCore.Mvc;
 
 namespace HMS.PL.Extensions
 {
@@ -38,11 +37,6 @@ namespace HMS.PL.Extensions
                 });
             });
 
-            services.Configure<ApiBehaviorOptions>(options =>
-            {
-                options.InvalidModelStateResponseFactory =
-                    ApiResponseFactory.GenerateApiValidationResponse;
-            });
             return services;
         }
     }

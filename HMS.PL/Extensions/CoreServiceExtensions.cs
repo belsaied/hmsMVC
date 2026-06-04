@@ -64,38 +64,41 @@ namespace HMS.PL.Extensions
             services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<INotificationPreferenceService, NotificationPreferenceService>();
             services.AddScoped<INotificationLogService, NotificationLogService>();
-            // ── AutoMapper ────────────────────────────────────────────────────
-            services.AddAutoMapper(typeof(HMS.BLL.Services.ServiceAssemblyReference).Assembly);
+
+            // ── AutoMapper (v16 API) ───────────────────────────────────────────
+            services.AddAutoMapper(cfg =>
+                cfg.AddMaps(typeof(HMS.BLL.Services.ServiceAssemblyReference).Assembly));
 
             // ── Service Manager (factory delegate pattern) ────────────────────
-            services.AddScoped<IServiceManager, ServiceManagerWithFactoryDelegate>(sp => new ServiceManagerWithFactoryDelegate(
-                () => sp.GetRequiredService<IPatientService>(),
-                () => sp.GetRequiredService<IAllergyService>(),
-                () => sp.GetRequiredService<IEmergencyContactService>(),
-                () => sp.GetRequiredService<IMedicalHistoryService>(),
-                () => sp.GetRequiredService<IDoctorService>(),
-                () => sp.GetRequiredService<IDepartmentService>(),
-                () => sp.GetRequiredService<IAppointmentService>(),
-                () => sp.GetRequiredService<IMedicalRecordService>(),
-                () => sp.GetRequiredService<IVitalSignService>(),
-                () => sp.GetRequiredService<IPrescriptionService>(),
-                () => sp.GetRequiredService<ILabOrderService>(),
-                () => sp.GetRequiredService<IWardService>(),
-                () => sp.GetRequiredService<IBedService>(),
-                () => sp.GetRequiredService<IAdmissionService>(),
-                () => sp.GetRequiredService<IAuthService>(),
-                () => sp.GetRequiredService<IAuditService>(),
-                () => sp.GetRequiredService<IEmailService>(),
-                () => sp.GetRequiredService<IInvoiceService>(),
-                () => sp.GetRequiredService<IPaymentService>(),
-                () => sp.GetRequiredService<IInsuranceService>(),
-                () => sp.GetRequiredService<IReportingService>(),
-                () => sp.GetRequiredService<INotificationService>(),
-                () => sp.GetRequiredService<INotificationPreferenceService>(),
-                () => sp.GetRequiredService<INotificationLogService>(),
-                () => sp.GetRequiredService<IAdminNotificationLogService>(),
-                () => sp.GetRequiredService<ICacheService>()
-            ));
+            services.AddScoped<IServiceManager, ServiceManagerWithFactoryDelegate>(sp =>
+                new ServiceManagerWithFactoryDelegate(
+                    () => sp.GetRequiredService<IPatientService>(),
+                    () => sp.GetRequiredService<IAllergyService>(),
+                    () => sp.GetRequiredService<IEmergencyContactService>(),
+                    () => sp.GetRequiredService<IMedicalHistoryService>(),
+                    () => sp.GetRequiredService<IDoctorService>(),
+                    () => sp.GetRequiredService<IDepartmentService>(),
+                    () => sp.GetRequiredService<IAppointmentService>(),
+                    () => sp.GetRequiredService<IMedicalRecordService>(),
+                    () => sp.GetRequiredService<IVitalSignService>(),
+                    () => sp.GetRequiredService<IPrescriptionService>(),
+                    () => sp.GetRequiredService<ILabOrderService>(),
+                    () => sp.GetRequiredService<IWardService>(),
+                    () => sp.GetRequiredService<IBedService>(),
+                    () => sp.GetRequiredService<IAdmissionService>(),
+                    () => sp.GetRequiredService<IAuthService>(),
+                    () => sp.GetRequiredService<IAuditService>(),
+                    () => sp.GetRequiredService<IEmailService>(),
+                    () => sp.GetRequiredService<IInvoiceService>(),
+                    () => sp.GetRequiredService<IPaymentService>(),
+                    () => sp.GetRequiredService<IInsuranceService>(),
+                    () => sp.GetRequiredService<IReportingService>(),
+                    () => sp.GetRequiredService<INotificationService>(),
+                    () => sp.GetRequiredService<INotificationPreferenceService>(),
+                    () => sp.GetRequiredService<INotificationLogService>(),
+                    () => sp.GetRequiredService<IAdminNotificationLogService>(),
+                    () => sp.GetRequiredService<ICacheService>()
+                ));
 
             // ── Authorization ─────────────────────────────────────────────────
             services.AddScoped<IAuthorizationHandler, PatientOwnershipHandler>();
