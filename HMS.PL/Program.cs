@@ -56,6 +56,6 @@ app.MapHub<NotificationHub>("/hubs/notifications");
 // ── MVC Route ─────────────────────────────────────────────────────────────
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Dashboard}/{action=Index}/{id?}");
 
 app.Run();

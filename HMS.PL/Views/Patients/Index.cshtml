@@ -1,0 +1,175 @@
+﻿@using HMS.BLL.Shared
+@using HMS.BLL.Shared.Dtos.PatientModule.PatientDtos
+@model PaginatedResult<PatientResultDto>
+
+@{
+    ViewData["Title"] = "Patients";
+}
+
+@section PageHeader {
+    <div class="row mb-2">
+        <div class="col-sm-6">
+            <h1 class="m-0">Patients</h1>
+        </div>
+        <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item active">Patients</li>
+            </ol>
+        </div>
+    </div>
+}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">All Patients</h3>
+        <div class="card-tools">
+            <a asp-action="Create" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus"></i> Add Patient
+            </a>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <!-- Search / Filter Bar -->
+        <form method="get" asp-action="Index" class="mb-3">
+            <div class="row">
+                <div class="col-md-5">
+                    <div class="input-group">
+                        <input type="text" name="search" value="@ViewBag.Search"
+                               class="form-control" placeholder="Search by name..." />
+                        <div class="input-group-append">
+                            <button type="submit" class="btn btn-default">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select name="status" asp-items="ViewBag.StatusList"
+                            class="form-control select2" onchange="this.form.submit()">
+                        <option value="">All Statuses</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <a asp-action="Index" class="btn btn-default">
+                        <i class="fas fa-times"></i> Clear
+                    </a>
+                </div>
+            </div>
+        </form>
+
+        <table class="table table-bordered table-hover table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th>MRN</th>
+                    <th>Name</th>
+                    <th>Age / Gender</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>Status</th>
+                    <th style="width:130px">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in Model.Data)
+                {
+                    <tr>
+                        <td><code>@p.MedicalRecordNumber</code></td>
+                        <td>@p.FullName</td>
+                        <td>@p.Age yr / @p.Gender</td>
+                        <td>@p.Phone</td>
+                        <td>@p.Email</td>
+                        <td>
+                            @{
+                                var badge = p.Status switch
+                                {
+                                    "Active" => "badge-success",
+                                    "Inactive" => "badge-secondary",
+                                    "Deceased" => "badge-dark",
+                                    _ => "badge-warning"
+                                };
+                            }
+                            <span class="badge @badge">@p.Status</span>
+                        </td>
+                        <td>
+                            <a asp-action="Details" asp-route-id="@p.Id"
+                               class="btn btn-info btn-xs" title="Details">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a asp-action="Edit" asp-route-id="@p.Id"
+                               class="btn btn-warning btn-xs" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            @if (p.Status == "Active")
+                            {
+                                <form asp-action="Deactivate" asp-route-id="@p.Id"
+                                      method="post" class="d-inline"
+                                      onsubmit="return confirm('Deactivate this patient?')">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-danger btn-xs" title="Deactivate">
+                                        <i class="fas fa-ban"></i>
+                                    </button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Data.Any())
+                {
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">No patients found.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination Footer -->
+    <div class="card-footer clearfix">
+        <span class="float-left text-muted">
+            Showing @((Model.PageIndex - 1) * Model.PageSize + 1)–@(Math.Min(Model.PageIndex * Model.PageSize, Model.TotalCount))
+            of @Model.TotalCount patients
+        </span>
+        @{
+            int totalPages = (int)Math.Ceiling((double)Model.TotalCount / Model.PageSize);
+        }
+        @if (totalPages > 1)
+        {
+            <ul class="pagination pagination-sm float-right mb-0">
+                <li class="page-item @(Model.PageIndex == 1 ? "disabled" : "")">
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-pageIndex="@(Model.PageIndex - 1)"
+                       asp-route-search="@ViewBag.Search"
+                       asp-route-status="@ViewBag.Status">«</a>
+                </li>
+                @for (int i = 1; i <= totalPages; i++)
+                {
+                    <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-pageIndex="@i"
+                           asp-route-search="@ViewBag.Search"
+                           asp-route-status="@ViewBag.Status">@i</a>
+                    </li>
+                }
+                <li class="page-item @(Model.PageIndex == totalPages ? "disabled" : "")">
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-pageIndex="@(Model.PageIndex + 1)"
+                       asp-route-search="@ViewBag.Search"
+                       asp-route-status="@ViewBag.Status">»</a>
+                </li>
+            </ul>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('.select2').select2({ theme: 'classic', width: '100%' });
+        });
+    </script>
+}

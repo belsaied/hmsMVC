@@ -241,14 +241,19 @@ namespace Services.Implementations.BillingModule
                    ?? throw new InvoiceNotFoundException(invoiceId);
         }
 
-        private static InvoiceLineItem MapToLineItem(AddLineItemRequest r) => new()
+        private static InvoiceLineItem MapToLineItem(AddLineItemRequest r)
         {
-            Description = r.Description,
-            LineItemType = r.LineItemType,
-            ReferenceId = r.ReferenceId,
-            Quantity = r.Quantity,
-            UnitPrice = r.UnitPrice
-        };
+            var li = new InvoiceLineItem
+            {
+                Description = r.Description,
+                LineItemType = r.LineItemType,
+                ReferenceId = r.ReferenceId,
+                Quantity = r.Quantity,
+                UnitPrice = r.UnitPrice
+            };
+            li.RecalculateTotal(); 
+            return li;
+        }
 
         private Task<InvoiceResultDto> BuildDetailDtoAsync(Invoice invoice, string patientName)
         {

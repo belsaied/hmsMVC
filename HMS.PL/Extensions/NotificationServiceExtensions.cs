@@ -1,4 +1,4 @@
-﻿using HMS.BLL.Services.Implementations.NotificationModule;
+﻿using HMS.BLL.Services.Implementations.BillingModule;
 using HMS.BLL.Services.Implementations.NotificationModule.Jobs;
 using HMS.BLL.ServicesAbstraction.Contracts.NotificationService;
 using HMS.BLL.Shared.Common.NotificationSettings;
@@ -37,7 +37,8 @@ namespace HMS.PL.Extensions
             services.AddTransient<AppointmentReminderJob>();
             services.AddTransient<PrescriptionExpiryWarningJob>();
             services.AddTransient<InvoiceOverdueReminderJob>();
-
+            services.AddTransient<MarkOverdueInvoicesJob>();
+            services.AddTransient<InvoiceExpiryNotificationJob>();
             return services;
         }
     }

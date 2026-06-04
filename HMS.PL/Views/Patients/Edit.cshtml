@@ -1,0 +1,129 @@
+﻿@using HMS.BLL.Shared.Dtos.PatientModule.PatientDtos
+@model UpdatePatientDto
+
+@{
+    ViewData["Title"] = "Edit Patient";
+}
+
+@section PageHeader {
+    <div class="row mb-2">
+        <div class="col-sm-6">
+            <h1 class="m-0">Edit — @ViewBag.PatientName</h1>
+        </div>
+        <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a asp-action="Index">Patients</a></li>
+                <li class="breadcrumb-item active">Edit</li>
+            </ol>
+        </div>
+    </div>
+}
+
+<div class="card card-warning">
+    <div class="card-header">
+        <h3 class="card-title">Update Patient Information</h3>
+    </div>
+
+    <form asp-action="Edit" asp-route-id="@ViewBag.PatientId" method="post">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="All" class="alert alert-danger mx-3 mt-3"
+             style="display:@(ViewContext.ModelState.IsValid ? "none" : "block")"></div>
+
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="FirstName"></label>
+                        <input asp-for="FirstName" class="form-control" />
+                        <span asp-validation-for="FirstName" class="text-danger small"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="LastName"></label>
+                        <input asp-for="LastName" class="form-control" />
+                        <span asp-validation-for="LastName" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="Phone"></label>
+                        <input asp-for="Phone" class="form-control" />
+                        <span asp-validation-for="Phone" class="text-danger small"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="Email"></label>
+                        <input asp-for="Email" type="email" class="form-control" />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Status"></label>
+                <select asp-for="Status" asp-items="ViewBag.StatusList" class="form-control select2">
+                    <option value="">— Select Status —</option>
+                </select>
+            </div>
+
+            <!-- Address -->
+            <div class="card card-secondary card-outline mt-3">
+                <div class="card-header"><h5 class="card-title mb-0">Address</h5></div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Address!.Street">Street</label>
+                                <input asp-for="Address!.Street" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Address!.City">City</label>
+                                <input asp-for="Address!.City" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Address!.Country">Country</label>
+                                <input asp-for="Address!.Country" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Address!.PostalCode">Postal Code</label>
+                                <input asp-for="Address!.PostalCode" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer">
+            <button type="submit" class="btn btn-warning">
+                <i class="fas fa-save"></i> Save Changes
+            </button>
+            <a asp-action="Details" asp-route-id="@ViewBag.PatientId" class="btn btn-default ml-2">
+                <i class="fas fa-times"></i> Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function () {
+            $('.select2').select2({ theme: 'classic', width: '100%' });
+        });
+    </script>
+}

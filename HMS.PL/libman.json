@@ -7,6 +7,11 @@
       "destination": "wwwroot/lib/bootstrap"
     },
     {
+      "provider": "unpkg",
+      "library": "admin-lte@3.2.0",
+      "destination": "wwwroot/lib/adminlte"
+    },
+    {
       "library": "font-awesome@6.5.2",
       "destination": "wwwroot/lib/font-awesome"
     },
@@ -25,6 +30,18 @@
     {
       "library": "flatpickr@4.6.13",
       "destination": "wwwroot/lib/flatpickr"
+    },
+    {
+      "library": "jquery@3.7.1",
+      "destination": "wwwroot/lib/jquery"
+    },
+    {
+      "library": "jquery-validation@1.21.0",
+      "destination": "wwwroot/lib/jquery-validation"
+    },
+    {
+      "library": "jquery-validation-unobtrusive@4.0.0",
+      "destination": "wwwroot/lib/jquery-validation-unobtrusive"
     }
   ]
 }

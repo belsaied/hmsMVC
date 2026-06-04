@@ -1,0 +1,229 @@
+﻿@using HMS.BLL.Shared.Dtos.PatientModule.PatientDtos
+@model PatientWithDetailsResultDto
+
+@{
+    ViewData["Title"] = "Patient — " + Model.FullName;
+}
+
+@section PageHeader {
+    <div class="row mb-2">
+        <div class="col-sm-6">
+            <h1 class="m-0">Patient Details</h1>
+        </div>
+        <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a asp-action="Index">Patients</a></li>
+                <li class="breadcrumb-item active">@Model.FullName</li>
+            </ol>
+        </div>
+    </div>
+}
+
+<div class="row">
+    <!-- Left column: profile card -->
+    <div class="col-md-3">
+        <div class="card card-primary card-outline">
+            <div class="card-body box-profile">
+                <div class="text-center">
+                    @if (!string.IsNullOrEmpty(Model.PictureUrl))
+                    {
+                        <img src="@Model.PictureUrl" class="profile-user-img img-fluid img-circle"
+                             alt="Patient picture" />
+                    }
+                    else
+                    {
+                        <div class="profile-user-img img-fluid img-circle bg-secondary d-flex align-items-center justify-content-center"
+                             style="width:90px;height:90px;margin:0 auto">
+                            <i class="fas fa-user fa-2x text-white"></i>
+                        </div>
+                    }
+                </div>
+                <h3 class="profile-username text-center mt-2">@Model.FullName</h3>
+                <p class="text-muted text-center">
+                    <code>@Model.MedicalRecordNumber</code>
+                </p>
+                <ul class="list-group list-group-unbordered mb-3">
+                    <li class="list-group-item">
+                        <b>Age</b> <span class="float-right">@Model.Age yrs</span>
+                    </li>
+                    <li class="list-group-item">
+                        <b>Gender</b> <span class="float-right">@Model.Gender</span>
+                    </li>
+                    <li class="list-group-item">
+                        <b>Blood Type</b> <span class="float-right">@(Model.BloodType ?? "—")</span>
+                    </li>
+                    <li class="list-group-item">
+                        <b>Status</b>
+                        <span class="float-right badge @(Model.Status == "Active" ? "badge-success" : "badge-secondary")">
+                            @Model.Status
+                        </span>
+                    </li>
+                </ul>
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning btn-block">
+                    <i class="fas fa-edit"></i> Edit Patient
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right column: tabs -->
+    <div class="col-md-9">
+        <div class="card">
+            <div class="card-header p-0 border-bottom-0">
+                <ul class="nav nav-tabs" id="patientTab">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-toggle="tab" href="#info">
+                            <i class="fas fa-info-circle mr-1"></i> Info
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#allergies">
+                            <i class="fas fa-allergies mr-1"></i>
+                            Allergies <span class="badge badge-danger">@Model.Allergies.Count()</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#history">
+                            <i class="fas fa-history mr-1"></i> Medical History
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#contacts">
+                            <i class="fas fa-phone mr-1"></i> Emergency Contacts
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content">
+
+                    <!-- Info Tab -->
+                    <div class="tab-pane active" id="info">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <dl class="row">
+                                    <dt class="col-sm-5">Date of Birth</dt>
+                                    <dd class="col-sm-7">@Model.DateOfBirth.ToString("dd MMM yyyy")</dd>
+                                    <dt class="col-sm-5">National ID</dt>
+                                    <dd class="col-sm-7">@Model.NationalId</dd>
+                                    <dt class="col-sm-5">Phone</dt>
+                                    <dd class="col-sm-7">@Model.Phone</dd>
+                                    <dt class="col-sm-5">Email</dt>
+                                    <dd class="col-sm-7">@Model.Email</dd>
+                                </dl>
+                            </div>
+                            <div class="col-md-6">
+                                <dl class="row">
+                                    <dt class="col-sm-4">Street</dt>
+                                    <dd class="col-sm-8">@Model.Address?.Street</dd>
+                                    <dt class="col-sm-4">City</dt>
+                                    <dd class="col-sm-8">@Model.Address?.City</dd>
+                                    <dt class="col-sm-4">Country</dt>
+                                    <dd class="col-sm-8">@Model.Address?.Country</dd>
+                                    <dt class="col-sm-4">Postal Code</dt>
+                                    <dd class="col-sm-8">@Model.Address?.PostalCode</dd>
+                                    <dt class="col-sm-4">Registered</dt>
+                                    <dd class="col-sm-8">@Model.RegistrationDate.ToString("dd MMM yyyy")</dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Allergies Tab -->
+                    <div class="tab-pane" id="allergies">
+                        @if (!Model.Allergies.Any())
+                        {
+                            <p class="text-muted">No allergies recorded.</p>
+                        }
+                        else
+                        {
+                            <table class="table table-sm table-bordered">
+                                <thead><tr><th>Type</th><th>Severity</th><th>Description</th><th>Recorded By</th><th>Date</th></tr></thead>
+                                <tbody>
+                                    @foreach (var a in Model.Allergies)
+                                    {
+                                        var sev = a.Severity switch
+                                        {
+                                            "LifeThreatening" => "badge-danger",
+                                            "Severe" => "badge-warning",
+                                            "Moderate" => "badge-info",
+                                            _ => "badge-secondary"
+                                        };
+                                        <tr>
+                                            <td>@a.Type</td>
+                                            <td><span class="badge @sev">@a.Severity</span></td>
+                                            <td>@a.Description</td>
+                                            <td>@a.RecordedBy</td>
+                                            <td>@a.RecordDate.ToString("dd MMM yyyy")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                    </div>
+
+                    <!-- Medical History Tab -->
+                    <div class="tab-pane" id="history">
+                        @if (!Model.MedicalHistories.Any())
+                        {
+                            <p class="text-muted">No medical history recorded.</p>
+                        }
+                        else
+                        {
+                            <table class="table table-sm table-bordered">
+                                <thead><tr><th>Type</th><th>Diagnosis</th><th>Diagnosed</th><th>Active</th></tr></thead>
+                                <tbody>
+                                    @foreach (var h in Model.MedicalHistories)
+                                    {
+                                        <tr>
+                                            <td>@h.ConditionType</td>
+                                            <td>@h.Diagnosis</td>
+                                            <td>@h.DiagnosisDate.ToString("dd MMM yyyy")</td>
+                                            <td>
+                                                <span class="badge @(h.IsActive ? "badge-warning" : "badge-secondary")">
+                                                    @(h.IsActive ? "Active" : "Resolved")
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                    </div>
+
+                    <!-- Emergency Contacts Tab -->
+                    <div class="tab-pane" id="contacts">
+                        @if (!Model.EmergencyContacts.Any())
+                        {
+                            <p class="text-muted">No emergency contacts recorded.</p>
+                        }
+                        else
+                        {
+                            <table class="table table-sm table-bordered">
+                                <thead><tr><th>Name</th><th>Relationship</th><th>Phone</th><th>Primary</th></tr></thead>
+                                <tbody>
+                                    @foreach (var c in Model.EmergencyContacts)
+                                    {
+                                        <tr>
+                                            <td>@c.Name</td>
+                                            <td>@c.Relationship</td>
+                                            <td>@c.Phone</td>
+                                            <td>
+                                                @if (c.IsPrimaryContact)
+                                                {
+                                                    <i class="fas fa-check-circle text-success"></i>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
