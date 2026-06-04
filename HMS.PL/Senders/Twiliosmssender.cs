@@ -1,16 +1,11 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Services.Abstraction.Contracts.NotificationService;
-using Shared.Common.NotificationSettings;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Microsoft.Extensions.Options;
+using HMS.BLL.ServicesAbstraction.Contracts.NotificationService;
+using HMS.BLL.Shared.Common.NotificationSettings;
 using Twilio;
 using Twilio.Rest.Api.V2010.Account;
 using Twilio.Types;
 
-namespace HMS.DAL.Senders
+namespace HMS.PL.Senders
 {
     public sealed class TwilioSmsSender(IOptions<TwilioSettings> _options) : ISmsSender
     {

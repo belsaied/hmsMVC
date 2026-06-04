@@ -6,7 +6,6 @@ using HMS.DAL.Models.PatientModule;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Services.Abstraction.Contracts;
 using HMS.BLL.Services.Exceptions;
 using HMS.BLL.Services.Specifications.PatientModule;
 using HMS.BLL.Shared.Common;
@@ -15,6 +14,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using HMS.BLL.ServicesAbstraction.Contracts;
 
 namespace HMS.BLL.Services.Implementations.UserManagementModule
 {

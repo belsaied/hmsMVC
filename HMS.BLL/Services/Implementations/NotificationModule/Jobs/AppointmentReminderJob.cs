@@ -4,9 +4,9 @@ using HMS.DAL.Models.Enums.AppointmentEnums;
 using HMS.DAL.Models.Enums.NotificationEnums;
 using HMS.DAL.Models.NotificationModule;
 using Microsoft.Extensions.Logging;
-using Services.Abstraction.Contracts.NotificationService;
 using HMS.BLL.Services.Specifications.AppointmentModule;
 using HMS.BLL.Services.Specifications.NotificationModule.NotificationSpecification;
+using HMS.BLL.ServicesAbstraction.Contracts.NotificationService;
 
 namespace HMS.BLL.Services.Implementations.NotificationModule.Jobs
 {

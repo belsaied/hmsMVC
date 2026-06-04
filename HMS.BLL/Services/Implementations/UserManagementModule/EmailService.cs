@@ -2,8 +2,8 @@
 using MailKit.Security;
 using Microsoft.Extensions.Options;
 using MimeKit;
-using Services.Abstraction.Contracts;
 using HMS.BLL.Shared.Common;
+using HMS.BLL.ServicesAbstraction.Contracts;
 
 
 namespace HMS.BLL.Services.Implementations.UserManagementModule

@@ -7,16 +7,15 @@ using HMS.DAL.Models.Enums.DoctorEnums;
 using HMS.DAL.Models.Enums.PatientEnums;
 using HMS.DAL.Models.PatientModule;
 using Microsoft.Extensions.Logging;
-using Services.Abstraction.Contracts;
-using Services.Abstraction.Contracts.NotificationService;
 using HMS.BLL.Services.Exceptions;
 using HMS.BLL.Shared;
 using HMS.BLL.Shared.Dtos.AppointmentModule;
 using HMS.BLL.Shared.Dtos.NotificationDtos.Events;
 using HMS.BLL.Shared.Parameters;
-using ServicesAbstraction.Contracts;
 using HMS.BLL.Services.Specifications.DoctorModule;
 using HMS.BLL.Services.Specifications.AppointmentModule;
+using HMS.BLL.ServicesAbstraction.Contracts;
+using HMS.BLL.ServicesAbstraction.Contracts.NotificationService;
 
 namespace HMS.BLL.Services.Implementations.AppointmentModule
 {

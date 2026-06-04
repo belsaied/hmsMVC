@@ -2,10 +2,10 @@
 using HMS.DAL.Contracts;
 using HMS.DAL.Models.MedicalRecordModule;
 using HMS.DAL.Models.PatientModule;
-using Services.Abstraction.Contracts;
 using HMS.BLL.Services.Exceptions;
 using HMS.BLL.Services.Specifications.MedicalRecordModule;
 using HMS.BLL.Shared.Dtos.MedicalRecordsDto;
+using HMS.BLL.ServicesAbstraction.Contracts;
 
 namespace HMS.BLL.Services.Implementations.MedicalRecordModule
 {

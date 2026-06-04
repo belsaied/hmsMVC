@@ -2,13 +2,13 @@
 using HMS.DAL.Contracts;
 using HMS.DAL.Models.DoctorModule;
 using HMS.DAL.Models.Enums.DoctorEnums;
-using Services.Abstraction.Contracts;
 using HMS.BLL.Services.Exceptions;
 using HMS.BLL.Services.Specifications.DoctorModule;
 using HMS.BLL.Shared;
 using HMS.BLL.Shared.Common;
 using HMS.BLL.Shared.Dtos.DoctorModule.DoctorDtos;
 using HMS.BLL.Shared.Parameters;
+using HMS.BLL.ServicesAbstraction.Contracts;
 
 namespace HMS.BLL.Services.Implementations.DoctorModule
 {

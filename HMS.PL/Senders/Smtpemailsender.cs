@@ -1,18 +1,11 @@
 ﻿using MailKit.Net.Smtp;
 using MailKit.Security;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MimeKit;
-using Services.Abstraction.Contracts.NotificationService;
-using Shared.Common.NotificationSettings;
-using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Mail;
-using System.Text;
+using HMS.BLL.ServicesAbstraction.Contracts.NotificationService;
+using HMS.BLL.Shared.Common.NotificationSettings;
 
-namespace HMS.DAL.Senders
+namespace HMS.PL.Senders
 {
     public sealed class SmtpEmailSender(IOptions<NotificationEmailSettings> _options) : IEmailSender
     {
@@ -38,7 +31,7 @@ namespace HMS.DAL.Senders
 
             message.Body = builder.ToMessageBody();
 
-            using var smtp = new MailKit.Net.Smtp.SmtpClient();
+            using var smtp = new SmtpClient();
             await smtp.ConnectAsync(opts.SmtpHost, opts.SmtpPort, SecureSocketOptions.StartTls);
             await smtp.AuthenticateAsync(opts.SmtpUser, opts.SmtpPassword);
             await smtp.SendAsync(message);

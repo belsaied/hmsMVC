@@ -1,17 +1,14 @@
-﻿using HMS.DAL.Contracts;
+﻿using HMS.BLL.Services.Specifications.BillingModule;
+using HMS.BLL.Services.Specifications.NotificationModule.NotificationSpecification;
+using HMS.BLL.ServicesAbstraction.Contracts.NotificationService;
+using HMS.BLL.Shared.Dtos.NotificationDtos.Events;
+using HMS.DAL.Contracts;
 using HMS.DAL.Models.BillingModule;
 using HMS.DAL.Models.Enums.BillingEnums;
 using HMS.DAL.Models.Enums.NotificationEnums;
 using HMS.DAL.Models.NotificationModule;
 using HMS.DAL.Models.PatientModule;
 using Microsoft.Extensions.Logging;
-using Services.Abstraction.Contracts.NotificationService;
-using HMS.BLL.Services.Specifications.BillingModule;
-using HMS.BLL.Services.Specifications.NotificationModule.NotificationSpecification;
-using HMS.BLL.Shared.Dtos.NotificationDtos.Events;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace HMS.BLL.Services.Implementations.NotificationModule.Jobs
 {

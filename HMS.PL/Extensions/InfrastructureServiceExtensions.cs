@@ -1,34 +1,16 @@
 ﻿// HMS.PL/Extensions/InfrastructureServiceExtensions.cs
+using Hangfire;
+using HMS.BLL.Shared.Common;
 using HMS.DAL.Contracts;
 using HMS.DAL.Data.DbContexts;
 using HMS.DAL.Data.Identity;
 using HMS.DAL.Implementations;
-using HMS.DAL.Senders;
-using HMS.PL.Hubs;
-using HMS.BLL.ServicesAbstraction.Contracts;
-using HMS.BLL.ServicesAbstraction.Contracts.BillingService;
-using HMS.BLL.ServicesAbstraction.Contracts.NotificationService;
-using HMS.BLL.ServicesAbstraction.Contracts.WardBedService;
-using HMS.BLL.Services.Implementations;
-using HMS.BLL.Services.Implementations.AppointmentModule;
-using HMS.BLL.Services.Implementations.BillingModule;
-using HMS.BLL.Services.Implementations.DoctorModule;
-using HMS.BLL.Services.Implementations.MedicalRecordModule;
-using HMS.BLL.Services.Implementations.NotificationModule;
-using HMS.BLL.Services.Implementations.PatientModule;
-using HMS.BLL.Services.Implementations.UserManagementModule;
-using HMS.BLL.Services.Implementations.WardBedModule;
-using HMS.BLL.Shared.Common;
-using HMS.BLL.Shared.Common.NotificationSettings;
-using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
 using System.Text;
-using Services.Implementations.BillingModule;
-using Services.Implementations.MedicalRecordModule;
 
 namespace HMS.PL.Extensions
 {

@@ -1,6 +1,5 @@
-﻿using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Logging;
-using HMS.BLL.ServicesAbstraction.Contracts;
+﻿using HMS.BLL.ServicesAbstraction.Contracts;
+using Microsoft.AspNetCore.SignalR;
 
 namespace HMS.PL.Hubs
 {

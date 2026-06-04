@@ -1,8 +1,5 @@
-﻿using Microsoft.AspNetCore.SignalR;
-using HMS.BLL.ServicesAbstraction.Contracts.WardBedService;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using HMS.BLL.ServicesAbstraction.Contracts.WardBedService;
+using Microsoft.AspNetCore.SignalR;
 
 namespace HMS.PL.Hubs
 {

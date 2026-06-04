@@ -1,5 +1,5 @@
-﻿using HMS.DAL.Contracts;
-using Services.Abstraction.Contracts;
+﻿using HMS.BLL.ServicesAbstraction.Contracts;
+using HMS.DAL.Contracts;
 
 namespace HMS.BLL.Services.Implementations.UserManagementModule
 {

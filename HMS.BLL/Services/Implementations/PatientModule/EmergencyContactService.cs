@@ -2,10 +2,10 @@
 using HMS.DAL.Contracts;
 using HMS.DAL.Models.Enums.PatientEnums;
 using HMS.DAL.Models.PatientModule;
-using Services.Abstraction.Contracts;
 using HMS.BLL.Services.Exceptions;
 using HMS.BLL.Services.Specifications.PatientModule;
 using HMS.BLL.Shared.Dtos.PatientModule.EmergencyContactsDtos;
+using HMS.BLL.ServicesAbstraction.Contracts;
 
 namespace HMS.BLL.Services.Implementations.PatientModule
 {

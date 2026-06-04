@@ -6,12 +6,12 @@ using HMS.DAL.Models.Enums.PatientEnums;
 using HMS.DAL.Models.Enums.WardBedEnums;
 using HMS.DAL.Models.PatientModule;
 using HMS.DAL.Models.WardBedModule;
-using Services.Abstraction.Contracts;
-using Services.Abstraction.Contracts.WardBedService;
 using HMS.BLL.Services.Exceptions;
 using HMS.BLL.Services.Specifications.WardBedModule;
 using HMS.BLL.Shared.Common;
 using HMS.BLL.Shared.Dtos.WardBedModule.AdmissionDtos;
+using HMS.BLL.ServicesAbstraction.Contracts.WardBedService;
+using HMS.BLL.ServicesAbstraction.Contracts;
 
 namespace HMS.BLL.Services.Implementations.WardBedModule
 {

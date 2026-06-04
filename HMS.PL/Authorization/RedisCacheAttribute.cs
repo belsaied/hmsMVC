@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using HMS.BLL.ServicesAbstraction.Contracts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.Extensions.DependencyInjection;
-using HMS.BLL.ServicesAbstraction.Contracts;
 using System.Text;
 
 namespace HMS.PL.Authorization

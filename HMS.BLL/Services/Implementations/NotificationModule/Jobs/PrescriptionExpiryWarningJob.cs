@@ -1,14 +1,11 @@
-﻿using HMS.DAL.Contracts;
+﻿using HMS.BLL.Services.Specifications.NotificationModule.NotificationSpecification;
+using HMS.BLL.ServicesAbstraction.Contracts.NotificationService;
+using HMS.DAL.Contracts;
 using HMS.DAL.Models.Enums.MedicalRecordEnums;
 using HMS.DAL.Models.Enums.NotificationEnums;
 using HMS.DAL.Models.MedicalRecordModule;
 using HMS.DAL.Models.NotificationModule;
 using Microsoft.Extensions.Logging;
-using Services.Abstraction.Contracts.NotificationService;
-using HMS.BLL.Services.Specifications.NotificationModule.NotificationSpecification;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace HMS.BLL.Services.Implementations.NotificationModule.Jobs
 {

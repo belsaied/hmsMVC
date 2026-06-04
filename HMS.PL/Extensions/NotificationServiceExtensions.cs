@@ -1,9 +1,8 @@
-﻿using Persistence.Senders;
-using HMS.PL.Hubs;
-using HMS.BLL.ServicesAbstraction.Contracts.NotificationService;
-using HMS.BLL.Services.Implementations.NotificationModule;
+﻿using HMS.BLL.Services.Implementations.NotificationModule;
 using HMS.BLL.Services.Implementations.NotificationModule.Jobs;
+using HMS.BLL.ServicesAbstraction.Contracts.NotificationService;
 using HMS.BLL.Shared.Common.NotificationSettings;
+using HMS.PL.Senders;
 
 namespace HMS.PL.Extensions
 {
@@ -38,21 +37,10 @@ namespace HMS.PL.Extensions
             services.AddScoped<INotificationPreferenceService, NotificationPreferenceService>();
             services.AddScoped<INotificationLogService, NotificationLogService>();
 
-            // ── Factory Delegates for ServiceManagerWithFactoryDelegate ────────
-            services.AddScoped<Func<INotificationService>>(p =>
-                () => p.GetRequiredService<INotificationService>());
-            services.AddScoped<Func<INotificationPreferenceService>>(p =>
-                () => p.GetRequiredService<INotificationPreferenceService>());
-            services.AddScoped<Func<INotificationLogService>>(p =>
-                () => p.GetRequiredService<INotificationLogService>());
-
-            // ── Hangfire Jobs (transient = fresh DbContext per execution) ──────
+            // ── Hangfire Jobs ─────────────────────────────────────────────────
             services.AddTransient<AppointmentReminderJob>();
             services.AddTransient<PrescriptionExpiryWarningJob>();
             services.AddTransient<InvoiceOverdueReminderJob>();
-
-            // ── Seeding ───────────────────────────────────────────────────────
-            services.AddScoped<DataSeeding>();
 
             return services;
         }

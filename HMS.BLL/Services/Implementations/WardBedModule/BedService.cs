@@ -1,14 +1,11 @@
 ﻿using AutoMapper;
+using HMS.BLL.Services.Exceptions;
+using HMS.BLL.Services.Specifications.WardBedModule;
+using HMS.BLL.ServicesAbstraction.Contracts.WardBedService;
+using HMS.BLL.Shared.Dtos.WardBedModule.BedDtos;
 using HMS.DAL.Contracts;
 using HMS.DAL.Models.Enums.WardBedEnums;
 using HMS.DAL.Models.WardBedModule;
-using Services.Abstraction.Contracts.WardBedService;
-using HMS.BLL.Services.Exceptions;
-using HMS.BLL.Services.Specifications.WardBedModule;
-using HMS.BLL.Shared.Dtos.WardBedModule.BedDtos;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace HMS.BLL.Services.Implementations.WardBedModule
 {

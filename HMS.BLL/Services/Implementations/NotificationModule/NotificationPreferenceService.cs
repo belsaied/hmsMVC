@@ -1,14 +1,10 @@
 ﻿using AutoMapper;
-using HMS.DAL.Contracts;
-using HMS.DAL.Models.NotificationModule;
-using Services.Abstraction.Contracts.NotificationService;
-using HMS.BLL.Services.Specifications.NotificationModule;
 using HMS.BLL.Services.Specifications.NotificationModule.NotificationTemplateSpecifications;
+using HMS.BLL.ServicesAbstraction.Contracts.NotificationService;
 using HMS.BLL.Shared.Dtos.NotificationDtos.Requests;
 using HMS.BLL.Shared.Dtos.NotificationDtos.Results;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using HMS.DAL.Contracts;
+using HMS.DAL.Models.NotificationModule;
 
 namespace HMS.BLL.Services.Implementations.NotificationModule
 {

@@ -5,13 +5,13 @@ using HMS.DAL.Models.DoctorModule;
 using HMS.DAL.Models.Enums.PatientEnums;
 using HMS.DAL.Models.MedicalRecordModule;
 using HMS.DAL.Models.PatientModule;
-using Services.Abstraction.Contracts;
 using HMS.BLL.Services.Exceptions;
 using HMS.BLL.Services.Specifications.MedicalRecordModule;
 using HMS.BLL.Shared;
 using HMS.BLL.Shared.Common;
 using HMS.BLL.Shared.Dtos.MedicalRecordsDto;
 using HMS.BLL.Shared.Parameters;
+using HMS.BLL.ServicesAbstraction.Contracts;
 
 namespace Services.Implementations.MedicalRecordModule
 {
