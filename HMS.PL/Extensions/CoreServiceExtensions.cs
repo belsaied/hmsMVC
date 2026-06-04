@@ -61,7 +61,9 @@ namespace HMS.PL.Extensions
             services.AddScoped<IAppointmentNotifier, AppointmentNotifier>();
             services.AddScoped<IBedNotifier, BedNotifier>();
             services.AddScoped<IInvoiceNotifier, InvoiceNotifier>();
-
+            services.AddScoped<INotificationService, NotificationService>();
+            services.AddScoped<INotificationPreferenceService, NotificationPreferenceService>();
+            services.AddScoped<INotificationLogService, NotificationLogService>();
             // ── AutoMapper ────────────────────────────────────────────────────
             services.AddAutoMapper(typeof(HMS.BLL.Services.ServiceAssemblyReference).Assembly);
 

@@ -32,10 +32,6 @@ namespace HMS.PL.Extensions
             // ── Push Sender (SignalR) ─────────────────────────────────────────
             services.AddScoped<INotificationPushSender, NotificationPushSender>();
 
-            // ── Core Services ─────────────────────────────────────────────────
-            services.AddScoped<INotificationService, NotificationService>();
-            services.AddScoped<INotificationPreferenceService, NotificationPreferenceService>();
-            services.AddScoped<INotificationLogService, NotificationLogService>();
 
             // ── Hangfire Jobs ─────────────────────────────────────────────────
             services.AddTransient<AppointmentReminderJob>();

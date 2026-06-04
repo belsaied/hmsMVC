@@ -1,7 +1,4 @@
 ﻿using HMS.DAL.Models.Enums.DoctorEnums;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace HMS.BLL.Shared.Parameters
 {
@@ -12,6 +9,7 @@ namespace HMS.BLL.Shared.Parameters
 
         public string? Search { get; set; }
         public DoctorStatus? Status { get; set; }
+        public string? Specialization { get; set; }
         public int? DepartmentId { get; set; }
         public int PageIndex { get; set; } = 1;
 
