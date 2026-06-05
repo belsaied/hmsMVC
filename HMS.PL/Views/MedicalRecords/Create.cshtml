@@ -1,0 +1,194 @@
+@using HMS.BLL.Shared.Dtos.MedicalRecordsDto
+@model CreateMedicalRecordDto
+
+@{
+    ViewData["Title"] = "Create Medical Record";
+}
+
+@section Styles {
+    <style>
+        :root {
+            --hms-blue: #1a3a5c;
+            --hms-blue-mid: #2563a8;
+            --hms-accent: #0ea5e9;
+            --hms-green: #10b981;
+            --hms-red: #ef4444;
+            --hms-border: #e2e8f0;
+            --hms-text: #1e293b;
+            --hms-text-muted: #64748b;
+        }
+
+        .page-header-card {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white; padding: 24px 28px; border-radius: 16px; margin-bottom: 24px;
+            box-shadow: 0 8px 32px rgba(59,130,246,0.18); position: relative; overflow: hidden;
+        }
+        .page-header-card::before { content: ''; position: absolute; top: -40px; right: -40px; width: 160px; height: 160px; background: rgba(255,255,255,0.07); border-radius: 50%; }
+        .page-header-card::after { content: ''; position: absolute; bottom: -60px; right: 80px; width: 220px; height: 220px; background: rgba(255,255,255,0.04); border-radius: 50%; }
+        .page-title { font-size: 1.4rem; font-weight: 700; margin: 0; position: relative; z-index: 1; }
+        .page-subtitle { font-size: 0.84rem; opacity: 0.75; margin: 4px 0 0; position: relative; z-index: 1; }
+
+        .form-card {
+            background: white; border-radius: 18px; overflow: hidden;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08); border: 1px solid var(--hms-border);
+        }
+        .form-card .card-header {
+            padding: 18px 24px; border-bottom: 1px solid var(--hms-border);
+            background: #f8faff; font-weight: 700; font-size: 0.95rem;
+        }
+        .form-card .card-body { padding: 24px; }
+
+        .form-label-custom {
+            font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+            color: var(--hms-text-muted); margin-bottom: 4px;
+        }
+        .form-control-custom {
+            border-radius: 10px; border: 1.5px solid var(--hms-border);
+            padding: 10px 14px; font-size: 0.9rem;
+        }
+        .form-control-custom:focus {
+            box-shadow: 0 0 0 3px rgba(30,64,175,0.12); border-color: #3b82f6;
+        }
+
+        .btn-primary-hms {
+            background: linear-gradient(135deg, #1e40af, #3b82f6); color: white; border: none;
+            border-radius: 10px; padding: 11px 24px; font-weight: 600; font-size: 0.9rem;
+            box-shadow: 0 4px 12px rgba(59,130,246,0.3); transition: all 0.2s;
+        }
+        .btn-primary-hms:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(59,130,246,0.4); color: white; }
+        .btn-secondary-hms {
+            background: white; color: var(--hms-text-muted); border: 1.5px solid var(--hms-border);
+            border-radius: 10px; padding: 11px 24px; font-weight: 600; font-size: 0.9rem;
+            transition: all 0.15s;
+        }
+        .btn-secondary-hms:hover { background: #f1f5f9; color: var(--hms-text); }
+
+        .validation-summary { background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; padding: 12px 16px; margin-bottom: 20px; color: #991b1b; font-size: 0.85rem; }
+        .field-validation-error { color: #dc2626; font-size: 0.78rem; }
+
+        .patient-badge {
+            background: #dbeafe; color: #1e40af; padding: 6px 14px; border-radius: 10px;
+            font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;
+        }
+    </style>
+}
+
+<div class="page-header-card">
+    <div style="position:relative;z-index:1">
+        <h2 class="page-title"><i class="fas fa-plus-circle mr-2"></i> New Medical Record</h2>
+        <p class="page-subtitle">Create a clinical record for a patient visit</p>
+    </div>
+    <i class="fas fa-notes-medical" style="font-size:3rem;opacity:0.2;position:absolute;right:150px;top:12px"></i>
+</div>
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="validation-summary" asp-validation-summary="All"></div>
+}
+
+<form asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+
+    <div class="form-card">
+        <div class="card-header">
+            <i class="fas fa-info-circle mr-1" style="color:#1e40af"></i> Visit Information
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label-custom"><i class="fas fa-user-injured mr-1"></i> Patient</label>
+                    @if (ViewBag.PatientName != null)
+                    {
+                        <div class="patient-badge">
+                            <i class="fas fa-user"></i> @ViewBag.PatientName
+                            <input type="hidden" name="PatientId" value="@ViewBag.PatientId" />
+                        </div>
+                    }
+                    else
+                    {
+                        <input asp-for="PatientId" type="number" class="form-control form-control-custom" placeholder="Patient ID" min="1" />
+                        <span asp-validation-for="PatientId" class="field-validation-error"></span>
+                    }
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label-custom"><i class="fas fa-user-md mr-1"></i> Doctor</label>
+                    @if (ViewBag.DoctorName != null)
+                    {
+                        <div class="patient-badge" style="background:#ccfbf1;color:#0f766e">
+                            <i class="fas fa-user-md"></i> @ViewBag.DoctorName
+                            <input type="hidden" name="DoctorId" value="@ViewBag.DoctorId" />
+                        </div>
+                    }
+                    else
+                    {
+                        <input asp-for="DoctorId" type="number" class="form-control form-control-custom" placeholder="Doctor ID" min="1" />
+                        <span asp-validation-for="DoctorId" class="field-validation-error"></span>
+                    }
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label-custom"><i class="fas fa-calendar mr-1"></i> Visit Date</label>
+                    <input asp-for="VisitDate" type="date" class="form-control form-control-custom" />
+                    <span asp-validation-for="VisitDate" class="field-validation-error"></span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label-custom"><i class="fas fa-stethoscope mr-1"></i> Chief Complaint</label>
+                    <textarea asp-for="ChiefComplaint" class="form-control form-control-custom" rows="3" placeholder="Describe the patient's main complaint..."></textarea>
+                    <span asp-validation-for="ChiefComplaint" class="field-validation-error"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label-custom"><i class="fas fa-diagnoses mr-1"></i> Diagnosis</label>
+                    <textarea asp-for="Diagnosis" class="form-control form-control-custom" rows="3" placeholder="Primary diagnosis..."></textarea>
+                    <span asp-validation-for="Diagnosis" class="field-validation-error"></span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label-custom"><i class="fas fa-code mr-1"></i> ICD Code (optional)</label>
+                    <input asp-for="IcdCode" class="form-control form-control-custom" placeholder="e.g. J45.0" />
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label-custom"><i class="fas fa-calendar-check mr-1"></i> Follow-Up Date (optional)</label>
+                    <input asp-for="FollowUpDate" type="date" class="form-control form-control-custom" />
+                </div>
+                <div class="col-md-4 mb-3 d-flex align-items-end">
+                    <div class="form-check">
+                        <input asp-for="IsConfidential" type="checkbox" class="form-check-input" />
+                        <label class="form-check-label" style="font-size:0.85rem;font-weight:500">Mark as Confidential</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label-custom"><i class="fas fa-notes mr-1"></i> Clinical Notes (optional)</label>
+                    <textarea asp-for="ClinicalNotes" class="form-control form-control-custom" rows="4" placeholder="Detailed clinical observations..."></textarea>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label-custom"><i class="fas fa-tasks mr-1"></i> Treatment Plan (optional)</label>
+                    <textarea asp-for="TreatmentPlan" class="form-control form-control-custom" rows="4" placeholder="Recommended treatment plan..."></textarea>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label-custom"><i class="fas fa-calendar mr-1"></i> Appointment ID (optional)</label>
+                    <input asp-for="AppointmentId" type="number" class="form-control form-control-custom" placeholder="Appointment ID" />
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between mt-3">
+                <a asp-action="Index" class="btn-secondary-hms"><i class="fas fa-arrow-left mr-1"></i> Cancel</a>
+                <button type="submit" class="btn-primary-hms"><i class="fas fa-save mr-1"></i> Create Record</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
+}

@@ -261,6 +261,38 @@ namespace HMS.PL.Controllers
             return RedirectToAction(nameof(Qualifications), new { id = doctorId });
         }
 
+        // POST: /Doctors/RemoveSchedule
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemoveSchedule(int doctorId, int scheduleId)
+        {
+            try
+            {
+                await _services.DoctorService.RemoveScheduleAsync(scheduleId);
+                TempData["Success"] = "Schedule slot removed.";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+            }
+            return RedirectToAction(nameof(Schedule), new { id = doctorId });
+        }
+
+        // GET: /Doctors/GetAvailableDoctors?date=2026-06-06
+        [HttpGet]
+        public async Task<IActionResult> GetAvailableDoctors(DateTime date)
+        {
+            try
+            {
+                var doctors = await _services.DoctorService.GetAvailableDoctorAsync(date);
+                return Ok(doctors);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
         // POST: /Doctors/RemoveQualification
         [HttpPost]
         [ValidateAntiForgeryToken]

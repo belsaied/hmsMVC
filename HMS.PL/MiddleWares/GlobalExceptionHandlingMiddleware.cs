@@ -89,8 +89,9 @@ namespace HMS.PL.MiddleWares
 
         UnauthorizedException => (StatusCodes.Status401Unauthorized, null),
 
-        AccountLockedException
-        or EmailNotVerifiedException
+        AccountLockedException => (StatusCodes.Status401Unauthorized, null),
+
+        EmailNotVerifiedException
         or ForbiddenException => (StatusCodes.Status403Forbidden, null),
 
         ConflictException => (StatusCodes.Status409Conflict, null),

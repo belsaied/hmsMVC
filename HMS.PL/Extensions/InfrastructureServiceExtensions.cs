@@ -34,9 +34,19 @@ namespace HMS.PL.Extensions
             {
                 options.Password.RequireDigit = true;
                 options.Password.RequiredLength = 8;
+
+                // Lockout — AuthService already does manual tracking on ApplicationUser,
+                // but configure built-in as a safety net.
+                options.Lockout.AllowedForNewUsers = true;
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
             })
             .AddEntityFrameworkStores<IdentityHospitalDbContext>()
             .AddDefaultTokenProviders();
+
+            // ── CORS (dev) ────────────────────────────────────────────────────
+            services.AddCors(o => o.AddPolicy("DevPolicy", b =>
+                b.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
 
             // ── JWT ───────────────────────────────────────────────────────────
             services.Configure<JwtOptions>(configuration.GetSection("JwtSettings"));

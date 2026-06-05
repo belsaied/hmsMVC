@@ -8,5 +8,6 @@ namespace HMS.BLL.ServicesAbstraction.Contracts
         Task<IEnumerable<PrescriptionResultDto>> GetPatientPrescriptionsAsync(int patientId);
         Task<IEnumerable<PrescriptionResultDto>> GetActivePrescriptionsAsync(int patientId);
         Task<bool> CancelPrescriptionAsync(int medicalRecordId, int prescriptionId);
+        Task<byte[]> GeneratePrescriptionPdfAsync(int prescriptionId, int patientId);
     }
 }

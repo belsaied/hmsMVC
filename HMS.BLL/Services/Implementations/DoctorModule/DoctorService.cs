@@ -228,6 +228,21 @@ namespace HMS.BLL.Services.Implementations.DoctorModule
             return _mapper.Map<ScheduleResultDto>(schedule);
 
         }
+        public async Task<bool> RemoveScheduleAsync(int scheduleId)
+        {
+            var scheduleRepo = _unitOfWork.GetRepository<DoctorSchedule, int>();
+            var schedule = await scheduleRepo.GetByIdAsync(scheduleId);
+            if (schedule is null)
+                return false;
+
+            var doctorId = schedule.DoctorId;
+            scheduleRepo.Delete(schedule);
+            await _unitOfWork.SaveChangesAsync();
+            await _cacheService.RemoveAsync(CacheKeys.DoctorSchedule(doctorId));
+            await _cacheService.RemoveAsync(CacheKeys.DoctorDetails(doctorId));
+            return true;
+        }
+
         public async Task<IEnumerable<ScheduleResultDto>> GetScheduleAsync(int doctorId)
         {
             var doctorRepo = _unitOfWork.GetRepository<Doctor, int>();

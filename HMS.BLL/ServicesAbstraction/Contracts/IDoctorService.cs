@@ -18,6 +18,7 @@ namespace HMS.BLL.ServicesAbstraction.Contracts
         Task<QualificationResultDto> AddQualificationAsync(int doctorId, CreateQualificationDto dto);
         Task<bool> RemoveQualificationAsync(int doctorId, int qualId);
         Task<ScheduleResultDto> SetScheduleAsync(int doctorId, CreateScheduleDto dto);
+        Task<bool> RemoveScheduleAsync(int scheduleId);
         Task<IEnumerable<ScheduleResultDto>> GetScheduleAsync(int doctorId);
         Task<IEnumerable<DoctorResultDto>> GetDoctorByDepartmentAsync(int departmentId);
         Task<IEnumerable<DoctorResultDto>> GetAvailableDoctorAsync(DateTime date);

@@ -114,14 +114,13 @@ namespace HMS.BLL.Services.Implementations.UserManagementModule
                     },
                     RegistrationDate = DateTime.UtcNow,
                     Status = PatientStatus.Active,
-                    MedicalRecordNumber = $"TEMP-{Guid.NewGuid():N}"
+                    MedicalRecordNumber = $"{Guid.NewGuid():N}"
                 };
 
                 var patientRepo = _unitOfWork.GetRepository<Patient, int>();
                 await patientRepo.AddAsync(patient);
                 await _unitOfWork.SaveChangesAsync();
 
-                // Assign final MRN now that we have the DB-generated Id
                 patient.MedicalRecordNumber = $"MRN{patient.Id:D6}";
                 patientRepo.Update(patient);
                 await _unitOfWork.SaveChangesAsync();

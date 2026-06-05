@@ -8,6 +8,14 @@
 
 @section Styles {
     <style>
+        .mrc-link {
+            background: rgba(255,255,255,0.12); color: white; border: none;
+            border-radius: 10px; padding: 6px 14px; font-size: 0.78rem; font-weight: 600;
+            text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+        }
+        .mrc-link:hover { background: rgba(255,255,255,0.22); color: white; text-decoration: none; }
+    </style>
+    <style>
         :root {
             --hms-blue: #1a3a5c;
             --hms-blue-mid: #2563a8;
@@ -104,6 +112,9 @@
         <strong>@ViewBag.PatientName</strong>
         <span> · </span>
         <span class="mrn-code">@ViewBag.MedicalRecordNumber</span>
+        <a asp-controller="MedicalRecords" asp-action="PatientRecords" asp-route-patientId="@ViewBag.PatientId" class="mrc-link ml-2">
+            <i class="fas fa-notes-medical mr-1"></i> Records
+        </a>
     </div>
 </div>
 

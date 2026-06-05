@@ -142,7 +142,7 @@
             {
                 <table class="table">
                     <thead>
-                        <tr><th>Day</th><th>Start</th><th>End</th><th>Duration</th><th>Max/Slot</th><th>Status</th></tr>
+                        <tr><th>Day</th><th>Start</th><th>End</th><th>Duration</th><th>Max/Slot</th><th>Status</th><th style="width:60px"></th></tr>
                     </thead>
                     <tbody>
                         @foreach (var s in Model)
@@ -162,6 +162,17 @@
                                     {
                                         <span class="schedule-unavail"><i class="fas fa-times-circle"></i> Unavailable</span>
                                     }
+                                </td>
+                                <td>
+                                    <form asp-action="RemoveSchedule" method="post" class="d-inline"
+                                          onsubmit="return confirm('Delete this schedule slot for @s.DayOfWeek?')">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="doctorId" value="@ViewBag.DoctorId" />
+                                        <input type="hidden" name="scheduleId" value="@s.Id" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" style="border-radius:8px" title="Delete">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                         }

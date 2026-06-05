@@ -9,9 +9,6 @@ using HMS.BLL.Shared.Parameters;
 using HMS.DAL.Models.Enums.PatientEnums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using QuestPDF.Fluent;
-using QuestPDF.Helpers;
-using QuestPDF.Infrastructure;
 
 namespace HMS.PL.Controllers
 {
@@ -453,167 +450,14 @@ namespace HMS.PL.Controllers
         {
             try
             {
-                var prescriptions = await _services.PrescriptionService.GetPatientPrescriptionsAsync(id);
-                var rx = prescriptions.FirstOrDefault(p => p.Id == prescriptionId);
-                if (rx is null)
-                {
-                    TempData["Error"] = "Prescription not found.";
-                    return RedirectToAction(nameof(Prescriptions), new { id });
-                }
-
-                var patient = await _services.PatientService.GetPatientByIdAsync(id);
-
-                string doctorName = "Unknown";
-                string doctorSpecialization = "";
-                if (rx.DoctorId > 0)
-                {
-                    try
-                    {
-                        var doctor = await _services.DoctorService.GetDoctorByIdAsync(rx.DoctorId);
-                        doctorName = doctor.FullName;
-                        doctorSpecialization = doctor.Specialization;
-                    }
-                    catch
-                    {
-                        doctorName = "Unknown";
-                    }
-                }
-
-                var pdfBytes = GeneratePrescriptionPdf(rx, patient.FullName, doctorName, doctorSpecialization);
-
-                return File(pdfBytes, "application/pdf", $"Prescription_{rx.Id}.pdf");
+                var pdfBytes = await _services.PrescriptionService.GeneratePrescriptionPdfAsync(prescriptionId, id);
+                return File(pdfBytes, "application/pdf", $"Prescription_{prescriptionId}.pdf");
             }
             catch (Exception ex)
             {
                 TempData["Error"] = "Failed to generate PDF: " + ex.Message;
                 return RedirectToAction(nameof(Prescriptions), new { id });
             }
-        }
-
-        private static byte[] GeneratePrescriptionPdf(PrescriptionResultDto rx, string patientName, string doctorName, string doctorSpecialization)
-        {
-            return Document.Create(container =>
-            {
-                container.Page(page =>
-                {
-                    page.Size(PageSizes.A4);
-                    page.Margin(40);
-                    page.Header().Column(col =>
-                    {
-                        col.Item().Row(row =>
-                        {
-                            row.RelativeItem().Column(inner =>
-                            {
-                                inner.Item().Text("HMS — Hospital Management System")
-                                    .FontSize(18).Bold().FontColor("#1E3A5F");
-                                inner.Item().Text("Prescription Details")
-                                    .FontSize(11).FontColor("#0078D4");
-                            });
-                            row.ConstantItem(200).Column(inner =>
-                            {
-                                inner.Item().AlignRight()
-                                    .Text($"Prescription #RX-{rx.Id:D8}")
-                                    .FontSize(11).Bold().FontColor("#1E3A5F");
-                                inner.Item().AlignRight()
-                                    .Text($"Date of Issue: {rx.PrescribedAt:dd MMM yyyy}")
-                                    .FontSize(9).FontColor(Colors.Grey.Medium);
-                                inner.Item().AlignRight()
-                                    .Text($"Expires: {rx.ExpiresAt:dd MMM yyyy}")
-                                    .FontSize(9).FontColor(Colors.Red.Medium);
-                            });
-                        });
-                        col.Item().PaddingVertical(4).LineHorizontal(1).LineColor("#D0D0D0");
-                    });
-
-                    page.Content().Column(col =>
-                    {
-                        col.Spacing(14);
-
-                        col.Item().Background("#F5F5F5").Padding(12).Row(row =>
-                        {
-                            row.ConstantItem(52).Height(52).Background("#0078D4")
-                                .AlignCenter().AlignMiddle()
-                                .Text("Dr").FontSize(14).Bold().FontColor(Colors.White);
-                            row.ConstantItem(12);
-                            row.RelativeItem().Column(c =>
-                            {
-                                c.Item().Text($"Dr. {doctorName}").FontSize(14).Bold().FontColor("#1E3A5F");
-                                c.Item().Text(doctorSpecialization).FontSize(10).FontColor("#0078D4");
-                            });
-                            row.ConstantItem(80).AlignRight().AlignMiddle()
-                                .Background(Colors.Green.Lighten3).Padding(4)
-                                .Text(rx.Status.ToUpperInvariant())
-                                .FontSize(9).Bold().FontColor(Colors.Green.Darken2);
-                        });
-
-                        col.Item().Background("#F5F5F5").Padding(10).Row(row =>
-                        {
-                            row.RelativeItem().Column(c =>
-                            {
-                                c.Item().Text("Patient").Bold().FontSize(9).FontColor("#0078D4");
-                                c.Item().Text(patientName).Bold().FontSize(11);
-                                c.Item().Text($"Patient ID: {rx.PatientId}")
-                                    .FontSize(9).FontColor(Colors.Grey.Medium);
-                            });
-                        });
-
-                        col.Item().Column(c =>
-                        {
-                            c.Item().Text("Medications").FontSize(13).Bold().FontColor("#1E3A5F");
-                            c.Item().PaddingTop(6).Border(1).BorderColor("#D0D0D0")
-                                .Padding(12).Row(r =>
-                                {
-                                    r.ConstantItem(32).Height(32).Background("#0078D4")
-                                        .AlignCenter().AlignMiddle()
-                                        .Text("Rx").FontSize(9).Bold().FontColor(Colors.White);
-                                    r.ConstantItem(10);
-                                    r.RelativeItem().Column(inner =>
-                                    {
-                                        inner.Item().Text(rx.MedicationName).FontSize(12).Bold();
-                                        inner.Item().Text($"{rx.Dosage} • {rx.Frequency}")
-                                            .FontSize(9).FontColor(Colors.Grey.Medium);
-                                    });
-                                    r.ConstantItem(60).AlignRight().AlignMiddle()
-                                        .Text($"{rx.DurationDays} Days").FontSize(9).Bold();
-                                });
-                        });
-
-                        if (!string.IsNullOrWhiteSpace(rx.Instructions))
-                        {
-                            col.Item().Column(c =>
-                            {
-                                c.Item().Text("Doctor's Notes").FontSize(13).Bold().FontColor("#1E3A5F");
-                                c.Item().PaddingTop(6).Background("#FFF9C4").Padding(12)
-                                    .Text($"\"{rx.Instructions}\"").FontSize(10).Italic().FontColor(Colors.Grey.Darken2);
-                            });
-                        }
-
-                        col.Item().AlignRight().Column(c =>
-                        {
-                            c.Item().AlignRight().Text($"Dr. {doctorName}").FontSize(12).Bold().FontColor("#1E3A5F");
-                            c.Item().AlignRight().Text(doctorSpecialization).FontSize(9).FontColor(Colors.Grey.Medium);
-                        });
-                    });
-
-                    page.Footer().Column(col =>
-                    {
-                        col.Item().LineHorizontal(1).LineColor("#D0D0D0");
-                        col.Item().PaddingTop(4).Row(row =>
-                        {
-                            row.RelativeItem()
-                                .Text("Generated by HMS. Please retain for your records.")
-                                .FontSize(8).FontColor(Colors.Grey.Medium);
-                            row.ConstantItem(80).AlignRight().Text(text =>
-                            {
-                                text.Span("Page ").FontSize(8).FontColor(Colors.Grey.Medium);
-                                text.CurrentPageNumber().FontSize(8).FontColor(Colors.Grey.Medium);
-                                text.Span(" of ").FontSize(8).FontColor(Colors.Grey.Medium);
-                                text.TotalPages().FontSize(8).FontColor(Colors.Grey.Medium);
-                            });
-                        });
-                    });
-                });
-            }).GeneratePdf();
         }
 
         // ── PICTURE UPLOAD ──────────────────────────────────────────────────────

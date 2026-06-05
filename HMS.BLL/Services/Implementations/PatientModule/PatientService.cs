@@ -60,10 +60,10 @@ namespace HMS.BLL.Services.Implementations.PatientModule
             patient.RegistrationDate = DateTime.UtcNow;
             patient.Status = PatientStatus.Active;
 
-            patient.MedicalRecordNumber = $"TEMP-{Guid.NewGuid():N}"; 
             var patientRepository = _unitOfWork.GetRepository<Patient, int>();
+            patient.MedicalRecordNumber = $"{Guid.NewGuid():N}";
             await patientRepository.AddAsync(patient);
-            await _unitOfWork.SaveChangesAsync(); // gets patient.Id
+            await _unitOfWork.SaveChangesAsync();
 
             patient.MedicalRecordNumber = $"MRN{patient.Id:D6}";
             patientRepository.Update(patient);
