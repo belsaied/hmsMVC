@@ -22,8 +22,7 @@ public class DataSeeding(HospitalDbContext _dbContext)
             if (pendingMigrations.Any())
                 await _dbContext.Database.MigrateAsync();
 
-            var basePath = Path.Combine(Directory.GetCurrentDirectory(), "..", "Infrastructure", "Persistence", "Data", "DataSeed");
-
+            var basePath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "HMS.DAL", "Data", "DataSeed");
             var jsonOptions = new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true,

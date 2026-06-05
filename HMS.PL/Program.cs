@@ -3,6 +3,7 @@ using HMS.PL.Extensions;
 using HMS.PL.Factories;
 using HMS.PL.Hubs;
 
+QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 var builder = WebApplication.CreateBuilder(args);
 
 // ── MVC + JSON ────────────────────────────────────────────────────────────
