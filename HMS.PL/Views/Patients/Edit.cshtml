@@ -5,114 +5,394 @@
     ViewData["Title"] = "Edit Patient";
 }
 
+@section Styles {
+    <style>
+        :root {
+            --hms-blue: #1a3a5c;
+            --hms-blue-mid: #2563a8;
+            --hms-accent: #0ea5e9;
+            --hms-orange: #d97706;
+            --hms-border: #e2e8f0;
+            --hms-text: #1e293b;
+            --hms-text-muted: #64748b;
+        }
+
+        .edit-header {
+            background: linear-gradient(135deg, #92400e 0%, var(--hms-orange) 100%);
+            color: white;
+            padding: 24px 32px;
+            border-radius: 16px 16px 0 0;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .edit-header-icon {
+            width: 52px;
+            height: 52px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .edit-header-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .edit-header-sub {
+            font-size: 0.84rem;
+            opacity: 0.7;
+            margin: 2px 0 0;
+        }
+
+        .edit-body {
+            background: white;
+            border-radius: 0 0 16px 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.09);
+            border: 1px solid var(--hms-border);
+            border-top: none;
+        }
+
+        .form-section {
+            padding: 28px 32px;
+            border-bottom: 1px solid var(--hms-border);
+        }
+
+        .section-title {
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: var(--hms-text-muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .section-title-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.82rem;
+        }
+
+        .form-label {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--hms-text);
+            margin-bottom: 6px;
+        }
+
+        .form-control {
+            border-radius: 10px;
+            border: 1.5px solid var(--hms-border);
+            padding: 10px 14px;
+            font-size: 0.9rem;
+            color: var(--hms-text);
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+            .form-control:focus {
+                border-color: var(--hms-orange);
+                box-shadow: 0 0 0 3px rgba(217,119,6,0.12);
+                outline: none;
+            }
+
+        .text-danger.small {
+            font-size: 0.78rem;
+            margin-top: 4px;
+            display: block;
+        }
+
+        .select2-container .select2-selection--single {
+            height: 44px !important;
+            border: 1.5px solid var(--hms-border) !important;
+            border-radius: 10px !important;
+        }
+
+        .select2-selection__rendered {
+            line-height: 44px !important;
+            padding: 0 14px !important;
+            font-size: 0.9rem;
+        }
+
+        .select2-selection__arrow {
+            height: 44px !important;
+        }
+
+        .current-pic-box {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px;
+            background: #f8faff;
+            border-radius: 12px;
+            border: 1px dashed var(--hms-border);
+            margin-bottom: 8px;
+        }
+
+            .current-pic-box img {
+                width: 56px;
+                height: 56px;
+                border-radius: 12px;
+                object-fit: cover;
+                border: 2px solid var(--hms-border);
+            }
+
+        .current-pic-placeholder {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            background: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--hms-text-muted);
+            font-size: 1.4rem;
+        }
+
+        .form-footer {
+            padding: 20px 32px;
+            background: #f8faff;
+            border-radius: 0 0 16px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-top: 1px solid var(--hms-border);
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, var(--hms-orange), #92400e);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 11px 28px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 14px rgba(217,119,6,0.3);
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+            .btn-save:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 6px 20px rgba(217,119,6,0.4);
+                color: white;
+            }
+
+        .btn-cancel {
+            background: white;
+            color: var(--hms-text-muted);
+            border: 1.5px solid var(--hms-border);
+            border-radius: 10px;
+            padding: 10px 22px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+            .btn-cancel:hover {
+                background: #f1f5f9;
+                color: var(--hms-text);
+            }
+
+        .alert-validation {
+            border-radius: 10px;
+            border: none;
+            background: #fef2f2;
+            border-left: 4px solid #ef4444;
+            color: #991b1b;
+            padding: 14px 18px;
+            font-size: 0.875rem;
+            margin: 20px 32px 0;
+        }
+    </style>
+}
+
 @section PageHeader {
     <div class="row mb-2">
-        <div class="col-sm-6">
-            <h1 class="m-0">Edit — @ViewBag.PatientName</h1>
-        </div>
+        <div class="col-sm-6"><h1 class="m-0">Edit Patient</h1></div>
         <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
                 <li class="breadcrumb-item"><a href="/">Home</a></li>
                 <li class="breadcrumb-item"><a asp-action="Index">Patients</a></li>
+                <li class="breadcrumb-item"><a asp-action="Details" asp-route-id="@ViewBag.PatientId">@ViewBag.PatientName</a></li>
                 <li class="breadcrumb-item active">Edit</li>
             </ol>
         </div>
     </div>
 }
 
-<div class="card card-warning">
-    <div class="card-header">
-        <h3 class="card-title">Update Patient Information</h3>
+<div>
+    <div class="edit-header">
+        <div class="edit-header-icon"><i class="fas fa-user-edit"></i></div>
+        <div>
+            <div class="edit-header-title">Edit — @ViewBag.PatientName</div>
+            <div class="edit-header-sub">Update patient information below. Only filled fields will be changed.</div>
+        </div>
     </div>
 
-    <form asp-action="Edit" asp-route-id="@ViewBag.PatientId" method="post">
+    <form asp-action="Edit" asp-route-id="@ViewBag.PatientId" method="post" enctype="multipart/form-data">
         @Html.AntiForgeryToken()
-        <div asp-validation-summary="All" class="alert alert-danger mx-3 mt-3"
-             style="display:@(ViewContext.ModelState.IsValid ? "none" : "block")"></div>
 
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label asp-for="FirstName"></label>
-                        <input asp-for="FirstName" class="form-control" />
-                        <span asp-validation-for="FirstName" class="text-danger small"></span>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label asp-for="LastName"></label>
-                        <input asp-for="LastName" class="form-control" />
-                        <span asp-validation-for="LastName" class="text-danger small"></span>
-                    </div>
-                </div>
-            </div>
+        @if (!ViewContext.ModelState.IsValid)
+        {
+            <div asp-validation-summary="All" class="alert-validation"></div>
+        }
 
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label asp-for="Phone"></label>
-                        <input asp-for="Phone" class="form-control" />
-                        <span asp-validation-for="Phone" class="text-danger small"></span>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label asp-for="Email"></label>
-                        <input asp-for="Email" type="email" class="form-control" />
-                        <span asp-validation-for="Email" class="text-danger small"></span>
-                    </div>
-                </div>
-            </div>
+        <div class="edit-body">
 
-            <div class="form-group">
-                <label asp-for="Status"></label>
-                <select asp-for="Status" asp-items="ViewBag.StatusList" class="form-control select2">
-                    <option value="">— Select Status —</option>
-                </select>
-            </div>
-
-            <!-- Address -->
-            <div class="card card-secondary card-outline mt-3">
-                <div class="card-header"><h5 class="card-title mb-0">Address</h5></div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label asp-for="Address!.Street">Street</label>
-                                <input asp-for="Address!.Street" class="form-control" />
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label asp-for="Address!.City">City</label>
-                                <input asp-for="Address!.City" class="form-control" />
-                            </div>
+            <!-- Section 1: Personal Info -->
+            <div class="form-section">
+                <div class="section-title">
+                    <div class="section-title-icon" style="background:#dbeafe"><i class="fas fa-user" style="color:#2563a8"></i></div>
+                    Personal Information
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="FirstName" class="form-label">First Name</label>
+                            <input asp-for="FirstName" class="form-control" placeholder="First name" />
+                            <span asp-validation-for="FirstName" class="text-danger small"></span>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label asp-for="Address!.Country">Country</label>
-                                <input asp-for="Address!.Country" class="form-control" />
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label asp-for="Address!.PostalCode">Postal Code</label>
-                                <input asp-for="Address!.PostalCode" class="form-control" />
-                            </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="LastName" class="form-label">Last Name</label>
+                            <input asp-for="LastName" class="form-control" placeholder="Last name" />
+                            <span asp-validation-for="LastName" class="text-danger small"></span>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Section 2: Contact -->
+            <div class="form-section">
+                <div class="section-title">
+                    <div class="section-title-icon" style="background:#d1fae5"><i class="fas fa-phone" style="color:#059669"></i></div>
+                    Contact Information
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Phone" class="form-label">Phone</label>
+                            <input asp-for="Phone" class="form-control" placeholder="Phone number" />
+                            <span asp-validation-for="Phone" class="text-danger small"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Email" class="form-label">Email</label>
+                            <input asp-for="Email" type="email" class="form-control" placeholder="Email address" />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3: Status & Picture -->
+            <div class="form-section">
+                <div class="section-title">
+                    <div class="section-title-icon" style="background:#ede9fe"><i class="fas fa-cog" style="color:#7c3aed"></i></div>
+                    Status & Profile Picture
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label asp-for="Status" class="form-label">Status</label>
+                            <select asp-for="Status" asp-items="ViewBag.StatusList" class="form-control select2">
+                                <option value="">— Select Status —</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label class="form-label">Profile Picture</label>
+                            <div class="current-pic-box">
+                                @if (!string.IsNullOrEmpty(ViewBag.CurrentPicture))
+                                {
+                                    <img src="/@ViewBag.CurrentPicture" alt="Current picture" />
+                                    <div>
+                                        <div style="font-size:0.85rem;font-weight:600">Current Photo</div>
+                                        <div style="font-size:0.78rem;color:var(--hms-text-muted)">Upload a new file to replace</div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="current-pic-placeholder"><i class="fas fa-user"></i></div>
+                                    <div>
+                                        <div style="font-size:0.85rem;font-weight:600">No Photo Set</div>
+                                        <div style="font-size:0.78rem;color:var(--hms-text-muted)">Upload a JPG, PNG or WebP file (max 5 MB)</div>
+                                    </div>
+                                }
+                            </div>
+                            <input type="file" name="pictureFile" class="form-control" accept=".jpg,.jpeg,.png,.webp" />
+                            <span class="text-danger small" id="picError"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 4: Address -->
+            <div class="form-section">
+                <div class="section-title">
+                    <div class="section-title-icon" style="background:#fef3c7"><i class="fas fa-map-marker-alt" style="color:#d97706"></i></div>
+                    Address
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Address!.Street" class="form-label">Street</label>
+                            <input asp-for="Address!.Street" class="form-control" placeholder="Street address" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Address!.City" class="form-label">City</label>
+                            <input asp-for="Address!.City" class="form-control" placeholder="City" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Address!.Country" class="form-label">Country</label>
+                            <input asp-for="Address!.Country" class="form-control" placeholder="Country" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Address!.PostalCode" class="form-label">Postal Code</label>
+                            <input asp-for="Address!.PostalCode" class="form-control" placeholder="Postal code" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
-        <div class="card-footer">
-            <button type="submit" class="btn btn-warning">
+        <div class="form-footer">
+            <button type="submit" class="btn-save">
                 <i class="fas fa-save"></i> Save Changes
             </button>
-            <a asp-action="Details" asp-route-id="@ViewBag.PatientId" class="btn btn-default ml-2">
+            <a asp-action="Details" asp-route-id="@ViewBag.PatientId" class="btn-cancel">
                 <i class="fas fa-times"></i> Cancel
             </a>
         </div>
@@ -124,6 +404,15 @@
     <script>
         $(document).ready(function () {
             $('.select2').select2({ theme: 'classic', width: '100%' });
+            $('[name="pictureFile"]').on('change', function () {
+                const f = this.files[0];
+                if (f && f.size > 5 * 1024 * 1024) {
+                    $('#picError').text('File must be under 5 MB.');
+                    this.value = '';
+                } else {
+                    $('#picError').text('');
+                }
+            });
         });
     </script>
 }

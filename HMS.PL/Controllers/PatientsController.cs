@@ -31,7 +31,7 @@ namespace HMS.PL.Controllers
                 Search = search,
                 Status = string.IsNullOrEmpty(status) ? null : Enum.Parse<PatientStatus>(status),
                 PageIndex = pageIndex,
-                PageSize = 10
+                PageSize = 12
             };
 
             var result = await _services.PatientService.GetAllPatientsAsync(parameters);
@@ -113,6 +113,7 @@ namespace HMS.PL.Controllers
                     Address = patient.Address,
                     Status = Enum.Parse<PatientStatus>(patient.Status)
                 };
+
                 ViewBag.PatientId = id;
                 ViewBag.PatientName = patient.FullName;
                 ViewBag.CurrentPicture = patient.PictureUrl;
@@ -201,10 +202,14 @@ namespace HMS.PL.Controllers
             {
                 var patient = await _services.PatientService.GetPatientByIdAsync(id);
                 var allergies = await _services.AllergyService.GetPatientAllergiesAsync(id);
+
                 ViewBag.PatientId = id;
                 ViewBag.PatientName = patient.FullName;
+                ViewBag.PatientStatus = patient.Status;
+                ViewBag.MedicalRecordNumber = patient.MedicalRecordNumber;
                 ViewBag.AllergyTypeList = BuildEnumSelectList<AllergyType>();
                 ViewBag.SeverityList = BuildEnumSelectList<Severity>();
+
                 return View(allergies);
             }
             catch (NotFoundException)
@@ -226,6 +231,7 @@ namespace HMS.PL.Controllers
             catch (BusinessRuleException ex) { TempData["Error"] = ex.Message; }
             catch (NotFoundException) { TempData["Error"] = "Patient not found."; }
             catch (Exception ex) { TempData["Error"] = ex.Message; }
+
             return RedirectToAction(nameof(Allergies), new { id });
         }
 
@@ -236,9 +242,11 @@ namespace HMS.PL.Controllers
             try
             {
                 await _services.AllergyService.RemoveAllergyAsync(id, allergyId);
-                TempData["Success"] = "Allergy removed.";
+                TempData["Success"] = "Allergy removed successfully.";
             }
+            catch (BusinessRuleException ex) { TempData["Error"] = ex.Message; }
             catch (Exception ex) { TempData["Error"] = ex.Message; }
+
             return RedirectToAction(nameof(Allergies), new { id });
         }
 
@@ -250,9 +258,13 @@ namespace HMS.PL.Controllers
             {
                 var patient = await _services.PatientService.GetPatientByIdAsync(id);
                 var histories = await _services.MedicalHistoryService.GetPatientMedicalHistoryAsync(id);
+
                 ViewBag.PatientId = id;
                 ViewBag.PatientName = patient.FullName;
+                ViewBag.PatientStatus = patient.Status;
+                ViewBag.MedicalRecordNumber = patient.MedicalRecordNumber;
                 ViewBag.ConditionTypeList = BuildEnumSelectList<ConditionType>();
+
                 return View(histories);
             }
             catch (NotFoundException)
@@ -269,10 +281,11 @@ namespace HMS.PL.Controllers
             try
             {
                 await _services.MedicalHistoryService.AddMedicalHistoryAsync(id, dto);
-                TempData["Success"] = "Medical history entry added.";
+                TempData["Success"] = "Medical history entry added successfully.";
             }
             catch (BusinessRuleException ex) { TempData["Error"] = ex.Message; }
             catch (Exception ex) { TempData["Error"] = ex.Message; }
+
             return RedirectToAction(nameof(MedicalHistories), new { id });
         }
 
@@ -283,9 +296,11 @@ namespace HMS.PL.Controllers
             try
             {
                 await _services.MedicalHistoryService.UpdateMedicalHistoryAsync(id, historyId, dto);
-                TempData["Success"] = "Medical history updated.";
+                TempData["Success"] = "Medical history updated successfully.";
             }
+            catch (BusinessRuleException ex) { TempData["Error"] = ex.Message; }
             catch (Exception ex) { TempData["Error"] = ex.Message; }
+
             return RedirectToAction(nameof(MedicalHistories), new { id });
         }
 
@@ -297,8 +312,12 @@ namespace HMS.PL.Controllers
             {
                 var patient = await _services.PatientService.GetPatientByIdAsync(id);
                 var contacts = await _services.EmergencyContactService.GetEmergencyContactsAsync(id);
+
                 ViewBag.PatientId = id;
                 ViewBag.PatientName = patient.FullName;
+                ViewBag.PatientStatus = patient.Status;
+                ViewBag.MedicalRecordNumber = patient.MedicalRecordNumber;
+
                 return View(contacts);
             }
             catch (NotFoundException)
@@ -315,10 +334,11 @@ namespace HMS.PL.Controllers
             try
             {
                 await _services.EmergencyContactService.AddEmergencyContactAsync(id, dto);
-                TempData["Success"] = $"Emergency contact '{dto.Name}' added.";
+                TempData["Success"] = $"Emergency contact '{dto.Name}' added successfully.";
             }
             catch (BusinessRuleException ex) { TempData["Error"] = ex.Message; }
             catch (Exception ex) { TempData["Error"] = ex.Message; }
+
             return RedirectToAction(nameof(EmergencyContacts), new { id });
         }
 
@@ -329,9 +349,11 @@ namespace HMS.PL.Controllers
             try
             {
                 await _services.EmergencyContactService.UpdateEmergencyContactAsync(id, contactId, dto);
-                TempData["Success"] = "Emergency contact updated.";
+                TempData["Success"] = "Emergency contact updated successfully.";
             }
+            catch (BusinessRuleException ex) { TempData["Error"] = ex.Message; }
             catch (Exception ex) { TempData["Error"] = ex.Message; }
+
             return RedirectToAction(nameof(EmergencyContacts), new { id });
         }
 
@@ -342,9 +364,11 @@ namespace HMS.PL.Controllers
             try
             {
                 await _services.EmergencyContactService.DeleteEmergencyContactAsync(id, contactId);
-                TempData["Success"] = "Emergency contact removed.";
+                TempData["Success"] = "Emergency contact removed successfully.";
             }
+            catch (BusinessRuleException ex) { TempData["Error"] = ex.Message; }
             catch (Exception ex) { TempData["Error"] = ex.Message; }
+
             return RedirectToAction(nameof(EmergencyContacts), new { id });
         }
 
@@ -356,8 +380,14 @@ namespace HMS.PL.Controllers
             {
                 var patient = await _services.PatientService.GetPatientByIdAsync(id);
                 var vitals = await _services.VitalSignService.GetPatientVitalHistoryAsync(id);
+                var latest = await _services.VitalSignService.GetLatestVitalsAsync(id);
+
                 ViewBag.PatientId = id;
                 ViewBag.PatientName = patient.FullName;
+                ViewBag.PatientStatus = patient.Status;
+                ViewBag.MedicalRecordNumber = patient.MedicalRecordNumber;
+                ViewBag.LatestVitals = latest;
+
                 return View(vitals);
             }
             catch (NotFoundException)
@@ -375,8 +405,12 @@ namespace HMS.PL.Controllers
             {
                 var patient = await _services.PatientService.GetPatientByIdAsync(id);
                 var prescriptions = await _services.PrescriptionService.GetPatientPrescriptionsAsync(id);
+
                 ViewBag.PatientId = id;
                 ViewBag.PatientName = patient.FullName;
+                ViewBag.PatientStatus = patient.Status;
+                ViewBag.MedicalRecordNumber = patient.MedicalRecordNumber;
+
                 return View(prescriptions);
             }
             catch (NotFoundException)
@@ -394,8 +428,12 @@ namespace HMS.PL.Controllers
             {
                 var patient = await _services.PatientService.GetPatientByIdAsync(id);
                 var orders = await _services.LabOrderService.GetPatientLabOrdersAsync(id);
+
                 ViewBag.PatientId = id;
                 ViewBag.PatientName = patient.FullName;
+                ViewBag.PatientStatus = patient.Status;
+                ViewBag.MedicalRecordNumber = patient.MedicalRecordNumber;
+
                 return View(orders);
             }
             catch (NotFoundException)
@@ -427,9 +465,10 @@ namespace HMS.PL.Controllers
                 }
 
                 await _services.PatientService.UpdatePatientAsync(id, new UpdatePatientDto { PictureUrl = result.Path });
-                TempData["Success"] = "Profile picture updated.";
+                TempData["Success"] = "Profile picture updated successfully.";
             }
             catch (Exception ex) { TempData["Error"] = ex.Message; }
+
             return RedirectToAction(nameof(Details), new { id });
         }
 
@@ -455,8 +494,10 @@ namespace HMS.PL.Controllers
             var items = Enum.GetNames(typeof(TEnum))
                 .Select(n => new SelectListItem { Value = n, Text = SplitCamelCase(n) })
                 .ToList();
+
             if (addEmpty)
                 items.Insert(0, new SelectListItem { Value = "", Text = "— Not specified —" });
+
             return new SelectList(items, "Value", "Text");
         }
 
@@ -468,6 +509,7 @@ namespace HMS.PL.Controllers
         {
             var allowed = new[] { ".jpg", ".jpeg", ".png", ".webp" };
             var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+
             if (!allowed.Contains(ext))
                 return (true, "Only JPG, PNG, and WebP images are allowed.", null);
 
@@ -476,6 +518,7 @@ namespace HMS.PL.Controllers
 
             var folder = Path.Combine(_env.WebRootPath, "images", subfolder);
             Directory.CreateDirectory(folder);
+
             var fileName = $"{Guid.NewGuid()}{ext}";
             var fullPath = Path.Combine(folder, fileName);
 

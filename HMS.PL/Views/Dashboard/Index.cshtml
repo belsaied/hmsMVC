@@ -2,66 +2,588 @@
     ViewData["Title"] = "Dashboard";
 }
 
+@section Styles {
+    <style>
+        :root {
+            --primary: #1E3A5F;
+            --accent: #0078D4;
+            --accent-light: #4da3e8;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --info: #0078D4;
+            --surface: #ffffff;
+            --surface-alt: #f8fafc;
+            --border: #e2e8f0;
+            --text-primary: #1a202c;
+            --text-muted: #718096;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+            --shadow-md: 0 4px 12px rgba(0,0,0,.1);
+            --shadow-lg: 0 10px 30px rgba(0,0,0,.12);
+            --radius: 12px;
+            --radius-sm: 8px;
+        }
+
+        .dash-header {
+            background: linear-gradient(135deg, #1E3A5F 0%, #0d2644 60%, #071829 100%);
+            padding: 2rem 2.5rem;
+            border-radius: var(--radius);
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+            color: #fff;
+        }
+
+        .dash-header::before {
+            content: '';
+            position: absolute;
+            top: -60px; right: -60px;
+            width: 250px; height: 250px;
+            background: radial-gradient(circle, rgba(0,120,212,.3) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .dash-header::after {
+            content: '';
+            position: absolute;
+            bottom: -80px; left: 30%;
+            width: 320px; height: 320px;
+            background: radial-gradient(circle, rgba(77,163,232,.15) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .dash-header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: .25rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .dash-header p {
+            color: rgba(255,255,255,.65);
+            font-size: .9rem;
+            position: relative;
+            z-index: 1;
+            margin: 0;
+        }
+
+        .dash-header .header-actions {
+            position: relative;
+            z-index: 1;
+        }
+
+        .kpi-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            transition: transform .2s ease, box-shadow .2s ease;
+            position: relative;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .kpi-card .kpi-icon {
+            width: 52px; height: 52px;
+            border-radius: var(--radius-sm);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.35rem;
+            margin-bottom: 1rem;
+        }
+
+        .kpi-card .kpi-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1;
+            margin-bottom: .25rem;
+        }
+
+        .kpi-card .kpi-label {
+            font-size: .8rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            margin-bottom: .75rem;
+        }
+
+        .kpi-card .kpi-trend {
+            font-size: .78rem;
+            display: flex; align-items: center; gap: .35rem;
+        }
+
+        .kpi-card .kpi-strip {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            border-radius: var(--radius) var(--radius) 0 0;
+        }
+
+        .kpi-blue .kpi-icon { background: rgba(0,120,212,.1); color: var(--accent); }
+        .kpi-blue .kpi-strip { background: linear-gradient(90deg, #0078D4, #4da3e8); }
+        .kpi-green .kpi-icon { background: rgba(39,174,96,.1); color: var(--success); }
+        .kpi-green .kpi-strip { background: linear-gradient(90deg, #27ae60, #55d98d); }
+        .kpi-orange .kpi-icon { background: rgba(243,156,18,.1); color: var(--warning); }
+        .kpi-orange .kpi-strip { background: linear-gradient(90deg, #f39c12, #f5c35c); }
+        .kpi-red .kpi-icon { background: rgba(231,76,60,.1); color: var(--danger); }
+        .kpi-red .kpi-strip { background: linear-gradient(90deg, #e74c3c, #f08080); }
+
+        .trend-up { color: var(--success); }
+        .trend-down { color: var(--danger); }
+        .trend-neutral { color: var(--text-muted); }
+
+        .section-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .section-card .card-header-custom {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+
+        .section-card .card-header-custom h6 {
+            font-size: .9rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+            display: flex; align-items: center; gap: .5rem;
+        }
+
+        .section-card .card-header-custom h6 i {
+            color: var(--accent);
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: flex-start;
+            padding: .85rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            gap: 1rem;
+            transition: background .15s;
+        }
+
+        .activity-item:last-child { border-bottom: none; }
+        .activity-item:hover { background: var(--surface-alt); }
+
+        .activity-icon {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: .8rem;
+            flex-shrink: 0;
+        }
+
+        .activity-body { flex: 1; min-width: 0; }
+        .activity-body strong { font-size: .85rem; color: var(--text-primary); display: block; }
+        .activity-body span { font-size: .78rem; color: var(--text-muted); }
+
+        .quick-action {
+            display: flex;
+            align-items: center;
+            padding: .9rem 1.25rem;
+            border-radius: var(--radius-sm);
+            text-decoration: none;
+            color: var(--text-primary);
+            gap: .85rem;
+            transition: background .15s, transform .1s;
+            border: 1px solid var(--border);
+            background: var(--surface);
+        }
+
+        .quick-action:hover {
+            background: var(--surface-alt);
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateX(3px);
+            text-decoration: none;
+        }
+
+        .quick-action i { font-size: 1.1rem; width: 20px; text-align: center; }
+        .quick-action span { font-size: .85rem; font-weight: 500; }
+
+        .occupancy-bar-wrap {
+            padding: .85rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .occupancy-bar-wrap:last-child { border-bottom: none; }
+
+        .occupancy-bar-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: .8rem;
+            margin-bottom: .4rem;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .occupancy-bar-track {
+            height: 8px;
+            background: var(--border);
+            border-radius: 99px;
+            overflow: hidden;
+        }
+
+        .occupancy-bar-fill {
+            height: 100%;
+            border-radius: 99px;
+            transition: width .6s ease;
+        }
+
+        .status-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: .4rem;
+        }
+
+        .stat-mini {
+            text-align: center;
+            padding: 1rem;
+            border-right: 1px solid var(--border);
+        }
+
+        .stat-mini:last-child { border-right: none; }
+        .stat-mini .val { font-size: 1.4rem; font-weight: 700; color: var(--text-primary); }
+        .stat-mini .lbl { font-size: .7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; }
+
+        @@media (max-width: 768px) {
+            .dash-header { padding: 1.5rem; }
+            .kpi-card .kpi-value { font-size: 1.6rem; }
+        }
+    </style>
+}
+
 @section PageHeader {
-    <div class="row mb-2">
-        <div class="col-sm-6">
-            <h1 class="m-0">Dashboard</h1>
+    <div class="row mb-3 align-items-center">
+        <div class="col">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1" style="font-size:.8rem">
+                    <li class="breadcrumb-item active">Dashboard</li>
+                </ol>
+            </nav>
+            <h4 class="mb-0 fw-bold" style="color:#1E3A5F">HMS Dashboard</h4>
         </div>
-        <div class="col-sm-6">
-            <ol class="breadcrumb float-sm-right">
-                <li class="breadcrumb-item active">Dashboard</li>
-            </ol>
+        <div class="col-auto">
+            <span class="badge" style="background:#e8f4fd;color:#0078D4;font-size:.8rem;padding:.4rem .8rem;border-radius:6px">
+                <i class="fas fa-circle" style="font-size:.5rem;vertical-align:middle;margin-right:.3rem;color:#27ae60"></i>
+                System Online
+            </span>
         </div>
     </div>
 }
 
-<div class="row">
-    <div class="col-lg-3 col-6">
-        <div class="small-box bg-info">
-            <div class="inner">
-                <h3>—</h3>
-                <p>Total Patients</p>
-            </div>
-            <div class="icon"><i class="fas fa-user-injured"></i></div>
-            <a asp-controller="Patients" asp-action="Index" class="small-box-footer">
-                View All <i class="fas fa-arrow-circle-right"></i>
-            </a>
+<!-- Hero Header -->
+<div class="dash-header mb-4">
+    <div class="row align-items-center">
+        <div class="col">
+            <h1>Good day, Administrator 👋</h1>
+            <p>@DateTime.Now.ToString("dddd, MMMM dd yyyy") &nbsp;|&nbsp; Here's what's happening at HMS today.</p>
         </div>
-    </div>
-    <div class="col-lg-3 col-6">
-        <div class="small-box bg-success">
-            <div class="inner">
-                <h3>—</h3>
-                <p>Active Doctors</p>
-            </div>
-            <div class="icon"><i class="fas fa-user-md"></i></div>
-            <a asp-controller="Doctors" asp-action="Index" class="small-box-footer">
-                View All <i class="fas fa-arrow-circle-right"></i>
+        <div class="col-auto header-actions d-none d-md-block">
+            <a asp-controller="Patients" asp-action="Create" class="btn btn-sm me-2"
+               style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:.5rem 1rem">
+                <i class="fas fa-plus me-1"></i> New Patient
             </a>
-        </div>
-    </div>
-    <div class="col-lg-3 col-6">
-        <div class="small-box bg-warning">
-            <div class="inner">
-                <h3>—</h3>
-                <p>Today's Appointments</p>
-            </div>
-            <div class="icon"><i class="fas fa-calendar-check"></i></div>
-            <a asp-controller="Appointments" asp-action="Index" class="small-box-footer">
-                View All <i class="fas fa-arrow-circle-right"></i>
-            </a>
-        </div>
-    </div>
-    <div class="col-lg-3 col-6">
-        <div class="small-box bg-danger">
-            <div class="inner">
-                <h3>—</h3>
-                <p>Available Beds</p>
-            </div>
-            <div class="icon"><i class="fas fa-bed"></i></div>
-            <a asp-controller="Wards" asp-action="Index" class="small-box-footer">
-                View All <i class="fas fa-arrow-circle-right"></i>
+            <a asp-controller="Doctors" asp-action="Create" class="btn btn-sm"
+               style="background:rgba(0,120,212,.8);color:#fff;border:none;border-radius:8px;padding:.5rem 1rem">
+                <i class="fas fa-user-md me-1"></i> New Doctor
             </a>
         </div>
     </div>
 </div>
+
+<!-- KPI Row -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="kpi-card kpi-blue">
+            <div class="kpi-strip"></div>
+            <div class="kpi-icon"><i class="fas fa-user-injured"></i></div>
+            <div class="kpi-value" id="kpiPatients">—</div>
+            <div class="kpi-label">Total Patients</div>
+            <div class="kpi-trend trend-neutral">
+                <i class="fas fa-users"></i> Registered in system
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="kpi-card kpi-green">
+            <div class="kpi-strip"></div>
+            <div class="kpi-icon"><i class="fas fa-user-md"></i></div>
+            <div class="kpi-value" id="kpiDoctors">—</div>
+            <div class="kpi-label">Active Doctors</div>
+            <div class="kpi-trend trend-neutral">
+                <i class="fas fa-stethoscope"></i> Across all departments
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="kpi-card kpi-orange">
+            <div class="kpi-strip"></div>
+            <div class="kpi-icon"><i class="fas fa-calendar-check"></i></div>
+            <div class="kpi-value" id="kpiAppointments">—</div>
+            <div class="kpi-label">Today's Appointments</div>
+            <div class="kpi-trend trend-neutral">
+                <i class="fas fa-clock"></i> Scheduled &amp; Confirmed
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="kpi-card kpi-red">
+            <div class="kpi-strip"></div>
+            <div class="kpi-icon"><i class="fas fa-bed"></i></div>
+            <div class="kpi-value" id="kpiBeds">—</div>
+            <div class="kpi-label">Available Beds</div>
+            <div class="kpi-trend trend-neutral">
+                <i class="fas fa-hospital"></i> Across all wards
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="row g-3">
+    <!-- Quick Actions -->
+    <div class="col-12 col-lg-3">
+        <div class="section-card mb-3">
+            <div class="card-header-custom">
+                <h6><i class="fas fa-bolt"></i> Quick Actions</h6>
+            </div>
+            <div class="p-3" style="display:flex;flex-direction:column;gap:.5rem">
+                <a asp-controller="Patients" asp-action="Create" class="quick-action">
+                    <i class="fas fa-user-plus" style="color:#0078D4"></i>
+                    <span>Register Patient</span>
+                </a>
+                <a asp-controller="Doctors" asp-action="Create" class="quick-action">
+                    <i class="fas fa-user-md" style="color:#27ae60"></i>
+                    <span>Add Doctor</span>
+                </a>
+                <a asp-controller="Appointments" asp-action="Index" class="quick-action">
+                    <i class="fas fa-calendar-plus" style="color:#f39c12"></i>
+                    <span>View Appointments</span>
+                </a>
+                <a asp-controller="Wards" asp-action="Index" class="quick-action">
+                    <i class="fas fa-bed" style="color:#e74c3c"></i>
+                    <span>Ward &amp; Beds</span>
+                </a>
+                <a asp-controller="Invoices" asp-action="Index" class="quick-action">
+                    <i class="fas fa-file-invoice-dollar" style="color:#8e44ad"></i>
+                    <span>Invoices</span>
+                </a>
+                <a asp-controller="Departments" asp-action="Index" class="quick-action">
+                    <i class="fas fa-building" style="color:#0078D4"></i>
+                    <span>Departments</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- System Status -->
+        <div class="section-card">
+            <div class="card-header-custom">
+                <h6><i class="fas fa-signal"></i> System Status</h6>
+            </div>
+            <div class="p-3" style="display:flex;flex-direction:column;gap:.6rem">
+                <div class="d-flex justify-content-between align-items-center" style="font-size:.82rem">
+                    <span><span class="status-dot" style="background:#27ae60"></span> Database</span>
+                    <span class="badge" style="background:#eafaf1;color:#27ae60;font-size:.7rem">Online</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center" style="font-size:.82rem">
+                    <span><span class="status-dot" style="background:#27ae60"></span> API Services</span>
+                    <span class="badge" style="background:#eafaf1;color:#27ae60;font-size:.7rem">Online</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center" style="font-size:.82rem">
+                    <span><span class="status-dot" style="background:#27ae60"></span> Background Jobs</span>
+                    <span class="badge" style="background:#eafaf1;color:#27ae60;font-size:.7rem">Running</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center" style="font-size:.82rem">
+                    <span><span class="status-dot" style="background:#f39c12"></span> Email Notifications</span>
+                    <span class="badge" style="background:#fef9e7;color:#f39c12;font-size:.7rem">Configured</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center" style="font-size:.82rem">
+                    <span><span class="status-dot" style="background:#27ae60"></span> SignalR Hubs</span>
+                    <span class="badge" style="background:#eafaf1;color:#27ae60;font-size:.7rem">Active</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Center: Ward Occupancy + Recent Activity -->
+    <div class="col-12 col-lg-6">
+        <!-- Ward Occupancy Bars -->
+        <div class="section-card mb-3">
+            <div class="card-header-custom">
+                <h6><i class="fas fa-hospital"></i> Ward Occupancy Overview</h6>
+                <a asp-controller="Wards" asp-action="Index" style="font-size:.78rem;color:var(--accent);text-decoration:none">View all →</a>
+            </div>
+            <div id="wardOccupancyContainer">
+                <div class="text-center py-4 text-muted" style="font-size:.85rem">
+                    <i class="fas fa-spinner fa-spin me-2"></i> Loading ward data...
+                </div>
+            </div>
+        </div>
+
+        <!-- Module Stats -->
+        <div class="section-card">
+            <div class="card-header-custom">
+                <h6><i class="fas fa-chart-bar"></i> Module Overview</h6>
+            </div>
+            <div class="row g-0">
+                <div class="col stat-mini">
+                    <div class="val" id="modDepts">—</div>
+                    <div class="lbl">Departments</div>
+                </div>
+                <div class="col stat-mini">
+                    <div class="val" id="modWards">—</div>
+                    <div class="lbl">Wards</div>
+                </div>
+                <div class="col stat-mini">
+                    <div class="val" id="modInvoices">—</div>
+                    <div class="lbl">Invoices</div>
+                </div>
+                <div class="col stat-mini">
+                    <div class="val" id="modBeds">—</div>
+                    <div class="lbl">Total Beds</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right: Navigation Links -->
+    <div class="col-12 col-lg-3">
+        <div class="section-card mb-3">
+            <div class="card-header-custom">
+                <h6><i class="fas fa-th-large"></i> All Modules</h6>
+            </div>
+            <div class="p-3" style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
+                <a asp-controller="Patients" asp-action="Index"
+                   class="text-center p-3 text-decoration-none"
+                   style="background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;transition:border-color .15s;color:#1a202c"
+                   onmouseover="this.style.borderColor='#0078D4'" onmouseout="this.style.borderColor='#e2e8f0'">
+                    <i class="fas fa-user-injured d-block mb-2" style="color:#0078D4;font-size:1.3rem"></i>
+                    <span style="font-size:.75rem;font-weight:600">Patients</span>
+                </a>
+                <a asp-controller="Doctors" asp-action="Index"
+                   class="text-center p-3 text-decoration-none"
+                   style="background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;transition:border-color .15s;color:#1a202c"
+                   onmouseover="this.style.borderColor='#27ae60'" onmouseout="this.style.borderColor='#e2e8f0'">
+                    <i class="fas fa-user-md d-block mb-2" style="color:#27ae60;font-size:1.3rem"></i>
+                    <span style="font-size:.75rem;font-weight:600">Doctors</span>
+                </a>
+                <a asp-controller="Departments" asp-action="Index"
+                   class="text-center p-3 text-decoration-none"
+                   style="background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;transition:border-color .15s;color:#1a202c"
+                   onmouseover="this.style.borderColor='#0078D4'" onmouseout="this.style.borderColor='#e2e8f0'">
+                    <i class="fas fa-building d-block mb-2" style="color:#0078D4;font-size:1.3rem"></i>
+                    <span style="font-size:.75rem;font-weight:600">Departments</span>
+                </a>
+                <a asp-controller="Appointments" asp-action="Index"
+                   class="text-center p-3 text-decoration-none"
+                   style="background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;transition:border-color .15s;color:#1a202c"
+                   onmouseover="this.style.borderColor='#f39c12'" onmouseout="this.style.borderColor='#e2e8f0'">
+                    <i class="fas fa-calendar-check d-block mb-2" style="color:#f39c12;font-size:1.3rem"></i>
+                    <span style="font-size:.75rem;font-weight:600">Appointments</span>
+                </a>
+                <a asp-controller="Wards" asp-action="Index"
+                   class="text-center p-3 text-decoration-none"
+                   style="background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;transition:border-color .15s;color:#1a202c"
+                   onmouseover="this.style.borderColor='#e74c3c'" onmouseout="this.style.borderColor='#e2e8f0'">
+                    <i class="fas fa-bed d-block mb-2" style="color:#e74c3c;font-size:1.3rem"></i>
+                    <span style="font-size:.75rem;font-weight:600">Wards &amp; Beds</span>
+                </a>
+                <a asp-controller="Invoices" asp-action="Index"
+                   class="text-center p-3 text-decoration-none"
+                   style="background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;transition:border-color .15s;color:#1a202c"
+                   onmouseover="this.style.borderColor='#8e44ad'" onmouseout="this.style.borderColor='#e2e8f0'">
+                    <i class="fas fa-file-invoice-dollar d-block mb-2" style="color:#8e44ad;font-size:1.3rem"></i>
+                    <span style="font-size:.75rem;font-weight:600">Billing</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Hangfire Link -->
+        <div class="section-card">
+            <div class="card-header-custom">
+                <h6><i class="fas fa-tasks"></i> Background Jobs</h6>
+            </div>
+            <div class="p-3">
+                <p style="font-size:.82rem;color:#718096;margin-bottom:.75rem">
+                    Monitor and manage recurring tasks like overdue invoice marking, appointment reminders, and prescription expiry warnings.
+                </p>
+                <a href="/hangfire" target="_blank"
+                   class="btn btn-sm w-100"
+                   style="background:#1E3A5F;color:#fff;border-radius:8px;font-size:.8rem;padding:.5rem">
+                    <i class="fas fa-external-link-alt me-1"></i> Open Hangfire Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Animate counters
+        function animateCounter(el, target) {
+            if (!el || target === null) return;
+            const duration = 900;
+            const start = performance.now();
+            const from = 0;
+            function step(now) {
+                const p = Math.min((now - start) / duration, 1);
+                const ease = 1 - Math.pow(1 - p, 3);
+                el.textContent = Math.round(from + (target - from) * ease);
+                if (p < 1) requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
+        }
+
+        // Simulate dashboard data (in real scenario these come from controller ViewBag or API)
+        document.addEventListener('DOMContentLoaded', function () {
+            setTimeout(() => {
+                animateCounter(document.getElementById('kpiPatients'), 5);
+                animateCounter(document.getElementById('kpiDoctors'), 14);
+                animateCounter(document.getElementById('kpiAppointments'), 3);
+                animateCounter(document.getElementById('kpiBeds'), 12);
+                animateCounter(document.getElementById('modDepts'), 15);
+                animateCounter(document.getElementById('modWards'), 3);
+                animateCounter(document.getElementById('modInvoices'), 0);
+                animateCounter(document.getElementById('modBeds'), 18);
+            }, 300);
+
+            // Ward occupancy placeholder
+            const wardContainer = document.getElementById('wardOccupancyContainer');
+            const wards = [
+                { name: 'General Medicine', occupied: 1, total: 6, color: '#0078D4' },
+                { name: 'ICU', occupied: 1, total: 6, color: '#e74c3c' },
+                { name: 'Pediatrics', occupied: 0, total: 6, color: '#27ae60' }
+            ];
+
+            wardContainer.innerHTML = wards.map(w => {
+                const pct = Math.round((w.occupied / w.total) * 100);
+                const barColor = pct > 80 ? '#e74c3c' : pct > 50 ? '#f39c12' : w.color;
+                return `
+                    <div class="occupancy-bar-wrap">
+                        <div class="occupancy-bar-label">
+                            <span>${w.name}</span>
+                            <span style="color:var(--text-muted)">${w.occupied}/${w.total} beds &nbsp;<strong style="color:var(--text-primary)">${pct}%</strong></span>
+                        </div>
+                        <div class="occupancy-bar-track">
+                            <div class="occupancy-bar-fill" style="width:${pct}%;background:${barColor}"></div>
+                        </div>
+                    </div>`;
+            }).join('');
+        });
+    </script>
+}

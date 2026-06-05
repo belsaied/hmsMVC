@@ -1,8 +1,4 @@
 ﻿// HMS.PL/Extensions/CoreServiceExtensions.cs
-using HMS.BLL.ServicesAbstraction.Contracts;
-using HMS.BLL.ServicesAbstraction.Contracts.BillingService;
-using HMS.BLL.ServicesAbstraction.Contracts.NotificationService;
-using HMS.BLL.ServicesAbstraction.Contracts.WardBedService;
 using HMS.BLL.Services.Implementations;
 using HMS.BLL.Services.Implementations.AppointmentModule;
 using HMS.BLL.Services.Implementations.BillingModule;
@@ -12,6 +8,11 @@ using HMS.BLL.Services.Implementations.NotificationModule;
 using HMS.BLL.Services.Implementations.PatientModule;
 using HMS.BLL.Services.Implementations.UserManagementModule;
 using HMS.BLL.Services.Implementations.WardBedModule;
+using HMS.BLL.Services.MappingProfiles.PatientModule;
+using HMS.BLL.ServicesAbstraction.Contracts;
+using HMS.BLL.ServicesAbstraction.Contracts.BillingService;
+using HMS.BLL.ServicesAbstraction.Contracts.NotificationService;
+using HMS.BLL.ServicesAbstraction.Contracts.WardBedService;
 using HMS.BLL.Shared.Common;
 using HMS.PL.Authorization;
 using HMS.PL.Hubs;
@@ -68,7 +69,7 @@ namespace HMS.PL.Extensions
             // ── AutoMapper (v16 API) ───────────────────────────────────────────
             services.AddAutoMapper(cfg =>
                 cfg.AddMaps(typeof(HMS.BLL.Services.ServiceAssemblyReference).Assembly));
-
+            services.AddTransient(typeof(PatientPictureUrlResolver<>));
             // ── Service Manager (factory delegate pattern) ────────────────────
             services.AddScoped<IServiceManager, ServiceManagerWithFactoryDelegate>(sp =>
                 new ServiceManagerWithFactoryDelegate(
