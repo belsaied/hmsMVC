@@ -1,0 +1,221 @@
+@using HMS.BLL.Shared.Dtos.MedicalRecordsDto
+@model IEnumerable<LabOrderResultDto>
+
+@{
+    ViewData["Title"] = "Lab Orders — " + ViewBag.PatientName;
+}
+
+@section Styles {
+    <style>
+        :root {
+            --hms-blue: #1a3a5c;
+            --hms-blue-mid: #2563a8;
+            --hms-accent: #0ea5e9;
+            --hms-green: #10b981;
+            --hms-red: #ef4444;
+            --hms-orange: #f59e0b;
+            --hms-border: #e2e8f0;
+            --hms-text: #1e293b;
+            --hms-text-muted: #64748b;
+        }
+
+        .page-header-card {
+            background: linear-gradient(135deg, #047857 0%, #10b981 100%);
+            color: white; padding: 24px 28px; border-radius: 16px; margin-bottom: 24px;
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 8px 32px rgba(16,185,129,0.18);
+        }
+        .page-title { font-size: 1.4rem; font-weight: 700; margin: 0; }
+        .page-subtitle { font-size: 0.84rem; opacity: 0.75; margin: 4px 0 0; }
+        .patient-badge {
+            background: rgba(255,255,255,0.15); padding: 8px 16px; border-radius: 10px; font-size: 0.82rem;
+        }
+        .patient-badge strong { color: white; }
+        .mrn-code { font-family: monospace; font-weight: 700; }
+
+        .content-card {
+            background: white; border-radius: 14px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+            border: 1px solid var(--hms-border); overflow: hidden;
+        }
+        .card-header {
+            padding: 18px 20px; border-bottom: 1px solid var(--hms-border);
+            background: #f8faff; display: flex; align-items: center; justify-content: space-between;
+        }
+        .card-header h5 { margin: 0; font-weight: 700; font-size: 0.95rem; }
+
+        .lab-grid { display: grid; gap: 16px; }
+        .lab-card {
+            background: white; border: 1px solid var(--hms-border); border-radius: 14px;
+            padding: 20px; box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+            transition: box-shadow 0.15s;
+        }
+        .lab-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+        .lab-card .lab-header {
+            display: flex; align-items: flex-start; justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .lab-icon {
+            width: 42px; height: 42px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+        }
+
+        .status-pending { background: #fef3c7; color: #92400e; padding: 3px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+        .status-completed { background: #d1fae5; color: #065f46; padding: 3px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+        .status-cancelled { background: #fee2e2; color: #991b1b; padding: 3px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+        .status-in-progress { background: #dbeafe; color: #1e40af; padding: 3px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+
+        .priority-routine { color: var(--hms-gray); font-size: 0.75rem; font-weight: 600; }
+        .priority-urgent { color: #dc2626; font-size: 0.75rem; font-weight: 700; }
+        .priority-stat { color: #dc2626; font-size: 0.75rem; font-weight: 700; background: #fee2e2; padding: 1px 8px; border-radius: 6px; }
+
+        .empty-state { text-align: center; padding: 50px 20px; color: var(--hms-text-muted); }
+        .empty-state i { font-size: 3rem; opacity: 0.2; display: block; margin-bottom: 12px; }
+
+        .btn-back {
+            background: white; color: var(--hms-text-muted);
+            border: 1.5px solid var(--hms-border); border-radius: 10px;
+            padding: 9px 18px; font-weight: 600; font-size: 0.875rem;
+            text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn-back:hover { background: #f1f5f9; color: var(--hms-text); }
+
+        .result-box {
+            background: #f8faff; border-radius: 10px; padding: 14px 16px;
+            border: 1px solid var(--hms-border); margin-top: 10px;
+        }
+        .result-abnormal {
+            border-left: 3px solid var(--hms-red);
+            background: #fef2f2;
+        }
+        .result-normal {
+            border-left: 3px solid var(--hms-green);
+        }
+
+        .test-name { font-weight: 700; color: var(--hms-text); }
+        .test-code { font-size: 0.75rem; color: var(--hms-text-muted); font-family: monospace; }
+    </style>
+}
+
+<div class="page-header-card">
+    <div>
+        <h3 class="page-title"><i class="fas fa-flask mr-2"></i> Lab Orders</h3>
+        <p class="page-subtitle">Review laboratory test orders and results</p>
+    </div>
+    <div class="patient-badge">
+        <strong>@ViewBag.PatientName</strong>
+        <span> · </span>
+        <span class="mrn-code">@ViewBag.MedicalRecordNumber</span>
+    </div>
+</div>
+
+<div class="content-card">
+    <div class="card-header">
+        <h5><i class="fas fa-list mr-1"></i> Lab Orders & Results</h5>
+        <span style="font-size:0.85rem;color:var(--hms-text-muted)">@Model.Count() order(s)</span>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <i class="fas fa-flask"></i>
+            <p style="font-size:1rem;font-weight:600;color:var(--hms-text)">No lab orders found</p>
+            <p style="font-size:0.875rem">Lab orders will appear here once a doctor orders laboratory tests.</p>
+        </div>
+    }
+    else
+    {
+        <div style="padding:20px">
+            <div class="lab-grid">
+                @foreach (var order in Model)
+                {
+                    var (statusClass, statusLabel) = order.Status switch
+                    {
+                        "Pending" => ("status-pending", "Pending"),
+                        "InProgress" or "In Progress" => ("status-in-progress", "In Progress"),
+                        "Completed" => ("status-completed", "Completed"),
+                        "Cancelled" => ("status-cancelled", "Cancelled"),
+                        _ => ("status-pending", order.Status)
+                    };
+                    var priorityLabel = order.Priority switch
+                    {
+                        "Routine" => "priority-routine",
+                        "Urgent" => "priority-urgent",
+                        "STAT" => "priority-stat",
+                        _ => "priority-routine"
+                    };
+
+                    <div class="lab-card">
+                        <div class="lab-header">
+                            <div style="display:flex;align-items:flex-start;gap:14px;flex:1">
+                                <div class="lab-icon" style="background:#ecfdf5">
+                                    <i class="fas fa-flask" style="color:#059669"></i>
+                                </div>
+                                <div style="flex:1">
+                                    <div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px">
+                                        <span class="test-name">@order.TestName</span>
+                                        @if (!string.IsNullOrEmpty(order.TestCode))
+                                        {
+                                            <span class="test-code">@order.TestCode</span>
+                                        }
+                                        <span class="@priorityLabel">@order.Priority</span>
+                                    </div>
+                                    @if (!string.IsNullOrEmpty(order.Notes))
+                                    {
+                                        <div style="font-size:0.82rem;color:var(--hms-text-muted);margin-top:4px">
+                                            <i class="fas fa-sticky-note mr-1"></i>@order.Notes
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                            <div style="text-align:right;flex-shrink:0">
+                                <div><span class="@statusClass">@statusLabel</span></div>
+                                <div style="font-size:0.75rem;color:var(--hms-text-muted);margin-top:4px">
+                                    @order.OrderedAt.ToString("dd MMM yyyy · HH:mm")
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (order.Result != null)
+                        {
+                            <div class="result-box @(order.Result.IsAbnormal ? "result-abnormal" : "result-normal")">
+                                <div style="display:flex;align-items:center;justify-content:space-between">
+                                    <div>
+                                        <span style="font-weight:600;font-size:0.88rem">@order.Result.ResultText</span>
+                                        @if (!string.IsNullOrEmpty(order.Result.NormalRange))
+                                        {
+                                            <span style="font-size:0.78rem;color:var(--hms-text-muted)"> (normal: @order.Result.NormalRange)</span>
+                                        }
+                                    </div>
+                                    @if (order.Result.IsAbnormal)
+                                    {
+                                        <span style="color:#dc2626;font-size:0.75rem;font-weight:700">
+                                            <i class="fas fa-exclamation-triangle mr-1"></i> Abnormal
+                                        </span>
+                                    }
+                                </div>
+                                <div style="font-size:0.75rem;color:var(--hms-text-muted);margin-top:6px">
+                                    <i class="fas fa-user mr-1"></i> @order.Result.PerformedBy
+                                    <span class="mx-1">·</span>
+                                    <i class="fas fa-clock mr-1"></i> @order.Result.PerformedAt.ToString("dd MMM yyyy · HH:mm")
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+<div style="margin-top:20px">
+    <a asp-action="Details" asp-route-id="@ViewBag.PatientId" class="btn-back">
+        <i class="fas fa-arrow-left"></i> Back to Patient
+    </a>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () { });
+    </script>
+}

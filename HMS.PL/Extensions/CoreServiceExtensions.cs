@@ -9,6 +9,7 @@ using HMS.BLL.Services.Implementations.PatientModule;
 using HMS.BLL.Services.Implementations.UserManagementModule;
 using HMS.BLL.Services.Implementations.WardBedModule;
 using HMS.BLL.Services.MappingProfiles.PatientModule;
+using HMS.BLL.Services.MappingProfiles.DoctorModule;
 using HMS.BLL.ServicesAbstraction.Contracts;
 using HMS.BLL.ServicesAbstraction.Contracts.BillingService;
 using HMS.BLL.ServicesAbstraction.Contracts.NotificationService;
@@ -70,6 +71,7 @@ namespace HMS.PL.Extensions
             services.AddAutoMapper(cfg =>
                 cfg.AddMaps(typeof(HMS.BLL.Services.ServiceAssemblyReference).Assembly));
             services.AddTransient(typeof(PatientPictureUrlResolver<>));
+            services.AddTransient(typeof(DoctorPictureUrlResolver<>));
             // ── Service Manager (factory delegate pattern) ────────────────────
             services.AddScoped<IServiceManager, ServiceManagerWithFactoryDelegate>(sp =>
                 new ServiceManagerWithFactoryDelegate(

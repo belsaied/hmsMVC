@@ -1,0 +1,185 @@
+@using HMS.BLL.Shared.Dtos.DoctorModule.DoctorDtos
+@model IEnumerable<ScheduleResultDto>
+
+@{
+    ViewData["Title"] = "Schedule — " + ViewBag.DoctorName;
+}
+
+@section Styles {
+    <style>
+        :root {
+            --hms-teal: #0f766e;
+            --hms-teal-mid: #14b8a6;
+            --hms-accent: #0ea5e9;
+            --hms-green: #10b981;
+            --hms-red: #ef4444;
+            --hms-border: #e2e8f0;
+            --hms-text: #1e293b;
+            --hms-text-muted: #64748b;
+        }
+
+        .page-header-card {
+            background: linear-gradient(135deg, #0f766e 0%, #14b8a6 100%);
+            color: white; padding: 24px 28px; border-radius: 16px; margin-bottom: 24px;
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 8px 32px rgba(20,184,166,0.18);
+        }
+        .page-title { font-size: 1.4rem; font-weight: 700; margin: 0; }
+        .page-subtitle { font-size: 0.84rem; opacity: 0.75; margin: 4px 0 0; }
+        .doctor-badge { background: rgba(255,255,255,0.15); padding: 8px 16px; border-radius: 10px; font-size: 0.82rem; }
+        .doctor-badge strong { color: white; }
+
+        .content-card { background: white; border-radius: 14px; box-shadow: 0 2px 16px rgba(0,0,0,0.07); border: 1px solid var(--hms-border); overflow: hidden; }
+        .card-header { padding: 18px 20px; border-bottom: 1px solid var(--hms-border); background: #f8faff; display: flex; align-items: center; justify-content: space-between; }
+        .card-header h5 { margin: 0; font-weight: 700; font-size: 0.95rem; }
+
+        .form-label { font-size: 0.82rem; font-weight: 600; margin-bottom: 6px; }
+        .form-control { border-radius: 10px; border: 1.5px solid var(--hms-border); padding: 10px 14px; font-size: 0.9rem; }
+        .form-control:focus { border-color: var(--hms-accent); box-shadow: 0 0 0 3px rgba(14,165,233,0.12); }
+
+        .table { margin: 0; }
+        .table thead th { background: #0f766e; color: white; font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; padding: 12px 16px; border: none; }
+        .table tbody td { padding: 12px 16px; vertical-align: middle; border-bottom: 1px solid var(--hms-border); font-size: 0.88rem; }
+        .table tbody tr:hover td { background: #f8faff; }
+
+        .empty-state { text-align: center; padding: 50px 20px; color: var(--hms-text-muted); }
+        .empty-state i { font-size: 3rem; opacity: 0.2; display: block; margin-bottom: 12px; }
+
+        .btn-add { background: linear-gradient(135deg, #14b8a6, #0f766e); color: white; border: none; border-radius: 10px; padding: 10px 22px; font-weight: 700; font-size: 0.9rem; box-shadow: 0 4px 14px rgba(20,184,166,0.3); transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-add:hover { transform: translateY(-1px); color: white; }
+        .btn-back { background: white; color: var(--hms-text-muted); border: 1.5px solid var(--hms-border); border-radius: 10px; padding: 9px 18px; font-weight: 600; font-size: 0.875rem; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-back:hover { background: #f1f5f9; color: var(--hms-text); }
+
+        .day-badge { background: #ccfbf1; color: #0f766e; padding: 4px 12px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; }
+        .time-range { font-family: monospace; font-size: 0.9rem; font-weight: 600; }
+        .schedule-avail { color: #10b981; }
+        .schedule-unavail { color: #ef4444; }
+    </style>
+}
+
+<div class="page-header-card">
+    <div>
+        <h3 class="page-title"><i class="fas fa-clock mr-2"></i> Schedule Management</h3>
+        <p class="page-subtitle">Configure weekly availability schedule</p>
+    </div>
+    <div class="doctor-badge">
+        <strong>@ViewBag.DoctorName</strong>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-4">
+        <div class="content-card">
+            <div class="card-header">
+                <h5><i class="fas fa-plus-circle mr-1" style="color:#14b8a6"></i> Add Schedule</h5>
+            </div>
+            <div style="padding:20px">
+                <form asp-action="AddSchedule" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="doctorId" value="@ViewBag.DoctorId" />
+                    <div class="form-group">
+                        <label class="form-label">Day of Week <span style="color:#ef4444">*</span></label>
+                        <select name="DayOfWeek" asp-items="ViewBag.DayOfWeekList" class="form-control select2">
+                            <option value="">— Select Day —</option>
+                        </select>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Start Time <span style="color:#ef4444">*</span></label>
+                                <input name="StartTime" type="time" class="form-control" value="09:00" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">End Time <span style="color:#ef4444">*</span></label>
+                                <input name="EndTime" type="time" class="form-control" value="17:00" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Slot Duration (min)</label>
+                                <input name="SlotDurationMinutes" type="number" class="form-control" value="30" min="10" max="120" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Max / Slot</label>
+                                <input name="MaxAppointmentsPerSlot" type="number" class="form-control" value="1" min="1" max="10" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="isAvail" name="IsAvailable" value="true" checked />
+                            <label class="custom-control-label" for="isAvail" style="font-weight:600">Available for Appointments</label>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-add w-100 justify-content-center">
+                        <i class="fas fa-save"></i> Add Schedule
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-8">
+        <div class="content-card">
+            <div class="card-header">
+                <h5><i class="fas fa-list mr-1"></i> Weekly Schedule</h5>
+                <span style="font-size:0.85rem;color:var(--hms-text-muted)">@Model.Count() slot(s)</span>
+            </div>
+            @if (!Model.Any())
+            {
+                <div class="empty-state">
+                    <i class="fas fa-calendar-times"></i>
+                    <p style="font-size:1rem;font-weight:600;color:var(--hms-text)">No schedule configured</p>
+                    <p style="font-size:0.875rem">Use the form to add weekly availability slots.</p>
+                </div>
+            }
+            else
+            {
+                <table class="table">
+                    <thead>
+                        <tr><th>Day</th><th>Start</th><th>End</th><th>Duration</th><th>Max/Slot</th><th>Status</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var s in Model)
+                        {
+                            <tr>
+                                <td><span class="day-badge">@s.DayOfWeek</span></td>
+                                <td><span class="time-range">@s.StartTime.ToString("HH:mm")</span></td>
+                                <td><span class="time-range">@s.EndTime.ToString("HH:mm")</span></td>
+                                <td>@s.SlotDurationMinutes min</td>
+                                <td>@s.MaxAppointmentsPerSlot</td>
+                                <td>
+                                    @if (s.IsAvailable)
+                                    {
+                                        <span class="schedule-avail"><i class="fas fa-check-circle"></i> Available</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="schedule-unavail"><i class="fas fa-times-circle"></i> Unavailable</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>
+
+<div style="margin-top:20px">
+    <a asp-action="Details" asp-route-id="@ViewBag.DoctorId" class="btn-back">
+        <i class="fas fa-arrow-left"></i> Back to Doctor
+    </a>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () { $('.select2').select2({ theme: 'classic', width: '100%' }); });
+    </script>
+}

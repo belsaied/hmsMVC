@@ -1,0 +1,267 @@
+@using HMS.BLL.Shared.Dtos.PatientModule.AllergyDtos
+@model IEnumerable<AllergyResultDto>
+
+@{
+    ViewData["Title"] = "Allergies — " + ViewBag.PatientName;
+}
+
+@section Styles {
+    <style>
+        :root {
+            --hms-blue: #1a3a5c;
+            --hms-blue-mid: #2563a8;
+            --hms-accent: #0ea5e9;
+            --hms-green: #10b981;
+            --hms-red: #ef4444;
+            --hms-orange: #f59e0b;
+            --hms-gray: #64748b;
+            --hms-bg: #f0f4f8;
+            --hms-card: #ffffff;
+            --hms-border: #e2e8f0;
+            --hms-text: #1e293b;
+            --hms-text-muted: #64748b;
+        }
+
+        .page-header-card {
+            background: linear-gradient(135deg, #991b1b 0%, #dc2626 100%);
+            color: white;
+            padding: 24px 28px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 8px 32px rgba(220,38,38,0.18);
+        }
+
+        .page-title { font-size: 1.4rem; font-weight: 700; margin: 0; }
+        .page-subtitle { font-size: 0.84rem; opacity: 0.75; margin: 4px 0 0; }
+
+        .patient-badge {
+            background: rgba(255,255,255,0.15);
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 0.82rem;
+        }
+        .patient-badge strong { color: white; }
+        .patient-badge span { opacity: 0.7; }
+        .mrn-code { font-family: monospace; font-weight: 700; }
+
+        .content-card {
+            background: var(--hms-card);
+            border-radius: 14px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+            border: 1px solid var(--hms-border);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 18px 20px;
+            border-bottom: 1px solid var(--hms-border);
+            background: #f8faff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-header h5 { margin: 0; font-weight: 700; font-size: 0.95rem; }
+
+        .table { margin: 0; }
+        .table thead th {
+            background: var(--hms-blue);
+            color: white;
+            font-weight: 600;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding: 12px 16px;
+            border: none;
+        }
+        .table tbody td {
+            padding: 12px 16px;
+            vertical-align: middle;
+            border-bottom: 1px solid var(--hms-border);
+            font-size: 0.88rem;
+        }
+        .table tbody tr:hover td { background: #f8faff; }
+
+        .sev-badge {
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .sev-LifeThreatening { background: #fee2e2; color: #991b1b; }
+        .sev-Severe { background: #fef3c7; color: #92400e; }
+        .sev-Moderate { background: #dbeafe; color: #1e40af; }
+        .sev-Mild { background: #d1fae5; color: #065f46; }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--hms-text-muted);
+        }
+        .empty-state i { font-size: 3rem; opacity: 0.2; display: block; margin-bottom: 12px; }
+
+        .btn-remove {
+            width: 32px; height: 32px;
+            display: inline-flex; align-items: center; justify-content: center;
+            border-radius: 8px; font-size: 0.82rem;
+            border: none; cursor: pointer;
+            background: #fee2e2; color: #991b1b;
+            transition: all 0.15s;
+        }
+        .btn-remove:hover { background: #dc2626; color: white; }
+
+        .form-inline-card {
+            background: #f8faff;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px dashed var(--hms-border);
+        }
+
+        .form-label { font-size: 0.82rem; font-weight: 600; margin-bottom: 6px; }
+        .form-control {
+            border-radius: 10px; border: 1.5px solid var(--hms-border);
+            padding: 10px 14px; font-size: 0.9rem;
+        }
+        .form-control:focus {
+            border-color: var(--hms-accent);
+            box-shadow: 0 0 0 3px rgba(14,165,233,0.12);
+        }
+        .btn-add {
+            background: linear-gradient(135deg, #dc2626, #991b1b);
+            color: white; border: none; border-radius: 10px;
+            padding: 10px 22px; font-weight: 700; font-size: 0.9rem;
+            box-shadow: 0 4px 14px rgba(220,38,38,0.3);
+            transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn-add:hover { transform: translateY(-1px); color: white; }
+        .btn-back {
+            background: white; color: var(--hms-text-muted);
+            border: 1.5px solid var(--hms-border); border-radius: 10px;
+            padding: 9px 18px; font-weight: 600; font-size: 0.875rem;
+            text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn-back:hover { background: #f1f5f9; color: var(--hms-text); }
+    </style>
+}
+
+<div class="page-header-card">
+    <div>
+        <h3 class="page-title"><i class="fas fa-allergies mr-2"></i> Allergies</h3>
+        <p class="page-subtitle">Manage allergy records for this patient</p>
+    </div>
+    <div class="patient-badge">
+        <strong>@ViewBag.PatientName</strong>
+        <span> · </span>
+        <span class="mrn-code">@ViewBag.MedicalRecordNumber</span>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-4">
+        <div class="content-card">
+            <div class="card-header">
+                <h5><i class="fas fa-plus-circle mr-1" style="color:#dc2626"></i> Record Allergy</h5>
+            </div>
+            <div style="padding:20px">
+                <form asp-action="AddAllergy" asp-route-id="@ViewBag.PatientId" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="form-group">
+                        <label class="form-label">Type <span style="color:#ef4444">*</span></label>
+                        <select name="Type" asp-items="ViewBag.AllergyTypeList" class="form-control select2">
+                            <option value="">— Select Type —</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Severity <span style="color:#ef4444">*</span></label>
+                        <select name="Severity" asp-items="ViewBag.SeverityList" class="form-control select2">
+                            <option value="">— Select Severity —</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Description <span style="color:#ef4444">*</span></label>
+                        <textarea name="Description" class="form-control" rows="3" placeholder="Describe the allergy..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Recorded By <span style="color:#ef4444">*</span></label>
+                        <input name="RecordedBy" class="form-control" placeholder="Your name" />
+                    </div>
+                    <button type="submit" class="btn-add w-100 justify-content-center">
+                        <i class="fas fa-save"></i> Save Allergy
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="content-card">
+            <div class="card-header">
+                <h5><i class="fas fa-list mr-1"></i> Allergy Records</h5>
+                <span style="font-size:0.85rem;color:var(--hms-text-muted)">
+                    @Model.Count() record(s)
+                </span>
+            </div>
+
+            @if (!Model.Any())
+            {
+                <div class="empty-state">
+                    <i class="fas fa-allergies"></i>
+                    <p style="font-size:1rem;font-weight:600;color:var(--hms-text)">No allergies recorded</p>
+                    <p style="font-size:0.875rem">Use the form on the left to add a new allergy record.</p>
+                </div>
+            }
+            else
+            {
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Severity</th>
+                            <th>Description</th>
+                            <th>Recorded By</th>
+                            <th>Date</th>
+                            <th style="width:50px"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var a in Model)
+                        {
+                            <tr>
+                                <td><strong>@a.Type</strong></td>
+                                <td><span class="sev-badge sev-@a.Severity">@a.Severity</span></td>
+                                <td>@a.Description</td>
+                                <td>@a.RecordedBy</td>
+                                <td>@a.RecordDate.ToString("dd MMM yyyy")</td>
+                                <td>
+                                    <form asp-action="RemoveAllergy" asp-route-id="@ViewBag.PatientId" asp-route-allergyId="@a.Id"
+                                          method="post" onsubmit="return confirm('Remove this allergy record?')">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn-remove" title="Remove">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>
+
+<div style="margin-top:20px">
+    <a asp-action="Details" asp-route-id="@ViewBag.PatientId" class="btn-back">
+        <i class="fas fa-arrow-left"></i> Back to Patient
+    </a>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () { $('.select2').select2({ theme: 'classic', width: '100%' }); });
+    </script>
+}

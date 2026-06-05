@@ -1,4 +1,5 @@
 ﻿using HMS.BLL.ServicesAbstraction.Contracts;
+using HMS.BLL.Shared;
 using HMS.BLL.Shared.Dtos.DoctorModule.DoctorDtos;
 using HMS.BLL.Shared.Parameters;
 using HMS.DAL.Models.Enums.DoctorEnums;
@@ -21,27 +22,38 @@ namespace HMS.PL.Controllers
         public async Task<IActionResult> Index(string? search, string? status,
             string? specialization, int? departmentId, int pageIndex = 1)
         {
-            var parameters = new DoctorSpecificationParameters
+            try
             {
-                Search = search,
-                Status = string.IsNullOrEmpty(status) ? null : Enum.Parse<DoctorStatus>(status),
-                Specialization = specialization,
-                DepartmentId = departmentId,
-                PageIndex = pageIndex,
-                PageSize = 10
-            };
+                var parameters = new DoctorSpecificationParameters
+                {
+                    Search = search,
+                    Status = string.IsNullOrEmpty(status) ? null : Enum.Parse<DoctorStatus>(status),
+                    Specialization = specialization,
+                    DepartmentId = departmentId,
+                    PageIndex = pageIndex,
+                    PageSize = 10
+                };
 
-            var result = await _services.DoctorService.GetAllDoctorsAsync(parameters);
-            var departments = await _services.DepartmentService.GetAllDepartmentAsync();
+                var result = await _services.DoctorService.GetAllDoctorsAsync(parameters);
+                var departments = await _services.DepartmentService.GetAllDepartmentAsync();
 
-            ViewBag.Search = search;
-            ViewBag.Status = status;
-            ViewBag.Specialization = specialization;
-            ViewBag.DepartmentId = departmentId;
-            ViewBag.StatusList = GetStatusSelectList(status);
-            ViewBag.DepartmentList = new SelectList(departments, "Id", "Name", departmentId);
+                ViewBag.Search = search;
+                ViewBag.Status = status;
+                ViewBag.Specialization = specialization;
+                ViewBag.DepartmentId = departmentId;
+                ViewBag.StatusList = GetStatusSelectList(status);
+                var allDept = new HMS.BLL.Shared.Dtos.DoctorModule.DepartmentDtos.DepartmentResultDto { Id = 0, Name = "All Departments" };
+                ViewBag.DepartmentList = new SelectList(
+                    new[] { allDept }.Concat(departments ?? Enumerable.Empty<HMS.BLL.Shared.Dtos.DoctorModule.DepartmentDtos.DepartmentResultDto>()),
+                    "Id", "Name", departmentId ?? 0);
 
-            return View(result);
+                return View(result);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "An error occurred while loading doctors: " + ex.Message;
+                return View(new PaginatedResult<DoctorResultDto>(1, 10, 0, Enumerable.Empty<DoctorResultDto>()));
+            }
         }
 
         // GET: /Doctors/Details/5
@@ -278,9 +290,12 @@ namespace HMS.PL.Controllers
 
         private static SelectList GetStatusSelectList(string? selected = null)
         {
-            var items = Enum.GetNames(typeof(DoctorStatus))
-                .Select(n => new SelectListItem { Value = n, Text = n })
-                .ToList();
+            var items = new List<SelectListItem>
+            {
+                new SelectListItem { Value = "", Text = "All Statuses" }
+            };
+            items.AddRange(Enum.GetNames(typeof(DoctorStatus))
+                .Select(n => new SelectListItem { Value = n, Text = n }));
             return new SelectList(items, "Value", "Text", selected);
         }
 

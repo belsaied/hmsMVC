@@ -1,0 +1,102 @@
+@using HMS.BLL.Shared.Dtos.DoctorModule.DepartmentDtos
+@model DepartmentResultDto
+
+@{
+    ViewData["Title"] = "Department — " + Model.Name;
+}
+
+@section Styles {
+    <style>
+        :root {
+            --hms-blue: #1a3a5c;
+            --hms-blue-mid: #2563a8;
+            --hms-accent: #0ea5e9;
+            --hms-border: #e2e8f0;
+            --hms-text: #1e293b;
+            --hms-text-muted: #64748b;
+        }
+
+        .detail-card { background: white; border-radius: 18px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08); border: 1px solid var(--hms-border); }
+        .detail-header { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); padding: 32px; color: white; }
+        .detail-header .dh-title { font-size: 1.5rem; font-weight: 700; margin: 0; }
+        .detail-header .dh-sub { font-size: 0.88rem; opacity: 0.75; margin-top: 4px; }
+
+        .info-section { padding: 28px 32px; border-bottom: 1px solid var(--hms-border); }
+        .info-section:last-child { border-bottom: none; }
+        .section-title { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--hms-text-muted); margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #f1f5f9; }
+        .info-label { font-size: 0.75rem; color: var(--hms-text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 3px; }
+        .info-value { font-size: 0.92rem; font-weight: 500; color: var(--hms-text); }
+
+        .btn-edit { background: linear-gradient(135deg, #f59e0b, #92400e); color: white; border: none; border-radius: 10px; padding: 10px 22px; font-weight: 600; font-size: 0.875rem; box-shadow: 0 4px 12px rgba(245,158,11,0.3); transition: all 0.2s; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-edit:hover { transform: translateY(-1px); color: white; }
+        .btn-back { background: white; color: var(--hms-text-muted); border: 1.5px solid var(--hms-border); border-radius: 10px; padding: 9px 18px; font-weight: 600; font-size: 0.875rem; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-back:hover { background: #f1f5f9; color: var(--hms-text); }
+    </style>
+}
+
+@section PageHeader {
+    <div class="row mb-2">
+        <div class="col-sm-6"><h1 class="m-0">Department Details</h1></div>
+        <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a asp-action="Index">Departments</a></li>
+                <li class="breadcrumb-item active">@Model.Name</li>
+            </ol>
+        </div>
+    </div>
+}
+
+<div class="detail-card">
+    <div class="detail-header">
+        <div style="display:flex;align-items:center;gap:16px">
+            <div style="width:56px;height:56px;background:rgba(255,255,255,0.15);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0">
+                <i class="fas fa-hospital"></i>
+            </div>
+            <div>
+                <div class="dh-title">@Model.Name</div>
+                <div class="dh-sub">Department Information</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-section">
+        <div class="section-title"><i class="fas fa-info-circle mr-1"></i> General Information</div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="info-label">Name</div>
+                <div class="info-value">@Model.Name</div>
+            </div>
+            <div class="col-md-6">
+                <div class="info-label">Phone Extension</div>
+                <div class="info-value">@(Model.PhoneExtension ?? "—")</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-section">
+        <div class="section-title"><i class="fas fa-align-left mr-1"></i> Description</div>
+        <p style="font-size:0.92rem;line-height:1.6;color:var(--hms-text);margin:0">@(Model.Description ?? "No description provided.")</p>
+    </div>
+
+    <div class="info-section">
+        <div class="section-title"><i class="fas fa-user-md mr-1"></i> Department Head</div>
+        @if (!string.IsNullOrEmpty(Model.HeadDoctorName))
+        {
+            <div class="info-value"><i class="fas fa-user-md mr-1" style="color:var(--hms-blue-mid)"></i> @Model.HeadDoctorName</div>
+        }
+        else
+        {
+            <div class="info-value" style="font-style:italic;color:var(--hms-text-muted)">No head assigned to this department.</div>
+        }
+    </div>
+</div>
+
+<div style="margin-top:20px;display:flex;gap:12px">
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn-edit">
+        <i class="fas fa-edit"></i> Edit Department
+    </a>
+    <a asp-action="Index" class="btn-back">
+        <i class="fas fa-arrow-left"></i> Back to Departments
+    </a>
+</div>

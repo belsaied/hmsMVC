@@ -1,0 +1,164 @@
+@using HMS.BLL.Shared.Dtos.DoctorModule.DoctorDtos
+@model IEnumerable<QualificationResultDto>
+
+@{
+    ViewData["Title"] = "Qualifications — " + ViewBag.DoctorName;
+}
+
+@section Styles {
+    <style>
+        :root {
+            --hms-teal: #0f766e;
+            --hms-teal-mid: #14b8a6;
+            --hms-accent: #0ea5e9;
+            --hms-border: #e2e8f0;
+            --hms-text: #1e293b;
+            --hms-text-muted: #64748b;
+        }
+
+        .page-header-card {
+            background: linear-gradient(135deg, #6d28d9 0%, #8b5cf6 100%);
+            color: white; padding: 24px 28px; border-radius: 16px; margin-bottom: 24px;
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 8px 32px rgba(139,92,246,0.18);
+        }
+        .page-title { font-size: 1.4rem; font-weight: 700; margin: 0; }
+        .page-subtitle { font-size: 0.84rem; opacity: 0.75; margin: 4px 0 0; }
+        .doctor-badge { background: rgba(255,255,255,0.15); padding: 8px 16px; border-radius: 10px; font-size: 0.82rem; }
+        .doctor-badge strong { color: white; }
+
+        .content-card { background: white; border-radius: 14px; box-shadow: 0 2px 16px rgba(0,0,0,0.07); border: 1px solid var(--hms-border); overflow: hidden; }
+        .card-header { padding: 18px 20px; border-bottom: 1px solid var(--hms-border); background: #f8faff; display: flex; align-items: center; justify-content: space-between; }
+        .card-header h5 { margin: 0; font-weight: 700; font-size: 0.95rem; }
+
+        .form-label { font-size: 0.82rem; font-weight: 600; margin-bottom: 6px; }
+        .form-control { border-radius: 10px; border: 1.5px solid var(--hms-border); padding: 10px 14px; font-size: 0.9rem; }
+        .form-control:focus { border-color: var(--hms-accent); box-shadow: 0 0 0 3px rgba(14,165,233,0.12); }
+
+        .table { margin: 0; }
+        .table thead th { background: #6d28d9; color: white; font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; padding: 12px 16px; border: none; }
+        .table tbody td { padding: 12px 16px; vertical-align: middle; border-bottom: 1px solid var(--hms-border); font-size: 0.88rem; }
+        .table tbody tr:hover td { background: #f8faff; }
+
+        .empty-state { text-align: center; padding: 50px 20px; color: var(--hms-text-muted); }
+        .empty-state i { font-size: 3rem; opacity: 0.2; display: block; margin-bottom: 12px; }
+
+        .btn-add { background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: white; border: none; border-radius: 10px; padding: 10px 22px; font-weight: 700; font-size: 0.9rem; box-shadow: 0 4px 14px rgba(139,92,246,0.3); transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-add:hover { transform: translateY(-1px); color: white; }
+        .btn-back { background: white; color: var(--hms-text-muted); border: 1.5px solid var(--hms-border); border-radius: 10px; padding: 9px 18px; font-weight: 600; font-size: 0.875rem; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-back:hover { background: #f1f5f9; color: var(--hms-text); }
+
+        .btn-remove { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 0.82rem; border: none; cursor: pointer; background: #fee2e2; color: #991b1b; transition: all 0.15s; }
+        .btn-remove:hover { background: #dc2626; color: white; }
+        .inst-name { font-size: 0.82rem; color: var(--hms-text-muted); }
+    </style>
+}
+
+<div class="page-header-card">
+    <div>
+        <h3 class="page-title"><i class="fas fa-graduation-cap mr-2"></i> Qualifications</h3>
+        <p class="page-subtitle">Manage academic and professional qualifications</p>
+    </div>
+    <div class="doctor-badge">
+        <strong>@ViewBag.DoctorName</strong>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-4">
+        <div class="content-card">
+            <div class="card-header">
+                <h5><i class="fas fa-plus-circle mr-1" style="color:#8b5cf6"></i> Add Qualification</h5>
+            </div>
+            <div style="padding:20px">
+                <form asp-action="AddQualification" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="doctorId" value="@ViewBag.DoctorId" />
+                    <div class="form-group">
+                        <label class="form-label">Degree <span style="color:#ef4444">*</span></label>
+                        <input name="Degree" class="form-control" placeholder="e.g. MD, PhD" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Institution <span style="color:#ef4444">*</span></label>
+                        <input name="Institution" class="form-control" placeholder="University name" />
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Year <span style="color:#ef4444">*</span></label>
+                                <input name="YearAwarded" type="number" class="form-control" placeholder="e.g. 2015" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Country <span style="color:#ef4444">*</span></label>
+                                <input name="Country" class="form-control" placeholder="Country" />
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-add w-100 justify-content-center">
+                        <i class="fas fa-save"></i> Add Qualification
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-8">
+        <div class="content-card">
+            <div class="card-header">
+                <h5><i class="fas fa-list mr-1"></i> Qualifications List</h5>
+                <span style="font-size:0.85rem;color:var(--hms-text-muted)">@Model.Count() record(s)</span>
+            </div>
+            @if (!Model.Any())
+            {
+                <div class="empty-state">
+                    <i class="fas fa-graduation-cap"></i>
+                    <p style="font-size:1rem;font-weight:600;color:var(--hms-text)">No qualifications recorded</p>
+                    <p style="font-size:0.875rem">Use the form to add qualifications.</p>
+                </div>
+            }
+            else
+            {
+                <table class="table">
+                    <thead>
+                        <tr><th>Degree</th><th>Institution</th><th>Year</th><th>Country</th><th style="width:50px"></th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var q in Model)
+                        {
+                            <tr>
+                                <td><strong>@q.Degree</strong></td>
+                                <td class="inst-name">@q.Institution</td>
+                                <td>@q.YearAwarded</td>
+                                <td>@q.Country</td>
+                                <td>
+                                    <form asp-action="RemoveQualification" method="post"
+                                          onsubmit="return confirm('Remove @q.Degree qualification?')">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="doctorId" value="@ViewBag.DoctorId" />
+                                        <input type="hidden" name="qualId" value="@q.Id" />
+                                        <button type="submit" class="btn-remove" title="Remove">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>
+
+<div style="margin-top:20px">
+    <a asp-action="Details" asp-route-id="@ViewBag.DoctorId" class="btn-back">
+        <i class="fas fa-arrow-left"></i> Back to Doctor
+    </a>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () { });
+    </script>
+}

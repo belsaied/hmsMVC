@@ -1,0 +1,184 @@
+@using HMS.BLL.Shared.Dtos.DoctorModule.DoctorDtos
+@model UpdateDoctorDto
+
+@{
+    ViewData["Title"] = "Edit Doctor";
+}
+
+@section Styles {
+    <style>
+        :root {
+            --hms-teal: #0f766e;
+            --hms-teal-mid: #14b8a6;
+            --hms-accent: #0ea5e9;
+            --hms-orange: #d97706;
+            --hms-border: #e2e8f0;
+            --hms-text: #1e293b;
+            --hms-text-muted: #64748b;
+        }
+
+        .edit-header { background: linear-gradient(135deg, #92400e 0%, var(--hms-orange) 100%); color: white; padding: 24px 32px; border-radius: 16px 16px 0 0; display: flex; align-items: center; gap: 16px; }
+        .edit-header-icon { width: 52px; height: 52px; background: rgba(255,255,255,0.15); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+        .edit-header-title { font-size: 1.3rem; font-weight: 700; margin: 0; }
+        .edit-header-sub { font-size: 0.84rem; opacity: 0.7; margin: 2px 0 0; }
+
+        .edit-body { background: white; border-radius: 0 0 16px 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.09); border: 1px solid var(--hms-border); border-top: none; }
+        .form-section { padding: 28px 32px; border-bottom: 1px solid var(--hms-border); }
+        .form-section:last-child { border-bottom: none; }
+        .section-title { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--hms-text-muted); display: flex; align-items: center; gap: 8px; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #f1f5f9; }
+        .section-title-icon { width: 28px; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 0.82rem; }
+        .form-label { font-size: 0.82rem; font-weight: 600; color: var(--hms-text); margin-bottom: 6px; }
+        .form-control { border-radius: 10px; border: 1.5px solid var(--hms-border); padding: 10px 14px; font-size: 0.9rem; transition: border-color 0.15s, box-shadow 0.15s; }
+        .form-control:focus { border-color: var(--hms-orange); box-shadow: 0 0 0 3px rgba(217,119,6,0.12); }
+        .text-danger.small { font-size: 0.78rem; margin-top: 4px; display: block; }
+
+        .select2-container .select2-selection--single { height: 44px !important; border: 1.5px solid var(--hms-border) !important; border-radius: 10px !important; }
+        .select2-selection__rendered { line-height: 44px !important; padding: 0 14px !important; font-size: 0.9rem; }
+        .select2-selection__arrow { height: 44px !important; }
+
+        .form-footer { padding: 20px 32px; background: #f8faff; border-radius: 0 0 16px 16px; display: flex; align-items: center; gap: 12px; border-top: 1px solid var(--hms-border); }
+        .btn-save { background: linear-gradient(135deg, var(--hms-orange), #92400e); color: white; border: none; border-radius: 10px; padding: 11px 28px; font-weight: 700; font-size: 0.9rem; box-shadow: 0 4px 14px rgba(217,119,6,0.3); transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-save:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(217,119,6,0.4); color: white; }
+        .btn-cancel { background: white; color: var(--hms-text-muted); border: 1.5px solid var(--hms-border); border-radius: 10px; padding: 10px 22px; font-weight: 600; font-size: 0.9rem; transition: all 0.15s; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+        .btn-cancel:hover { background: #f1f5f9; color: var(--hms-text); }
+
+        .alert-validation { border-radius: 10px; border: none; background: #fef2f2; border-left: 4px solid #ef4444; color: #991b1b; padding: 14px 18px; font-size: 0.875rem; margin: 20px 32px 0; }
+    </style>
+}
+
+@section PageHeader {
+    <div class="row mb-2">
+        <div class="col-sm-6"><h1 class="m-0">Edit Doctor</h1></div>
+        <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a asp-action="Index">Doctors</a></li>
+                <li class="breadcrumb-item"><a asp-action="Details" asp-route-id="@ViewBag.DoctorId">@ViewBag.DoctorName</a></li>
+                <li class="breadcrumb-item active">Edit</li>
+            </ol>
+        </div>
+    </div>
+}
+
+<div>
+    <div class="edit-header">
+        <div class="edit-header-icon"><i class="fas fa-user-edit"></i></div>
+        <div>
+            <div class="edit-header-title">Edit — @ViewBag.DoctorName</div>
+            <div class="edit-header-sub">Update doctor information below. Only filled fields will be changed.</div>
+        </div>
+    </div>
+    <form asp-action="Edit" asp-route-id="@ViewBag.DoctorId" method="post">
+        @Html.AntiForgeryToken()
+        @if (!ViewContext.ModelState.IsValid)
+        {
+            <div asp-validation-summary="All" class="alert-validation"></div>
+        }
+        <div class="edit-body">
+            <div class="form-section">
+                <div class="section-title">
+                    <div class="section-title-icon" style="background:#ccfbf1"><i class="fas fa-user" style="color:#0f766e"></i></div>
+                    Personal Information
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label asp-for="FirstName" class="form-label">First Name</label>
+                            <input asp-for="FirstName" class="form-control" placeholder="First name" />
+                            <span asp-validation-for="FirstName" class="text-danger small"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label asp-for="LastName" class="form-label">Last Name</label>
+                            <input asp-for="LastName" class="form-control" placeholder="Last name" />
+                            <span asp-validation-for="LastName" class="text-danger small"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label asp-for="Specialization" class="form-label">Specialization</label>
+                            <input asp-for="Specialization" class="form-control" placeholder="Specialization" />
+                            <span asp-validation-for="Specialization" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-section">
+                <div class="section-title">
+                    <div class="section-title-icon" style="background:#d1fae5"><i class="fas fa-phone" style="color:#059669"></i></div>
+                    Contact & Department
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label asp-for="Email" class="form-label">Email</label>
+                            <input asp-for="Email" type="email" class="form-control" placeholder="Email" />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label asp-for="Phone" class="form-label">Phone</label>
+                            <input asp-for="Phone" class="form-control" placeholder="Phone" />
+                            <span asp-validation-for="Phone" class="text-danger small"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label asp-for="DepartmentId" class="form-label">Department</label>
+                            <select asp-for="DepartmentId" asp-items="ViewBag.DepartmentList" class="form-control select2">
+                                <option value="">— Select —</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-section">
+                <div class="section-title">
+                    <div class="section-title-icon" style="background:#ede9fe"><i class="fas fa-cog" style="color:#6d28d9"></i></div>
+                    Professional & Status
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label asp-for="YearsOfExperience" class="form-label">Experience (years)</label>
+                            <input asp-for="YearsOfExperience" type="number" class="form-control" />
+                            <span asp-validation-for="YearsOfExperience" class="text-danger small"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label asp-for="ConsultationFee" class="form-label">Fee</label>
+                            <input asp-for="ConsultationFee" type="number" step="0.01" class="form-control" />
+                            <span asp-validation-for="ConsultationFee" class="text-danger small"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label asp-for="Status" class="form-label">Status</label>
+                            <select asp-for="Status" asp-items="ViewBag.StatusList" class="form-control select2">
+                                <option value="">— Select —</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Bio" class="form-label">Bio</label>
+                    <textarea asp-for="Bio" class="form-control" rows="3" placeholder="Biography"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="form-footer">
+            <button type="submit" class="btn-save"><i class="fas fa-save"></i> Save Changes</button>
+            <a asp-action="Details" asp-route-id="@ViewBag.DoctorId" class="btn-cancel"><i class="fas fa-times"></i> Cancel</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function () { $('.select2').select2({ theme: 'classic', width: '100%' }); });
+    </script>
+}

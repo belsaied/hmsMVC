@@ -1,0 +1,330 @@
+@using HMS.BLL.Shared.Dtos.DoctorModule.DoctorDtos
+@model PaginatedResult<DoctorResultDto>
+
+@{
+    ViewData["Title"] = "Doctors";
+}
+
+@section Styles {
+    <style>
+        :root {
+            --hms-blue: #1a3a5c;
+            --hms-blue-mid: #2563a8;
+            --hms-accent: #0ea5e9;
+            --hms-green: #10b981;
+            --hms-red: #ef4444;
+            --hms-orange: #f59e0b;
+            --hms-gray: #64748b;
+            --hms-bg: #f0f4f8;
+            --hms-card: #ffffff;
+            --hms-border: #e2e8f0;
+            --hms-text: #1e293b;
+            --hms-text-muted: #64748b;
+        }
+
+        .page-header-card {
+            background: linear-gradient(135deg, #0f766e 0%, #14b8a6 100%);
+            color: white; padding: 28px 32px; border-radius: 16px; margin-bottom: 24px;
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 8px 32px rgba(20,184,166,0.18); position: relative; overflow: hidden;
+        }
+        .page-header-card::before { content: ''; position: absolute; top: -40px; right: -40px; width: 160px; height: 160px; background: rgba(255,255,255,0.07); border-radius: 50%; }
+        .page-header-card::after { content: ''; position: absolute; bottom: -60px; right: 80px; width: 220px; height: 220px; background: rgba(255,255,255,0.04); border-radius: 50%; }
+        .header-title { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.5px; margin: 0; position: relative; z-index: 1; }
+        .header-subtitle { font-size: 0.875rem; opacity: 0.75; margin-top: 4px; position: relative; z-index: 1; }
+        .header-icon { font-size: 3rem; opacity: 0.2; position: absolute; right: 150px; top: 12px; }
+
+        .search-card {
+            background: var(--hms-card); border-radius: 14px; padding: 20px 24px;
+            margin-bottom: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            border: 1px solid var(--hms-border);
+        }
+
+        .table-card {
+            background: var(--hms-card); border-radius: 14px; overflow: hidden;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.07); border: 1px solid var(--hms-border);
+        }
+        .table-card .table { margin: 0; }
+        .table-card thead th {
+            background: #0f766e; color: white; font-weight: 600;
+            font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em;
+            padding: 14px 16px; border: none;
+        }
+        .table-card tbody tr { transition: background 0.15s; border-bottom: 1px solid var(--hms-border); }
+        .table-card tbody tr:hover { background: #f8faff; }
+        .table-card tbody td { padding: 13px 16px; vertical-align: middle; color: var(--hms-text); font-size: 0.9rem; border: none; }
+
+        .doctor-name { font-weight: 600; color: var(--hms-text); }
+        .doctor-meta { font-size: 0.8rem; color: var(--hms-text-muted); }
+        .spec-badge {
+            background: #ccfbf1; color: #0f766e; font-size: 0.75rem; font-weight: 600;
+            padding: 3px 10px; border-radius: 8px; display: inline-block;
+        }
+        .dept-name { font-size: 0.82rem; color: var(--hms-text-muted); }
+
+        .status-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; }
+        .status-active { background: #d1fae5; color: #065f46; }
+        .status-onleave { background: #fef3c7; color: #92400e; }
+        .status-inactive { background: #f1f5f9; color: #475569; }
+        .status-suspended { background: #fee2e2; color: #991b1b; }
+
+        .btn-action { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 0.82rem; transition: all 0.15s; border: none; cursor: pointer; }
+        .btn-view { background: #e0f2fe; color: #0369a1; }
+        .btn-view:hover { background: #0369a1; color: white; }
+        .btn-edit { background: #fef9c3; color: #854d0e; }
+        .btn-edit:hover { background: #d97706; color: white; }
+        .btn-deactivate { background: #fee2e2; color: #991b1b; }
+        .btn-deactivate:hover { background: #dc2626; color: white; }
+
+        .pagination-footer { background: #f8faff; padding: 14px 20px; border-top: 1px solid var(--hms-border); display: flex; align-items: center; justify-content: space-between; }
+        .pagination .page-link { border-radius: 8px !important; margin: 0 2px; border: 1px solid var(--hms-border); color: #0f766e; font-weight: 500; font-size: 0.875rem; min-width: 36px; text-align: center; padding: 6px 10px; }
+        .pagination .page-item.active .page-link { background: #0f766e; border-color: #0f766e; color: white; }
+
+        .stats-bar { display: flex; gap: 16px; margin-bottom: 20px; }
+        .stat-chip { background: white; border: 1px solid var(--hms-border); border-radius: 10px; padding: 12px 18px; display: flex; align-items: center; gap: 10px; font-size: 0.875rem; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
+        .stat-chip-icon { width: 36px; height: 36px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+        .stat-chip-value { font-size: 1.2rem; font-weight: 700; color: var(--hms-text); }
+        .stat-chip-label { font-size: 0.75rem; color: var(--hms-text-muted); }
+
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--hms-text-muted); }
+        .empty-state i { font-size: 3.5rem; opacity: 0.2; margin-bottom: 16px; display: block; }
+
+        .filter-label {
+            font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+            color: var(--hms-text-muted); margin-bottom: 4px; display: flex; align-items: center; gap: 5px;
+        }
+        .filter-row {
+            display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap;
+        }
+        .filter-group {
+            flex: 1; min-width: 160px;
+        }
+        .search-input-group .form-control {
+            border-radius: 10px 0 0 10px; border-right: none; border-color: var(--hms-border);
+            font-size: 0.9rem; padding: 10px 14px; height: 44px;
+        }
+        .search-input-group .btn {
+            border-radius: 0 10px 10px 0; border-color: var(--hms-border);
+            background: white; color: var(--hms-gray); border-left: none; height: 44px;
+        }
+        .form-control:focus, .select2-container--classic .select2-selection--single:focus {
+            box-shadow: 0 0 0 3px rgba(15,118,110,0.12); border-color: var(--hms-accent);
+        }
+        .select2-container--classic .select2-selection--single {
+            height: 44px; border-radius: 10px; border: 1.5px solid var(--hms-border);
+            padding: 8px 12px; font-size: 0.9rem;
+        }
+        .select2-container--classic .select2-selection--single .select2-selection__rendered {
+            line-height: 28px; color: var(--hms-text);
+        }
+        .select2-container--classic .select2-selection--single .select2-selection__arrow {
+            height: 42px; right: 8px;
+        }
+        .select2-container--classic .select2-results__option--highlighted.select2-results__option--selectable {
+            background: #0f766e;
+        }
+        .btn-add { background: linear-gradient(135deg, var(--hms-accent), #0f766e); color: white; border: none; border-radius: 10px; padding: 10px 20px; font-weight: 600; font-size: 0.875rem; box-shadow: 0 4px 12px rgba(14,165,233,0.3); transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; height: 44px; }
+        .btn-add:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(14,165,233,0.4); color: white; }
+        .btn-clear { border-radius: 10px; border: 1.5px solid var(--hms-border); background: white; color: var(--hms-gray); font-size: 0.875rem; padding: 9px 18px; height: 44px; display: inline-flex; align-items: center; gap: 6px; font-weight: 500; transition: all 0.12s; }
+        .btn-clear:hover { background: #f1f5f9; color: var(--hms-text); }
+    </style>
+}
+
+<div class="page-header-card">
+    <div style="position:relative;z-index:1">
+        <h2 class="header-title"><i class="fas fa-user-md mr-2"></i> Doctor Registry</h2>
+        <p class="header-subtitle">Manage all hospital doctors — registrations, schedules and credentials</p>
+    </div>
+    <div style="position:relative;z-index:1">
+        <a asp-action="Create" class="btn-add">
+            <i class="fas fa-plus"></i> Register New Doctor
+        </a>
+    </div>
+    <i class="fas fa-user-md header-icon"></i>
+</div>
+
+<div class="stats-bar">
+    <div class="stat-chip">
+        <div class="stat-chip-icon" style="background:#ccfbf1"><i class="fas fa-user-md" style="color:#0f766e"></i></div>
+        <div>
+            <div class="stat-chip-value">@Model.TotalCount</div>
+            <div class="stat-chip-label">Total Doctors</div>
+        </div>
+    </div>
+    <div class="stat-chip">
+        <div class="stat-chip-icon" style="background:#d1fae5"><i class="fas fa-check-circle" style="color:#10b981"></i></div>
+        <div>
+            <div class="stat-chip-value">@Model.Data.Count(d => d.Status == "Active")</div>
+            <div class="stat-chip-label">Active on This Page</div>
+        </div>
+    </div>
+    <div class="stat-chip">
+        <div class="stat-chip-icon" style="background:#f1f5f9"><i class="fas fa-file-medical" style="color:#64748b"></i></div>
+        <div>
+            <div class="stat-chip-value">@Model.PageIndex / @((int)Math.Ceiling((double)Model.TotalCount / Model.PageSize))</div>
+            <div class="stat-chip-label">Current / Total Pages</div>
+        </div>
+    </div>
+</div>
+
+<div class="search-card">
+    <form method="get" asp-action="Index">
+        <div class="filter-row">
+            <div class="filter-group" style="flex:2;min-width:240px">
+                <div class="filter-label"><i class="fas fa-search" style="font-size:0.65rem"></i> Search</div>
+                <div class="input-group search-input-group">
+                    <input type="text" name="search" value="@ViewBag.Search" class="form-control" placeholder="Search by name, email or specialization..." />
+                    <div class="input-group-append">
+                        <button type="submit" class="btn"><i class="fas fa-search"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="filter-group">
+                <div class="filter-label"><i class="fas fa-heartbeat" style="font-size:0.65rem"></i> Status</div>
+                 <select name="status" asp-items="ViewBag.StatusList" class="form-control select2-filter" onchange="this.form.submit()"></select>
+            </div>
+            <div class="filter-group">
+                <div class="filter-label"><i class="fas fa-building" style="font-size:0.65rem"></i> Department</div>
+                <select name="departmentId" asp-items="ViewBag.DepartmentList" class="form-control select2-filter" onchange="this.form.submit()">
+                    <option value="">All Departments</option>
+                </select>
+            </div>
+            <div class="filter-group" style="flex:0 0 auto;min-width:0">
+                <div class="filter-label">&nbsp;</div>
+                <a asp-action="Index" class="btn-clear"><i class="fas fa-times"></i> Clear</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="table-card">
+    <table class="table">
+        <thead>
+            <tr>
+                <th><i class="fas fa-user mr-1"></i> Doctor</th>
+                <th><i class="fas fa-stethoscope mr-1"></i> Specialization</th>
+                <th><i class="fas fa-building mr-1"></i> Department</th>
+                <th><i class="fas fa-phone mr-1"></i> Contact</th>
+                <th><i class="fas fa-heartbeat mr-1"></i> Status</th>
+                <th style="width:120px;text-align:center"><i class="fas fa-ellipsis-h mr-1"></i> Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var d in Model.Data)
+            {
+                <tr>
+                    <td>
+                        <div class="doctor-name">@d.FullName</div>
+                        <div class="doctor-meta">@d.Email</div>
+                    </td>
+                    <td><span class="spec-badge">@d.Specialization</span></td>
+                    <td><span class="dept-name">@d.DepartmentName</span></td>
+                    <td>@d.Phone</td>
+                    <td>
+                        @{
+                            var (scls, sico) = d.Status switch
+                            {
+                                "Active" => ("status-active", "fa-check-circle"),
+                                "OnLeave" => ("status-onleave", "fa-clock"),
+                                "Inactive" => ("status-inactive", "fa-pause-circle"),
+                                "Suspended" => ("status-suspended", "fa-ban"),
+                                _ => ("status-inactive", "fa-circle")
+                            };
+                        }
+                        <span class="status-badge @scls">
+                            <i class="fas @sico" style="font-size:0.7rem"></i> @d.Status
+                        </span>
+                    </td>
+                    <td style="text-align:center">
+                        <div style="display:flex;gap:6px;justify-content:center">
+                            <a asp-action="Details" asp-route-id="@d.Id" class="btn-action btn-view" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a asp-action="Edit" asp-route-id="@d.Id" class="btn-action btn-edit" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            @if (d.Status == "Active")
+                            {
+                                <form asp-action="Deactivate" asp-route-id="@d.Id" method="post" class="d-inline"
+                                      onsubmit="return confirm('Deactivate @d.FullName?')">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn-action btn-deactivate" title="Deactivate">
+                                        <i class="fas fa-ban"></i>
+                                    </button>
+                                </form>
+                            }
+                        </div>
+                    </td>
+                </tr>
+            }
+            @if (!Model.Data.Any())
+            {
+                <tr>
+                    <td colspan="6">
+                        <div class="empty-state">
+                            <i class="fas fa-user-slash"></i>
+                            <p style="font-size:1rem;font-weight:600;color:var(--hms-text)">No doctors found</p>
+                            <p style="font-size:0.875rem">Try adjusting your search or filter, or register a new doctor.</p>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    @{
+        int totalPages = (int)Math.Ceiling((double)Model.TotalCount / Model.PageSize);
+        int from = (Model.PageIndex - 1) * Model.PageSize + 1;
+        int to = Math.Min(Model.PageIndex * Model.PageSize, Model.TotalCount);
+    }
+    <div class="pagination-footer">
+        <span style="font-size:0.875rem;color:var(--hms-text-muted)">
+            Showing <strong>@from–@to</strong> of <strong>@Model.TotalCount</strong> doctors
+        </span>
+        @if (totalPages > 1)
+        {
+            <ul class="pagination mb-0">
+                <li class="page-item @(Model.PageIndex == 1 ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index"
+                       asp-route-pageIndex="@(Model.PageIndex - 1)"
+                       asp-route-search="@ViewBag.Search"
+                       asp-route-status="@ViewBag.Status"
+                       asp-route-specialization="@ViewBag.Specialization"
+                       asp-route-departmentId="@ViewBag.DepartmentId"><i class="fas fa-chevron-left" style="font-size:0.7rem"></i></a>
+                </li>
+                @for (int i = Math.Max(1, Model.PageIndex - 2); i <= Math.Min(totalPages, Model.PageIndex + 2); i++)
+                {
+                    <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                        <a class="page-link" asp-action="Index"
+                           asp-route-pageIndex="@i"
+                           asp-route-search="@ViewBag.Search"
+                           asp-route-status="@ViewBag.Status"
+                           asp-route-specialization="@ViewBag.Specialization"
+                           asp-route-departmentId="@ViewBag.DepartmentId">@i</a>
+                    </li>
+                }
+                <li class="page-item @(Model.PageIndex == totalPages ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index"
+                       asp-route-pageIndex="@(Model.PageIndex + 1)"
+                       asp-route-search="@ViewBag.Search"
+                       asp-route-status="@ViewBag.Status"
+                       asp-route-specialization="@ViewBag.Specialization"
+                       asp-route-departmentId="@ViewBag.DepartmentId"><i class="fas fa-chevron-right" style="font-size:0.7rem"></i></a>
+                </li>
+            </ul>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('.select2-filter').select2({
+                theme: 'classic',
+                width: '100%',
+                minimumResultsForSearch: -1,
+                placeholder: function () { return $(this).data('placeholder'); }
+            });
+        });
+    </script>
+}

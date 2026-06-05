@@ -1,0 +1,107 @@
+@using HMS.BLL.Shared.Dtos.DoctorModule.DepartmentDtos
+@model UpdateDepartmentDto
+
+@{
+    ViewData["Title"] = "Edit Department";
+}
+
+@section Styles {
+    <style>
+        :root {
+            --hms-blue: #1a3a5c;
+            --hms-blue-mid: #2563a8;
+            --hms-accent: #0ea5e9;
+            --hms-orange: #d97706;
+            --hms-border: #e2e8f0;
+            --hms-text: #1e293b;
+            --hms-text-muted: #64748b;
+        }
+        .edit-header { background: linear-gradient(135deg, #92400e 0%, var(--hms-orange) 100%); color: white; padding: 24px 32px; border-radius: 16px 16px 0 0; display: flex; align-items: center; gap: 16px; }
+        .edit-header-icon { width: 52px; height: 52px; background: rgba(255,255,255,0.15); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+        .edit-header-title { font-size: 1.3rem; font-weight: 700; margin: 0; }
+        .edit-header-sub { font-size: 0.84rem; opacity: 0.7; margin: 2px 0 0; }
+        .edit-body { background: white; border-radius: 0 0 16px 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.09); border: 1px solid var(--hms-border); border-top: none; }
+        .form-section { padding: 28px 32px; }
+        .form-label { font-size: 0.82rem; font-weight: 600; margin-bottom: 6px; }
+        .form-control { border-radius: 10px; border: 1.5px solid var(--hms-border); padding: 10px 14px; font-size: 0.9rem; }
+        .form-control:focus { border-color: var(--hms-orange); box-shadow: 0 0 0 3px rgba(217,119,6,0.12); }
+        .text-danger.small { font-size: 0.78rem; margin-top: 4px; display: block; }
+        .form-footer { padding: 20px 32px; background: #f8faff; border-radius: 0 0 16px 16px; display: flex; align-items: center; gap: 12px; border-top: 1px solid var(--hms-border); }
+        .btn-save { background: linear-gradient(135deg, var(--hms-orange), #92400e); color: white; border: none; border-radius: 10px; padding: 11px 28px; font-weight: 700; font-size: 0.9rem; box-shadow: 0 4px 14px rgba(217,119,6,0.3); transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-save:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(217,119,6,0.4); color: white; }
+        .btn-cancel { background: white; color: var(--hms-text-muted); border: 1.5px solid var(--hms-border); border-radius: 10px; padding: 10px 22px; font-weight: 600; font-size: 0.9rem; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-cancel:hover { background: #f1f5f9; color: var(--hms-text); }
+        .alert-validation { border-radius: 10px; border: none; background: #fef2f2; border-left: 4px solid #ef4444; color: #991b1b; padding: 14px 18px; font-size: 0.875rem; margin: 20px 32px 0; }
+    </style>
+}
+
+@section PageHeader {
+    <div class="row mb-2">
+        <div class="col-sm-6"><h1 class="m-0">Edit Department</h1></div>
+        <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a asp-action="Index">Departments</a></li>
+                <li class="breadcrumb-item"><a asp-action="Details" asp-route-id="@ViewBag.DepartmentId">@ViewBag.DepartmentName</a></li>
+                <li class="breadcrumb-item active">Edit</li>
+            </ol>
+        </div>
+    </div>
+}
+
+<div>
+    <div class="edit-header">
+        <div class="edit-header-icon"><i class="fas fa-edit"></i></div>
+        <div>
+            <div class="edit-header-title">Edit — @ViewBag.DepartmentName</div>
+            <div class="edit-header-sub">Update department information</div>
+        </div>
+    </div>
+    <form asp-action="Edit" asp-route-id="@ViewBag.DepartmentId" method="post">
+        @Html.AntiForgeryToken()
+        @if (!ViewContext.ModelState.IsValid)
+        {
+            <div asp-validation-summary="All" class="alert-validation"></div>
+        }
+        <div class="edit-body">
+            <div class="form-section">
+                <div class="form-group">
+                    <label asp-for="Name" class="form-label">Department Name</label>
+                    <input asp-for="Name" class="form-control" placeholder="Department name" />
+                    <span asp-validation-for="Name" class="text-danger small"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Description" class="form-label">Description</label>
+                    <textarea asp-for="Description" class="form-control" rows="3" placeholder="Description"></textarea>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="PhoneExtension" class="form-label">Phone Extension</label>
+                            <input asp-for="PhoneExtension" class="form-control" placeholder="e.g. 101" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="HeadDoctorId" class="form-label">Head Doctor</label>
+                            <select asp-for="HeadDoctorId" asp-items="ViewBag.DoctorList" class="form-control select2">
+                                <option value="">— No Head Assigned —</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-footer">
+            <button type="submit" class="btn-save"><i class="fas fa-save"></i> Save Changes</button>
+            <a asp-action="Details" asp-route-id="@ViewBag.DepartmentId" class="btn-cancel"><i class="fas fa-times"></i> Cancel</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function () { $('.select2').select2({ theme: 'classic', width: '100%' }); });
+    </script>
+}

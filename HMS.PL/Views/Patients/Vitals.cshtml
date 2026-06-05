@@ -1,0 +1,215 @@
+@using HMS.BLL.Shared.Dtos.MedicalRecordsDto
+@model IEnumerable<VitalSignResultDto>
+
+@{
+    ViewData["Title"] = "Vital Signs — " + ViewBag.PatientName;
+    var latest = ViewBag.LatestVitals as VitalSignResultDto;
+}
+
+@section Styles {
+    <style>
+        :root {
+            --hms-blue: #1a3a5c;
+            --hms-blue-mid: #2563a8;
+            --hms-accent: #0ea5e9;
+            --hms-green: #10b981;
+            --hms-red: #ef4444;
+            --hms-orange: #f59e0b;
+            --hms-border: #e2e8f0;
+            --hms-text: #1e293b;
+            --hms-text-muted: #64748b;
+        }
+
+        .page-header-card {
+            background: linear-gradient(135deg, #92400e 0%, #f59e0b 100%);
+            color: white; padding: 24px 28px; border-radius: 16px; margin-bottom: 24px;
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 8px 32px rgba(245,158,11,0.18);
+        }
+        .page-title { font-size: 1.4rem; font-weight: 700; margin: 0; }
+        .page-subtitle { font-size: 0.84rem; opacity: 0.75; margin: 4px 0 0; }
+        .patient-badge {
+            background: rgba(255,255,255,0.15); padding: 8px 16px; border-radius: 10px; font-size: 0.82rem;
+        }
+        .patient-badge strong { color: white; }
+        .mrn-code { font-family: monospace; font-weight: 700; }
+
+        .vitals-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; margin-bottom: 24px; }
+        .vital-card {
+            background: white; border-radius: 14px; padding: 18px; text-align: center;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06); border: 1px solid var(--hms-border);
+        }
+        .vital-card .v-icon {
+            width: 40px; height: 40px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 8px; font-size: 1rem;
+        }
+        .vital-card .v-value { font-size: 1.5rem; font-weight: 800; color: var(--hms-text); line-height: 1.2; }
+        .vital-card .v-unit { font-size: 0.75rem; color: var(--hms-text-muted); }
+        .vital-card .v-label { font-size: 0.72rem; color: var(--hms-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; }
+        .vital-card .v-time { font-size: 0.7rem; color: var(--hms-text-muted); margin-top: 6px; }
+
+        .vital-abnormal { border-left: 3px solid var(--hms-red); }
+        .vital-normal { border-left: 3px solid var(--hms-green); }
+
+        .content-card {
+            background: white; border-radius: 14px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+            border: 1px solid var(--hms-border); overflow: hidden;
+        }
+        .card-header {
+            padding: 18px 20px; border-bottom: 1px solid var(--hms-border);
+            background: #f8faff; display: flex; align-items: center; justify-content: space-between;
+        }
+        .card-header h5 { margin: 0; font-weight: 700; font-size: 0.95rem; }
+
+        .table { margin: 0; }
+        .table thead th {
+            background: var(--hms-blue); color: white; font-weight: 600;
+            font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em;
+            padding: 10px 12px; border: none;
+        }
+        .table tbody td {
+            padding: 10px 12px; vertical-align: middle;
+            border-bottom: 1px solid var(--hms-border); font-size: 0.85rem;
+        }
+        .table tbody tr:hover td { background: #f8faff; }
+
+        .empty-state { text-align: center; padding: 50px 20px; color: var(--hms-text-muted); }
+        .empty-state i { font-size: 3rem; opacity: 0.2; display: block; margin-bottom: 12px; }
+
+        .btn-back {
+            background: white; color: var(--hms-text-muted);
+            border: 1.5px solid var(--hms-border); border-radius: 10px;
+            padding: 9px 18px; font-weight: 600; font-size: 0.875rem;
+            text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn-back:hover { background: #f1f5f9; color: var(--hms-text); }
+
+        .temp-high { color: #dc2626 !important; }
+        .temp-low { color: #3b82f6 !important; }
+        .bp-high { color: #dc2626 !important; }
+        .hr-high { color: #dc2626 !important; }
+        .hr-low { color: #3b82f6 !important; }
+        .o2-low { color: #dc2626 !important; }
+    </style>
+}
+
+<div class="page-header-card">
+    <div>
+        <h3 class="page-title"><i class="fas fa-heartbeat mr-2"></i> Vital Signs</h3>
+        <p class="page-subtitle">Monitor patient vital signs over time</p>
+    </div>
+    <div class="patient-badge">
+        <strong>@ViewBag.PatientName</strong>
+        <span> · </span>
+        <span class="mrn-code">@ViewBag.MedicalRecordNumber</span>
+    </div>
+</div>
+
+@if (latest != null)
+{
+    <h6 style="font-size:0.78rem;font-weight:700;color:var(--hms-text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px">
+        <i class="fas fa-clock mr-1"></i> Latest Vitals — @latest.RecordedAt.ToString("dd MMM yyyy · HH:mm")
+    </h6>
+    <div class="vitals-grid">
+        <div class="vital-card @(latest.Temperature.HasValue && latest.Temperature > 37.5m ? "vital-abnormal" : "vital-normal")">
+            <div class="v-icon" style="background:#fee2e2"><i class="fas fa-thermometer-half" style="color:#dc2626"></i></div>
+            <div class="v-value @(latest.Temperature > 37.5m ? "temp-high" : "")">@(latest.Temperature?.ToString("F1") ?? "—")</div>
+            <div class="v-unit">°C</div>
+            <div class="v-label">Temperature</div>
+        </div>
+        <div class="vital-card @(latest.BloodPressureSystolic.HasValue && latest.BloodPressureSystolic > 140 ? "vital-abnormal" : "vital-normal")">
+            <div class="v-icon" style="background:#fee2e2"><i class="fas fa-heart" style="color:#dc2626"></i></div>
+            <div class="v-value">@(latest.BloodPressureSystolic?.ToString() ?? "—") / @(latest.BloodPressureDiastolic?.ToString() ?? "—")</div>
+            <div class="v-unit">mmHg</div>
+            <div class="v-label">Blood Pressure</div>
+        </div>
+        <div class="vital-card @(latest.HeartRate.HasValue && (latest.HeartRate > 100 || latest.HeartRate < 60) ? "vital-abnormal" : "vital-normal")">
+            <div class="v-icon" style="background:#fef3c7"><i class="fas fa-heartbeat" style="color:#d97706"></i></div>
+            <div class="v-value @(latest.HeartRate > 100 ? "hr-high" : latest.HeartRate < 60 ? "hr-low" : "")">@(latest.HeartRate?.ToString() ?? "—")</div>
+            <div class="v-unit">bpm</div>
+            <div class="v-label">Heart Rate</div>
+        </div>
+        <div class="vital-card @(latest.RespiratoryRate.HasValue && latest.RespiratoryRate > 20 ? "vital-abnormal" : "vital-normal")">
+            <div class="v-icon" style="background:#dbeafe"><i class="fas fa-lungs" style="color:#2563a8"></i></div>
+            <div class="v-value">@(latest.RespiratoryRate?.ToString() ?? "—")</div>
+            <div class="v-unit">/min</div>
+            <div class="v-label">Respiratory Rate</div>
+        </div>
+        <div class="vital-card @(latest.OxygenSaturation.HasValue && latest.OxygenSaturation < 95 ? "vital-abnormal" : "vital-normal")">
+            <div class="v-icon" style="background:#d1fae5"><i class="fas fa-oil-can" style="color:#059669"></i></div>
+            <div class="v-value @(latest.OxygenSaturation < 95 ? "o2-low" : "")">@(latest.OxygenSaturation?.ToString("F1") ?? "—")</div>
+            <div class="v-unit">%</div>
+            <div class="v-label">SpO₂</div>
+        </div>
+        <div class="vital-card">
+            <div class="v-icon" style="background:#ede9fe"><i class="fas fa-weight" style="color:#7c3aed"></i></div>
+            <div class="v-value">@(latest.Weight?.ToString("F1") ?? "—")</div>
+            <div class="v-unit">kg</div>
+            <div class="v-label">Weight</div>
+        </div>
+    </div>
+}
+
+<div class="content-card">
+    <div class="card-header">
+        <h5><i class="fas fa-history mr-1"></i> Vital History</h5>
+        <span style="font-size:0.85rem;color:var(--hms-text-muted)">@Model.Count() record(s)</span>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <i class="fas fa-heartbeat"></i>
+            <p style="font-size:1rem;font-weight:600;color:var(--hms-text)">No vital signs recorded</p>
+            <p style="font-size:0.875rem">Vital signs will appear here once recorded during medical visits.</p>
+        </div>
+    }
+    else
+    {
+        <div style="overflow-x:auto">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Temp (°C)</th>
+                        <th>BP (mmHg)</th>
+                        <th>HR (bpm)</th>
+                        <th>RR (/min)</th>
+                        <th>SpO₂ (%)</th>
+                        <th>Weight (kg)</th>
+                        <th>Recorded By</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var v in Model)
+                    {
+                        <tr>
+                            <td>@v.RecordedAt.ToString("dd MMM HH:mm")</td>
+                            <td class="@(v.Temperature > 37.5m ? "temp-high" : "")">@v.Temperature?.ToString("F1")</td>
+                            <td>@(v.BloodPressureSystolic?.ToString() ?? "—")/@(v.BloodPressureDiastolic?.ToString() ?? "—")</td>
+                            <td class="@(v.HeartRate > 100 ? "hr-high" : v.HeartRate < 60 ? "hr-low" : "")">@v.HeartRate</td>
+                            <td>@v.RespiratoryRate</td>
+                            <td class="@(v.OxygenSaturation < 95 ? "o2-low" : "")">@v.OxygenSaturation?.ToString("F1")</td>
+                            <td>@v.Weight?.ToString("F1")</td>
+                            <td>@v.RecordedBy</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<div style="margin-top:20px">
+    <a asp-action="Details" asp-route-id="@ViewBag.PatientId" class="btn-back">
+        <i class="fas fa-arrow-left"></i> Back to Patient
+    </a>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () { });
+    </script>
+}

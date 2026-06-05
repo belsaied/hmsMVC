@@ -1,0 +1,272 @@
+@using HMS.BLL.Shared.Dtos.PatientModule.Medical_History_Dtos
+@model IEnumerable<MedicalHistoryResultDto>
+
+@{
+    ViewData["Title"] = "Medical History — " + ViewBag.PatientName;
+}
+
+@section Styles {
+    <style>
+        :root {
+            --hms-blue: #1a3a5c;
+            --hms-blue-mid: #2563a8;
+            --hms-accent: #0ea5e9;
+            --hms-border: #e2e8f0;
+            --hms-text: #1e293b;
+            --hms-text-muted: #64748b;
+        }
+
+        .page-header-card {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white; padding: 24px 28px; border-radius: 16px; margin-bottom: 24px;
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 8px 32px rgba(59,130,246,0.18);
+        }
+        .page-title { font-size: 1.4rem; font-weight: 700; margin: 0; }
+        .page-subtitle { font-size: 0.84rem; opacity: 0.75; margin: 4px 0 0; }
+        .patient-badge {
+            background: rgba(255,255,255,0.15); padding: 8px 16px; border-radius: 10px;
+            font-size: 0.82rem;
+        }
+        .patient-badge strong { color: white; }
+        .mrn-code { font-family: monospace; font-weight: 700; }
+
+        .content-card {
+            background: white; border-radius: 14px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+            border: 1px solid var(--hms-border); overflow: hidden;
+        }
+        .card-header {
+            padding: 18px 20px; border-bottom: 1px solid var(--hms-border);
+            background: #f8faff; display: flex; align-items: center; justify-content: space-between;
+        }
+        .card-header h5 { margin: 0; font-weight: 700; font-size: 0.95rem; }
+
+        .table { margin: 0; }
+        .table thead th {
+            background: var(--hms-blue); color: white; font-weight: 600;
+            font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em;
+            padding: 12px 16px; border: none;
+        }
+        .table tbody td {
+            padding: 12px 16px; vertical-align: middle;
+            border-bottom: 1px solid var(--hms-border); font-size: 0.88rem;
+        }
+        .table tbody tr:hover td { background: #f8faff; }
+
+        .cond-active { background: #fef3c7; color: #92400e; padding: 3px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+        .cond-resolved { background: #d1fae5; color: #065f46; padding: 3px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+
+        .empty-state { text-align: center; padding: 50px 20px; color: var(--hms-text-muted); }
+        .empty-state i { font-size: 3rem; opacity: 0.2; display: block; margin-bottom: 12px; }
+
+        .form-section-card {
+            background: #f8faff; border-radius: 12px; padding: 20px;
+            border: 1px dashed var(--hms-border);
+        }
+        .form-label { font-size: 0.82rem; font-weight: 600; margin-bottom: 6px; }
+        .form-control {
+            border-radius: 10px; border: 1.5px solid var(--hms-border);
+            padding: 10px 14px; font-size: 0.9rem;
+        }
+        .form-control:focus { border-color: var(--hms-accent); box-shadow: 0 0 0 3px rgba(14,165,233,0.12); }
+        .btn-add {
+            background: linear-gradient(135deg, var(--hms-blue-mid), var(--hms-blue));
+            color: white; border: none; border-radius: 10px;
+            padding: 10px 22px; font-weight: 700; font-size: 0.9rem;
+            box-shadow: 0 4px 14px rgba(37,99,168,0.3);
+            transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn-add:hover { transform: translateY(-1px); color: white; }
+        .btn-back {
+            background: white; color: var(--hms-text-muted);
+            border: 1.5px solid var(--hms-border); border-radius: 10px;
+            padding: 9px 18px; font-weight: 600; font-size: 0.875rem;
+            text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn-back:hover { background: #f1f5f9; color: var(--hms-text); }
+
+        .update-row { background: #fffbeb; }
+        .update-row td { padding: 16px !important; }
+        .btn-sm-save {
+            background: var(--hms-blue-mid); color: white; border: none;
+            border-radius: 8px; padding: 6px 14px; font-size: 0.8rem; font-weight: 600;
+        }
+        .btn-sm-save:hover { background: var(--hms-blue); }
+        .update-form .form-control { padding: 7px 10px; font-size: 0.85rem; }
+    </style>
+}
+
+<div class="page-header-card">
+    <div>
+        <h3 class="page-title"><i class="fas fa-notes-medical mr-2"></i> Medical History</h3>
+        <p class="page-subtitle">Manage medical history records for this patient</p>
+    </div>
+    <div class="patient-badge">
+        <strong>@ViewBag.PatientName</strong>
+        <span> · </span>
+        <span class="mrn-code">@ViewBag.MedicalRecordNumber</span>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-5">
+        <div class="content-card">
+            <div class="card-header">
+                <h5><i class="fas fa-plus-circle mr-1" style="color:#2563a8"></i> Add Record</h5>
+            </div>
+            <div style="padding:20px">
+                <form asp-action="AddMedicalHistory" asp-route-id="@ViewBag.PatientId" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Condition Type</label>
+                                <select name="ConditionType" asp-items="ViewBag.ConditionTypeList" class="form-control select2">
+                                    <option value="">— Select —</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Diagnosis Date</label>
+                                <input name="DiagnosisDate" type="date" class="form-control flatpickr" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Diagnosis</label>
+                        <textarea name="Diagnosis" class="form-control" rows="2" placeholder="Diagnosis description"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Treatment</label>
+                        <textarea name="Treatment" class="form-control" rows="2" placeholder="Treatment plan"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Treatment Start</label>
+                                <input name="TreatmentStartDate" type="date" class="form-control flatpickr" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Recorded By</label>
+                                <input name="RecordedBy" class="form-control" placeholder="Name" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Notes</label>
+                        <textarea name="Notes" class="form-control" rows="2" placeholder="Additional notes"></textarea>
+                    </div>
+                    <button type="submit" class="btn-add w-100 justify-content-center">
+                        <i class="fas fa-save"></i> Add Record
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="content-card">
+            <div class="card-header">
+                <h5><i class="fas fa-list mr-1"></i> History Records</h5>
+                <span style="font-size:0.85rem;color:var(--hms-text-muted)">@Model.Count() record(s)</span>
+            </div>
+            @if (!Model.Any())
+            {
+                <div class="empty-state">
+                    <i class="fas fa-notes-medical"></i>
+                    <p style="font-size:1rem;font-weight:600;color:var(--hms-text)">No medical history recorded</p>
+                    <p style="font-size:0.875rem">Use the form to add the first medical history record.</p>
+                </div>
+            }
+            else
+            {
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Condition</th>
+                            <th>Diagnosis</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th style="width:60px"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var h in Model)
+                        {
+                            <tr>
+                                <td><strong>@h.ConditionType</strong></td>
+                                <td>@h.Diagnosis</td>
+                                <td>@h.DiagnosisDate.ToString("dd MMM yyyy")</td>
+                                <td>
+                                    <span class="@(h.IsActive ? "cond-active" : "cond-resolved")">
+                                        @(h.IsActive ? "Active" : "Resolved")
+                                    </span>
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-outline-info" style="border-radius:8px;font-size:0.75rem"
+                                            onclick="$('#update-@h.Id').toggle()">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr id="update-@h.Id" class="update-row" style="display:none">
+                                <td colspan="5">
+                                    <form asp-action="UpdateMedicalHistory" asp-route-id="@ViewBag.PatientId" asp-route-historyId="@h.Id"
+                                          method="post" class="update-form">
+                                        @Html.AntiForgeryToken()
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <label style="font-size:0.75rem;font-weight:600">Treatment</label>
+                                                <textarea name="Treatment" class="form-control" rows="2">@h.Treatment</textarea>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label style="font-size:0.75rem;font-weight:600">Resolution Date</label>
+                                                <input name="ResolutionDate" type="date" class="form-control"
+                                                       value="@h.ResolutionDate?.ToString("yyyy-MM-dd")" />
+                                            </div>
+                                            <div class="col-md-2">
+                                                <label style="font-size:0.75rem;font-weight:600">Active</label>
+                                                <select name="IsActive" class="form-control">
+                                                    <option value="true" selected="@h.IsActive">Active</option>
+                                                    <option value="false" selected="@(!h.IsActive)">Resolved</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label style="font-size:0.75rem;font-weight:600">Notes</label>
+                                                <textarea name="Notes" class="form-control" rows="2">@h.Notes</textarea>
+                                            </div>
+                                        </div>
+                                        <div style="margin-top:10px;text-align:right">
+                                            <button type="submit" class="btn-sm-save">
+                                                <i class="fas fa-check mr-1"></i> Update
+                                            </button>
+                                        </div>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>
+
+<div style="margin-top:20px">
+    <a asp-action="Details" asp-route-id="@ViewBag.PatientId" class="btn-back">
+        <i class="fas fa-arrow-left"></i> Back to Patient
+    </a>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('.select2').select2({ theme: 'classic', width: '100%' });
+            $('.flatpickr').flatpickr({ dateFormat: 'Y-m-d' });
+        });
+    </script>
+}
