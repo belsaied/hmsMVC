@@ -22,7 +22,7 @@ namespace HMS.BLL.Services.Implementations.MedicalRecordModule
 
     internal sealed class PrescriptionPdfDocument(
         Prescription prescription,
-        string patientName,
+        string patientName,       // now stored and used
         string doctorName,
         string doctorSpecialization) : IDocument
     {
@@ -87,7 +87,10 @@ namespace HMS.BLL.Services.Implementations.MedicalRecordModule
                 // Doctor Info Card
                 col.Item().Element(ComposeDoctorInfo);
 
-                // Meta row: Date of Issue + Prescription ID
+                // Patient Info (uses patientName — fixes CS9113)
+                col.Item().Element(ComposePatientInfo);
+
+                // Meta row
                 col.Item().Row(row =>
                 {
                     row.RelativeItem().Column(inner =>
@@ -106,15 +109,26 @@ namespace HMS.BLL.Services.Implementations.MedicalRecordModule
                     });
                 });
 
-                // Medications Section
                 col.Item().Element(ComposeMedicationsSection);
 
-                // Doctor's Notes Section
                 if (!string.IsNullOrWhiteSpace(prescription.Instructions))
                     col.Item().Element(ComposeNotesSection);
 
-                // Doctor Signature
                 col.Item().Element(ComposeSignature);
+            });
+        }
+
+        private void ComposePatientInfo(IContainer container)
+        {
+            container.Background(LightGray).Padding(10).Row(row =>
+            {
+                row.RelativeItem().Column(col =>
+                {
+                    col.Item().Text("Patient").Bold().FontSize(9).FontColor(AccentColor);
+                    col.Item().Text(patientName).Bold().FontSize(11);
+                    col.Item().Text($"Patient ID: {prescription.PatientId}")
+                        .FontSize(9).FontColor(Colors.Grey.Medium);
+                });
             });
         }
 
@@ -122,13 +136,12 @@ namespace HMS.BLL.Services.Implementations.MedicalRecordModule
         {
             container.Background(LightGray).Padding(12).Row(row =>
             {
-                // Doctor avatar placeholder circle
                 row.ConstantItem(52).Height(52).Background(AccentColor)
                     .AlignCenter().AlignMiddle()
                     .Text("Dr")
                     .FontSize(14).Bold().FontColor(Colors.White);
 
-                row.ConstantItem(12); // spacer
+                row.ConstantItem(12);
 
                 row.RelativeItem().Column(col =>
                 {
@@ -157,7 +170,6 @@ namespace HMS.BLL.Services.Implementations.MedicalRecordModule
                     {
                         medCol.Item().Row(row =>
                         {
-                            // Pill icon placeholder
                             row.ConstantItem(32).Height(32)
                                 .Background(AccentColor)
                                 .AlignCenter().AlignMiddle()
