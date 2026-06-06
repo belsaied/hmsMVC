@@ -1,0 +1,181 @@
+﻿@using HMS.BLL.Shared.Dtos.AppointmentModule
+@model IEnumerable<AppointmentResultDto>
+
+@{
+    ViewData["Title"] = "Appointments — " + ViewBag.PatientName;
+}
+
+@section PageHeader {
+    <div class="row mb-2">
+        <div class="col-sm-6"><h1 class="m-0">Patient Appointments</h1></div>
+        <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a asp-controller="Patients" asp-action="Details" asp-route-id="@ViewBag.PatientId">@ViewBag.PatientName</a></li>
+                <li class="breadcrumb-item active">Appointments</li>
+            </ol>
+        </div>
+    </div>
+}
+
+@section Styles {
+    <style>
+        :root {
+            --hms-blue: #1a3a5c;
+            --hms-blue-mid: #2563a8;
+            --hms-border: #e2e8f0;
+            --hms-text: #1e293b;
+            --hms-muted: #64748b;
+        }
+
+        .page-header-card {
+            background: linear-gradient(135deg,var(--hms-blue),var(--hms-blue-mid));
+            color: white;
+            border-radius: 14px;
+            padding: 22px 28px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .appt-item {
+            background: white;
+            border: 1px solid var(--hms-border);
+            border-radius: 12px;
+            padding: 18px 22px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            transition: box-shadow .15s;
+        }
+
+            .appt-item:hover {
+                box-shadow: 0 4px 16px rgba(0,0,0,.08);
+            }
+
+        .appt-date-box {
+            min-width: 60px;
+            text-align: center;
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 10px;
+            padding: 10px 6px;
+        }
+
+        .appt-day {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #0369a1;
+            line-height: 1;
+        }
+
+        .appt-month {
+            font-size: .7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #0369a1;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: .72rem;
+            font-weight: 600;
+        }
+
+        .status-Scheduled {
+            background: #dbeafe;
+            color: #1e40af
+        }
+
+        .status-Confirmed {
+            background: #d1fae5;
+            color: #065f46
+        }
+
+        .status-Completed {
+            background: #ede9fe;
+            color: #3730a3
+        }
+
+        .status-Cancelled {
+            background: #fee2e2;
+            color: #991b1b
+        }
+
+        .status-NoShow {
+            background: #fef9c3;
+            color: #854d0e
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--hms-muted);
+        }
+
+            .empty-state i {
+                font-size: 3rem;
+                opacity: .2;
+                display: block;
+                margin-bottom: 12px;
+            }
+    </style>
+}
+
+<div class="page-header-card">
+    <div>
+        <div style="font-size:1.1rem;font-weight:700"><i class="fas fa-calendar-check mr-2"></i>@ViewBag.PatientName — Appointments</div>
+        <div style="font-size:.82rem;opacity:.75;margin-top:2px">MRN: @ViewBag.MRN · @Model.Count() total appointment(s)</div>
+    </div>
+    <a asp-action="Book" class="btn btn-light btn-sm" style="border-radius:8px;font-weight:600">
+        <i class="fas fa-plus mr-1"></i> Book New
+    </a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="empty-state">
+        <i class="fas fa-calendar-times"></i>
+        <p style="font-size:1rem;font-weight:600;color:var(--hms-text)">No appointments found</p>
+        <p>This patient has no recorded appointments yet.</p>
+        <a asp-action="Book" class="btn btn-primary mt-2" style="border-radius:9px;font-weight:600">
+            <i class="fas fa-plus mr-1"></i> Book First Appointment
+        </a>
+    </div>
+}
+else
+{
+    foreach (var a in Model.OrderByDescending(x => x.AppointmentDate))
+    {
+        <div class="appt-item">
+            <div class="appt-date-box">
+                <div class="appt-day">@a.AppointmentDate.Day</div>
+                <div class="appt-month">@a.AppointmentDate.ToString("MMM")</div>
+            </div>
+            <div style="flex:1;min-width:0">
+                <div style="font-weight:700;font-size:.95rem">Dr. @a.DoctorName <span style="font-size:.78rem;color:var(--hms-muted);font-weight:400">· @a.DoctorSpecialization</span></div>
+                <div style="font-size:.82rem;color:var(--hms-muted);margin-top:2px">
+                    @a.StartTime.ToString("hh:mm tt") – @a.EndTime.ToString("hh:mm tt") &nbsp;·&nbsp; @a.Type
+                </div>
+                <div style="font-size:.82rem;color:var(--hms-text);margin-top:4px">@a.ReasonForVisit</div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+                <span class="status-badge status-@a.Status">@a.Status</span>
+                <span style="font-family:monospace;font-size:.72rem;color:var(--hms-muted)">@a.ConfirmationNumber</span>
+                <a asp-action="Details" asp-route-id="@a.Id" class="btn btn-sm btn-outline-primary" style="border-radius:7px;font-size:.75rem;padding:3px 10px">View</a>
+            </div>
+        </div>
+    }
+}
+
+<div class="mt-3">
+    <a asp-controller="Patients" asp-action="Details" asp-route-id="@ViewBag.PatientId" class="btn btn-secondary" style="border-radius:9px;font-weight:600">
+        <i class="fas fa-arrow-left mr-1"></i> Back to Patient
+    </a>
+</div>

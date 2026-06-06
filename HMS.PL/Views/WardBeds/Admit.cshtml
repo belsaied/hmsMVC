@@ -1,0 +1,317 @@
+﻿@using HMS.BLL.Shared.Dtos.WardBedModule.AdmissionDtos
+@model CreateAdmissionDto
+
+@{
+    ViewData["Title"] = "Admit Patient";
+}
+
+@section Styles {
+    <style>
+        :root {
+            --hms-blue: #1a3a5c;
+            --hms-blue-mid: #2563a8;
+            --hms-accent: #0ea5e9;
+            --hms-green: #10b981;
+            --hms-border: #e2e8f0;
+            --hms-text: #1e293b;
+            --hms-muted: #64748b;
+        }
+
+        .form-header {
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: white;
+            padding: 24px 32px;
+            border-radius: 16px 16px 0 0;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .form-header-icon {
+            width: 52px;
+            height: 52px;
+            background: rgba(255,255,255,.15);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .form-body {
+            background: white;
+            border-radius: 0 0 16px 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,.09);
+            border: 1px solid var(--hms-border);
+            border-top: none;
+        }
+
+        .form-section {
+            padding: 28px 32px;
+            border-bottom: 1px solid var(--hms-border);
+        }
+
+            .form-section:last-child {
+                border-bottom: none;
+            }
+
+        .section-title {
+            font-size: .78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            color: var(--hms-muted);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .82rem;
+        }
+
+        .form-label {
+            font-size: .82rem;
+            font-weight: 600;
+            color: var(--hms-text);
+            margin-bottom: 6px;
+        }
+
+        .form-control {
+            border-radius: 10px;
+            border: 1.5px solid var(--hms-border);
+            padding: 10px 14px;
+            font-size: .9rem;
+        }
+
+            .form-control:focus {
+                border-color: var(--hms-accent);
+                box-shadow: 0 0 0 3px rgba(14,165,233,.12);
+                outline: none;
+            }
+
+        .req {
+            color: #ef4444;
+            margin-left: 3px;
+        }
+
+        .form-footer {
+            padding: 20px 32px;
+            background: #f8faff;
+            border-radius: 0 0 16px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-top: 1px solid var(--hms-border);
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 11px 28px;
+            font-weight: 700;
+            font-size: .9rem;
+            box-shadow: 0 4px 14px rgba(16,185,129,.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+            .btn-submit:hover {
+                transform: translateY(-1px);
+                color: white;
+            }
+
+        .btn-cancel-link {
+            background: white;
+            color: var(--hms-muted);
+            border: 1.5px solid var(--hms-border);
+            border-radius: 10px;
+            padding: 10px 22px;
+            font-weight: 600;
+            font-size: .9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+            .btn-cancel-link:hover {
+                background: #f1f5f9;
+                color: var(--hms-text);
+            }
+
+        .alert-validation {
+            border-radius: 10px;
+            border: none;
+            background: #fef2f2;
+            border-left: 4px solid #ef4444;
+            color: #991b1b;
+            padding: 14px 18px;
+            font-size: .875rem;
+            margin: 20px 32px 0;
+        }
+
+        .text-danger.small {
+            font-size: .78rem;
+            margin-top: 4px;
+            display: block;
+        }
+
+        .select2-container .select2-selection--single {
+            height: 44px !important;
+            border: 1.5px solid var(--hms-border) !important;
+            border-radius: 10px !important;
+        }
+
+        .select2-selection__rendered {
+            line-height: 44px !important;
+            padding: 0 14px !important;
+            font-size: .9rem;
+        }
+
+        .select2-selection__arrow {
+            height: 44px !important;
+        }
+    </style>
+}
+
+@section PageHeader {
+    <div class="row mb-2">
+        <div class="col-sm-6"><h1 class="m-0">Admit Patient</h1></div>
+        <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a asp-action="Index">Wards</a></li>
+                <li class="breadcrumb-item"><a asp-action="Admissions">Admissions</a></li>
+                <li class="breadcrumb-item active">Admit</li>
+            </ol>
+        </div>
+    </div>
+}
+
+<div>
+    <div class="form-header">
+        <div class="form-header-icon"><i class="fas fa-procedures"></i></div>
+        <div>
+            <div style="font-size:1.3rem;font-weight:700;margin:0">Admit Patient</div>
+            <div style="font-size:.84rem;opacity:.7;margin-top:2px">Select patient, bed, and admitting doctor to start an admission</div>
+        </div>
+    </div>
+
+    <form asp-action="Admit" method="post">
+        @Html.AntiForgeryToken()
+
+        @if (!ViewContext.ModelState.IsValid)
+        {
+            <div asp-validation-summary="All" class="alert-validation"></div>
+        }
+
+        <div class="form-body">
+            <!-- Patient & Doctor -->
+            <div class="form-section">
+                <div class="section-title">
+                    <div class="section-icon" style="background:#dbeafe"><i class="fas fa-users" style="color:#2563a8"></i></div>
+                    Participants
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="PatientId" class="form-label">Patient <span class="req">*</span></label>
+                            <select asp-for="PatientId" asp-items="ViewBag.PatientList" class="form-control select2">
+                                <option value="">— Select Patient —</option>
+                            </select>
+                            <span asp-validation-for="PatientId" class="text-danger small"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="AdmittingDoctorId" class="form-label">Admitting Doctor <span class="req">*</span></label>
+                            <select asp-for="AdmittingDoctorId" asp-items="ViewBag.DoctorList" class="form-control select2">
+                                <option value="">— Select Doctor —</option>
+                            </select>
+                            <span asp-validation-for="AdmittingDoctorId" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bed Selection -->
+            <div class="form-section">
+                <div class="section-title">
+                    <div class="section-icon" style="background:#d1fae5"><i class="fas fa-bed" style="color:#059669"></i></div>
+                    Bed Assignment
+                </div>
+                <div class="form-group">
+                    <label asp-for="BedId" class="form-label">Bed <span class="req">*</span></label>
+                    <select asp-for="BedId" asp-items="ViewBag.BedList" class="form-control select2">
+                        <option value="">— Select Available Bed —</option>
+                    </select>
+                    <span asp-validation-for="BedId" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <!-- Admission Details -->
+            <div class="form-section">
+                <div class="section-title">
+                    <div class="section-icon" style="background:#fef3c7"><i class="fas fa-calendar-alt" style="color:#d97706"></i></div>
+                    Admission Details
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="AdmissionDate" class="form-label">Admission Date &amp; Time <span class="req">*</span></label>
+                            <input asp-for="AdmissionDate" type="datetime-local" class="form-control" />
+                            <span asp-validation-for="AdmissionDate" class="text-danger small"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="ExpectedDischargeDate" class="form-label">Expected Discharge Date</label>
+                            <input asp-for="ExpectedDischargeDate" type="date" class="form-control" />
+                            <span asp-validation-for="ExpectedDischargeDate" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label asp-for="AdmissionReason" class="form-label">Reason for Admission <span class="req">*</span></label>
+                    <textarea asp-for="AdmissionReason" class="form-control" rows="4"
+                              placeholder="Describe the reason for admission..." maxlength="500"></textarea>
+                    <span asp-validation-for="AdmissionReason" class="text-danger small"></span>
+                </div>
+                <div class="form-group mb-0">
+                    <label asp-for="AdmittedBy" class="form-label">Admitted By <span class="req">*</span></label>
+                    <input asp-for="AdmittedBy" class="form-control" placeholder="Staff or doctor name" maxlength="100" />
+                    <span asp-validation-for="AdmittedBy" class="text-danger small"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-footer">
+            <button type="submit" class="btn-submit">
+                <i class="fas fa-procedures"></i> Admit Patient
+            </button>
+            <a asp-action="Admissions" class="btn-cancel-link">
+                <i class="fas fa-times"></i> Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(function () { $('.select2').select2({ theme: 'classic', width: '100%' }); });
+    </script>
+}

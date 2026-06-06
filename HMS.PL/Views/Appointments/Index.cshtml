@@ -1,0 +1,543 @@
+﻿@using HMS.BLL.Shared
+@using HMS.BLL.Shared.Dtos.AppointmentModule
+@model PaginatedResult<AppointmentResultDto>
+
+@{
+    ViewData["Title"] = "Appointments";
+}
+
+@section Styles {
+    <style>
+        :root {
+            --hms-blue: #1a3a5c;
+            --hms-blue-mid: #2563a8;
+            --hms-accent: #0ea5e9;
+            --hms-green: #10b981;
+            --hms-red: #ef4444;
+            --hms-orange: #f59e0b;
+            --hms-purple: #8b5cf6;
+            --hms-border: #e2e8f0;
+            --hms-text: #1e293b;
+            --hms-muted: #64748b;
+        }
+
+        .appt-header {
+            background: linear-gradient(135deg, #1a3a5c 0%, #2563a8 100%);
+            color: white;
+            padding: 28px 32px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 8px 32px rgba(26,58,92,.18);
+            overflow: hidden;
+            position: relative;
+        }
+
+            .appt-header::before {
+                content: '';
+                position: absolute;
+                top: -40px;
+                right: -40px;
+                width: 160px;
+                height: 160px;
+                background: rgba(255,255,255,.07);
+                border-radius: 50%;
+            }
+
+        .appt-header-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .appt-header-sub {
+            font-size: .875rem;
+            opacity: .75;
+            margin-top: 4px;
+        }
+
+        .btn-book {
+            background: linear-gradient(135deg, var(--hms-accent), var(--hms-blue-mid));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-weight: 600;
+            font-size: .875rem;
+            box-shadow: 0 4px 12px rgba(14,165,233,.3);
+            transition: all .2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+            .btn-book:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 6px 18px rgba(14,165,233,.4);
+                color: white;
+            }
+
+        .filter-card {
+            background: white;
+            border-radius: 14px;
+            padding: 20px 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,.06);
+            border: 1px solid var(--hms-border);
+        }
+
+        .table-card {
+            background: white;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 2px 16px rgba(0,0,0,.07);
+            border: 1px solid var(--hms-border);
+        }
+
+            .table-card thead th {
+                background: var(--hms-blue);
+                color: white;
+                font-weight: 600;
+                font-size: .8rem;
+                text-transform: uppercase;
+                letter-spacing: .06em;
+                padding: 14px 16px;
+                border: none;
+            }
+
+            .table-card tbody td {
+                padding: 12px 16px;
+                vertical-align: middle;
+                border: none;
+                font-size: .88rem;
+            }
+
+            .table-card tbody tr {
+                border-bottom: 1px solid var(--hms-border);
+                transition: background .15s;
+            }
+
+                .table-card tbody tr:hover {
+                    background: #f8faff;
+                }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: .75rem;
+            font-weight: 600;
+        }
+
+        .status-Scheduled {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-Confirmed {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-Completed {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+
+        .status-Cancelled {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-NoShow {
+            background: #fef9c3;
+            color: #854d0e;
+        }
+
+        .type-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 10px;
+            font-size: .72rem;
+            font-weight: 600;
+        }
+
+        .type-InPerson {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .type-Video {
+            background: #ede9fe;
+            color: #5b21b6;
+        }
+
+        .type-Phone {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .btn-action {
+            width: 30px;
+            height: 30px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 7px;
+            font-size: .8rem;
+            transition: all .15s;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn-view {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+            .btn-view:hover {
+                background: #0369a1;
+                color: white;
+            }
+
+        .btn-cancel-action {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+            .btn-cancel-action:hover {
+                background: #dc2626;
+                color: white;
+            }
+
+        .pagination-footer {
+            background: #f8faff;
+            padding: 14px 20px;
+            border-top: 1px solid var(--hms-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .pagination .page-link {
+            border-radius: 8px !important;
+            margin: 0 2px;
+            border: 1px solid var(--hms-border);
+            color: var(--hms-blue-mid);
+            font-weight: 500;
+            font-size: .875rem;
+            min-width: 36px;
+            text-align: center;
+            padding: 6px 10px;
+        }
+
+        .pagination .page-item.active .page-link {
+            background: var(--hms-blue);
+            border-color: var(--hms-blue);
+            color: white;
+        }
+
+        .conf-badge {
+            background: #f0fdf4;
+            color: #166534;
+            font-family: monospace;
+            font-size: .78rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+            border: 1px solid #bbf7d0;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--hms-muted);
+        }
+
+            .empty-state i {
+                font-size: 3.5rem;
+                opacity: .2;
+                margin-bottom: 16px;
+                display: block;
+            }
+
+        .stat-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .stat-chip {
+            background: white;
+            border: 1px solid var(--hms-border);
+            border-radius: 10px;
+            padding: 12px 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 1px 4px rgba(0,0,0,.05);
+        }
+
+        .stat-chip-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .stat-chip-val {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--hms-text);
+        }
+
+        .stat-chip-lbl {
+            font-size: .72rem;
+            color: var(--hms-muted);
+        }
+    </style>
+}
+
+@section PageHeader {
+    <div class="row mb-2">
+        <div class="col-sm-6"><h1 class="m-0">Appointment Management</h1></div>
+        <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item active">Appointments</li>
+            </ol>
+        </div>
+    </div>
+}
+
+<div class="appt-header">
+    <div style="position:relative;z-index:1">
+        <h2 class="appt-header-title"><i class="fas fa-calendar-check mr-2"></i> Appointments</h2>
+        <p class="appt-header-sub">Manage all scheduled, confirmed and completed appointments</p>
+    </div>
+    <div style="position:relative;z-index:1">
+        <a asp-action="Book" class="btn-book"><i class="fas fa-plus"></i> Book Appointment</a>
+    </div>
+</div>
+
+<!-- Stats -->
+<div class="stat-row">
+    <div class="stat-chip">
+        <div class="stat-chip-icon" style="background:#dbeafe"><i class="fas fa-calendar-alt" style="color:#2563a8"></i></div>
+        <div><div class="stat-chip-val">@Model.TotalCount</div><div class="stat-chip-lbl">Total</div></div>
+    </div>
+    <div class="stat-chip">
+        <div class="stat-chip-icon" style="background:#d1fae5"><i class="fas fa-check-circle" style="color:#10b981"></i></div>
+        <div><div class="stat-chip-val">@Model.Data.Count(a => a.Status == "Confirmed")</div><div class="stat-chip-lbl">Confirmed (page)</div></div>
+    </div>
+    <div class="stat-chip">
+        <div class="stat-chip-icon" style="background:#fef3c7"><i class="fas fa-clock" style="color:#d97706"></i></div>
+        <div><div class="stat-chip-val">@Model.Data.Count(a => a.Status == "Scheduled")</div><div class="stat-chip-lbl">Scheduled (page)</div></div>
+    </div>
+    <div class="stat-chip">
+        <div class="stat-chip-icon" style="background:#f1f5f9"><i class="fas fa-file-alt" style="color:#64748b"></i></div>
+        <div><div class="stat-chip-val">@Model.PageIndex / @((int)Math.Ceiling((double)Model.TotalCount / Model.PageSize))</div><div class="stat-chip-lbl">Page</div></div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="filter-card">
+    <form method="get" asp-action="Index">
+        <div class="row align-items-end g-2">
+            <div class="col-md-2">
+                <label class="form-label" style="font-size:.78rem;font-weight:600;color:var(--hms-muted);text-transform:uppercase">Status</label>
+                <select name="status" asp-items="ViewBag.StatusList" class="form-control select2" onchange="this.form.submit()">
+                    <option value="">All Statuses</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label" style="font-size:.78rem;font-weight:600;color:var(--hms-muted);text-transform:uppercase">Patient</label>
+                <select name="patientId" asp-items="ViewBag.PatientList" class="form-control select2" onchange="this.form.submit()">
+                    <option value="">All Patients</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label" style="font-size:.78rem;font-weight:600;color:var(--hms-muted);text-transform:uppercase">Doctor</label>
+                <select name="doctorId" asp-items="ViewBag.DoctorList" class="form-control select2" onchange="this.form.submit()">
+                    <option value="">All Doctors</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label" style="font-size:.78rem;font-weight:600;color:var(--hms-muted);text-transform:uppercase">From Date</label>
+                <input type="date" name="fromDate" value="@ViewBag.FromDate" class="form-control" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label" style="font-size:.78rem;font-weight:600;color:var(--hms-muted);text-transform:uppercase">To Date</label>
+                <input type="date" name="toDate" value="@ViewBag.ToDate" class="form-control" />
+            </div>
+            <div class="col-md-auto d-flex gap-2 mt-1">
+                <button type="submit" class="btn btn-primary btn-sm" style="border-radius:8px;padding:8px 16px"><i class="fas fa-search mr-1"></i>Search</button>
+                <a asp-action="Index" class="btn btn-secondary btn-sm" style="border-radius:8px;padding:8px 14px"><i class="fas fa-times"></i></a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Table -->
+<div class="table-card">
+    <table class="table">
+        <thead>
+            <tr>
+                <th><i class="fas fa-hashtag mr-1"></i> Confirmation</th>
+                <th><i class="fas fa-user mr-1"></i> Patient</th>
+                <th><i class="fas fa-user-md mr-1"></i> Doctor</th>
+                <th><i class="fas fa-calendar mr-1"></i> Date & Time</th>
+                <th><i class="fas fa-tag mr-1"></i> Type</th>
+                <th><i class="fas fa-circle mr-1"></i> Status</th>
+                <th style="width:90px;text-align:center"><i class="fas fa-ellipsis-h"></i></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var a in Model.Data)
+            {
+                <tr>
+                    <td><span class="conf-badge">@a.ConfirmationNumber</span></td>
+                    <td>
+                        <div style="font-weight:600">@a.PatientName</div>
+                    </td>
+                    <td>
+                        <div style="font-weight:600">Dr. @a.DoctorName</div>
+                        <div style="font-size:.78rem;color:var(--hms-muted)">@a.DoctorSpecialization</div>
+                    </td>
+                    <td>
+                        <div style="font-weight:600">@a.AppointmentDate.ToString("dd MMM yyyy")</div>
+                        <div style="font-size:.78rem;color:var(--hms-muted)">@a.StartTime.ToString("hh:mm tt") – @a.EndTime.ToString("hh:mm tt")</div>
+                    </td>
+                    <td><span class="type-badge type-@a.Type">@a.Type</span></td>
+                    <td>
+                        @{
+                            var scls = a.Status switch
+                            {
+                                "Scheduled" => "status-Scheduled",
+                                "Confirmed" => "status-Confirmed",
+                                "Completed" => "status-Completed",
+                                "Cancelled" => "status-Cancelled",
+                                "NoShow" => "status-NoShow",
+                                _ => "status-Scheduled"
+                            };
+                        }
+                        <span class="status-badge @scls">@a.Status</span>
+                    </td>
+                    <td style="text-align:center">
+                        <div style="display:flex;gap:5px;justify-content:center">
+                            <a asp-action="Details" asp-route-id="@a.Id" class="btn-action btn-view" title="View"><i class="fas fa-eye"></i></a>
+                            @if (a.Status is "Scheduled" or "Confirmed")
+                            {
+                                <button type="button" class="btn-action btn-cancel-action" title="Cancel"
+                                        onclick="showCancelModal(@a.Id, '@a.ConfirmationNumber')">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            }
+                        </div>
+                    </td>
+                </tr>
+            }
+            @if (!Model.Data.Any())
+            {
+                <tr>
+                    <td colspan="7">
+                        <div class="empty-state">
+                            <i class="fas fa-calendar-times"></i>
+                            <p style="font-size:1rem;font-weight:600;color:var(--hms-text)">No appointments found</p>
+                            <p>Try adjusting filters or book a new appointment.</p>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    @{
+        int totalPages = (int)Math.Ceiling((double)Model.TotalCount / Model.PageSize);
+        int from = (Model.PageIndex - 1) * Model.PageSize + 1;
+        int to = Math.Min(Model.PageIndex * Model.PageSize, Model.TotalCount);
+    }
+    <div class="pagination-footer">
+        <span style="font-size:.875rem;color:var(--hms-muted)">
+            Showing <strong>@from–@to</strong> of <strong>@Model.TotalCount</strong>
+        </span>
+        @if (totalPages > 1)
+        {
+            <ul class="pagination mb-0">
+                <li class="page-item @(Model.PageIndex == 1 ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-pageIndex="@(Model.PageIndex - 1)"
+                       asp-route-status="@ViewBag.Status" asp-route-patientId="@ViewBag.PatientId"
+                       asp-route-doctorId="@ViewBag.DoctorId" asp-route-fromDate="@ViewBag.FromDate"
+                       asp-route-toDate="@ViewBag.ToDate"><i class="fas fa-chevron-left" style="font-size:.7rem"></i></a>
+                </li>
+                @for (int i = Math.Max(1, Model.PageIndex - 2); i <= Math.Min(totalPages, Model.PageIndex + 2); i++)
+                {
+                    <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-pageIndex="@i"
+                           asp-route-status="@ViewBag.Status" asp-route-patientId="@ViewBag.PatientId"
+                           asp-route-doctorId="@ViewBag.DoctorId" asp-route-fromDate="@ViewBag.FromDate"
+                           asp-route-toDate="@ViewBag.ToDate">@i</a>
+                    </li>
+                }
+                <li class="page-item @(Model.PageIndex == totalPages ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-pageIndex="@(Model.PageIndex + 1)"
+                       asp-route-status="@ViewBag.Status" asp-route-patientId="@ViewBag.PatientId"
+                       asp-route-doctorId="@ViewBag.DoctorId" asp-route-fromDate="@ViewBag.FromDate"
+                       asp-route-toDate="@ViewBag.ToDate"><i class="fas fa-chevron-right" style="font-size:.7rem"></i></a>
+                </li>
+            </ul>
+        }
+    </div>
+</div>
+
+<!-- Cancel Modal -->
+<div class="modal fade" id="cancelModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:16px;border:none">
+            <div class="modal-header" style="background:linear-gradient(135deg,#991b1b,#dc2626);color:white;border-radius:16px 16px 0 0;border:none">
+                <h5 class="modal-title"><i class="fas fa-ban mr-2"></i> Cancel Appointment</h5>
+                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <form id="cancelForm" method="post" asp-action="Cancel">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" id="cancelApptId" />
+                <div class="modal-body p-4">
+                    <p style="color:#64748b;font-size:.9rem">Cancelling appointment: <strong id="cancelConfNum"></strong></p>
+                    <div class="form-group mb-0">
+                        <label class="form-label" style="font-size:.82rem;font-weight:600">Cancellation Reason <span style="color:#ef4444">*</span></label>
+                        <textarea name="reason" class="form-control" rows="3" style="border-radius:10px"
+                                  placeholder="Reason for cancellation..." required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border:none;padding:16px 24px">
+                    <button type="submit" class="btn btn-danger" style="border-radius:9px;font-weight:600">
+                        <i class="fas fa-ban mr-1"></i> Cancel Appointment
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" style="border-radius:9px">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(function () {
+            $('.select2').select2({ theme: 'classic', width: '100%' });
+        });
+        function showCancelModal(id, conf) {
+            $('#cancelApptId').val(id);
+            $('#cancelConfNum').text(conf);
+            $('#cancelModal').modal('show');
+        }
+    </script>
+}

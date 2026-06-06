@@ -1,0 +1,395 @@
+﻿@using HMS.BLL.Shared.Dtos.WardBedModule.WardDtos
+@using HMS.BLL.Shared.Dtos.WardBedModule.RoomsDtos
+@using HMS.BLL.Shared.Dtos.WardBedModule.BedDtos
+@model WardWithDetailsResultDto
+
+@{
+    ViewData["Title"] = "Ward — " + Model.Name;
+    int totalBeds = Model.Rooms.Sum(r => r.Beds.Count());
+    int occupiedBeds = Model.Rooms.Sum(r => r.Beds.Count(b => b.Status == "Occupied"));
+    int availableBeds = Model.Rooms.Sum(r => r.Beds.Count(b => b.Status == "Available"));
+    int maintenanceBeds = Model.Rooms.Sum(r => r.Beds.Count(b => b.Status == "Maintenance"));
+    int reservedBeds = Model.Rooms.Sum(r => r.Beds.Count(b => b.Status == "Reserved"));
+    var (typeBg, typeFg) = Model.WardType switch
+    {
+        "ICU" => ("#fee2e2", "#991b1b"),
+        "Isolation" => ("#fef3c7", "#92400e"),
+        "Maternity" => ("#fce7f3", "#831843"),
+        "Surgical" => ("#ede9fe", "#5b21b6"),
+        "Pediatrics" => ("#ecfdf5", "#065f46"),
+        _ => ("#dbeafe", "#1e40af")
+    };
+}
+
+@section Styles {
+    <style>
+        :root {
+            --hms-blue: #1a3a5c;
+            --hms-blue-mid: #2563a8;
+            --hms-accent: #0ea5e9;
+            --hms-green: #10b981;
+            --hms-red: #ef4444;
+            --hms-orange: #f59e0b;
+            --hms-border: #e2e8f0;
+            --hms-text: #1e293b;
+            --hms-muted: #64748b;
+        }
+
+        .ward-detail-header {
+            background: linear-gradient(135deg, var(--hms-blue), var(--hms-blue-mid));
+            color: white;
+            padding: 24px 32px;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .detail-card {
+            background: white;
+            border: 1px solid var(--hms-border);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,.07);
+        }
+
+        .info-section {
+            padding: 24px 32px;
+            border-bottom: 1px solid var(--hms-border);
+        }
+
+            .info-section:last-child {
+                border-bottom: none;
+            }
+
+        .info-label {
+            font-size: .72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: var(--hms-muted);
+            margin-bottom: 2px;
+        }
+
+        .info-value {
+            font-size: .92rem;
+            font-weight: 500;
+            color: var(--hms-text);
+        }
+
+        .room-card {
+            background: white;
+            border: 1px solid var(--hms-border);
+            border-radius: 12px;
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+
+        .room-header {
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--hms-border);
+            cursor: pointer;
+            transition: background .15s;
+        }
+
+            .room-header:hover {
+                background: #f8faff;
+            }
+
+        .bed-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px,1fr));
+            gap: 10px;
+            padding: 14px 18px;
+        }
+
+        .bed-item {
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1.5px solid var(--hms-border);
+            transition: all .15s;
+        }
+
+            .bed-item:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 3px 8px rgba(0,0,0,.08);
+            }
+
+        .bed-occupied {
+            background: #fef2f2;
+            border-color: #fecaca;
+        }
+
+        .bed-available {
+            background: #f0fdf4;
+            border-color: #bbf7d0;
+        }
+
+        .bed-maintenance {
+            background: #fef9c3;
+            border-color: #fde68a;
+        }
+
+        .bed-reserved {
+            background: #eff6ff;
+            border-color: #bfdbfe;
+        }
+
+        .stat-chip {
+            background: white;
+            border: 1px solid var(--hms-border);
+            border-radius: 10px;
+            padding: 12px 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-add {
+            border-radius: 9px;
+            font-weight: 600;
+            font-size: .8rem;
+        }
+
+        .modal-content {
+            border-radius: 16px;
+            border: none;
+        }
+    </style>
+}
+
+@section PageHeader {
+    <div class="row mb-2">
+        <div class="col-sm-6"><h1 class="m-0">Ward Details</h1></div>
+        <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a asp-action="Index">Wards</a></li>
+                <li class="breadcrumb-item active">@Model.Name</li>
+            </ol>
+        </div>
+    </div>
+}
+
+<div class="detail-card mb-4">
+    <div class="ward-detail-header">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+            <div>
+                <div style="font-size:.82rem;opacity:.7;text-transform:uppercase;letter-spacing:.08em">Ward</div>
+                <div style="font-size:1.6rem;font-weight:700;margin-top:4px">@Model.Name</div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+                <span style="padding:4px 14px;border-radius:10px;font-size:.75rem;font-weight:700;background:@typeBg;color:@typeFg">@Model.WardType</span>
+                @if (!Model.IsActive)
+                {
+                    <span class="badge badge-secondary">Inactive</span>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="info-section">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px">
+            @if (Model.Floor.HasValue)
+            {
+                <div><div class="info-label">Floor</div><div class="info-value">@Model.Floor</div></div>
+            }
+            @if (!string.IsNullOrEmpty(Model.PhoneExtension))
+            {
+                <div><div class="info-label">Phone Extension</div><div class="info-value">@Model.PhoneExtension</div></div>
+            }
+            <div><div class="info-label">Total Beds</div><div class="info-value">@totalBeds</div></div>
+        </div>
+        @if (!string.IsNullOrEmpty(Model.Description))
+        {
+            <div style="margin-top:14px">
+                <div class="info-label">Description</div>
+                <div class="info-value">@Model.Description</div>
+            </div>
+        }
+    </div>
+
+    <!-- Stats -->
+    <div class="info-section">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+            <div class="stat-chip">
+                <div style="width:36px;height:36px;border-radius:9px;background:#fee2e2;display:flex;align-items:center;justify-content:center"><i class="fas fa-user-injured" style="color:#dc2626"></i></div>
+                <div><div style="font-size:1.1rem;font-weight:700">@occupiedBeds</div><div style="font-size:.7rem;color:var(--hms-muted)">Occupied</div></div>
+            </div>
+            <div class="stat-chip">
+                <div style="width:36px;height:36px;border-radius:9px;background:#d1fae5;display:flex;align-items:center;justify-content:center"><i class="fas fa-check" style="color:#10b981"></i></div>
+                <div><div style="font-size:1.1rem;font-weight:700">@availableBeds</div><div style="font-size:.7rem;color:var(--hms-muted)">Available</div></div>
+            </div>
+            <div class="stat-chip">
+                <div style="width:36px;height:36px;border-radius:9px;background:#fef3c7;display:flex;align-items:center;justify-content:center"><i class="fas fa-tools" style="color:#d97706"></i></div>
+                <div><div style="font-size:1.1rem;font-weight:700">@maintenanceBeds</div><div style="font-size:.7rem;color:var(--hms-muted)">Maintenance</div></div>
+            </div>
+            <div class="stat-chip">
+                <div style="width:36px;height:36px;border-radius:9px;background:#dbeafe;display:flex;align-items:center;justify-content:center"><i class="fas fa-clock" style="color:#2563a8"></i></div>
+                <div><div style="font-size:1.1rem;font-weight:700">@reservedBeds</div><div style="font-size:.7rem;color:var(--hms-muted)">Reserved</div></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Rooms -->
+@foreach (var room in Model.Rooms)
+{
+    var rOccupied = room.Beds.Count(b => b.Status == "Occupied");
+    var rAvailable = room.Beds.Count(b => b.Status == "Available");
+    <div class="room-card">
+        <div class="room-header" onclick="toggleRoom(@room.Id)">
+            <div style="display:flex;align-items:center;gap:10px">
+                <i class="fas fa-door-open" style="color:var(--hms-blue-mid)"></i>
+                <span style="font-weight:700;font-size:.95rem">Room @room.RoomNumber</span>
+                <span style="font-size:.75rem;color:var(--hms-muted)">@room.RoomType</span>
+                @if (!room.IsActive)
+                {
+                    <span class="badge badge-secondary">Inactive</span>
+                }
+            </div>
+            <div style="display:flex;align-items:center;gap:12px">
+                <span style="font-size:.78rem;color:var(--hms-muted)">Capacity: @room.Capacity</span>
+                <span style="font-size:.78rem;color:var(--hms-muted)">@rOccupied / @room.Beds.Count() occupied</span>
+                <i class="fas fa-chevron-down" style="font-size:.75rem;color:var(--hms-muted);transition:transform .2s" id="chevron-@room.Id"></i>
+            </div>
+        </div>
+        <div id="room-@room.Id">
+            <div class="bed-grid">
+                @foreach (var bed in room.Beds)
+                {
+                    var bedClass = bed.Status switch { "Occupied" => "bed-occupied", "Available" => "bed-available", "Maintenance" => "bed-maintenance", "Reserved" => "bed-reserved", _ => "" };
+                    var bedIcon = bed.Status switch { "Occupied" => "fa-user-injured", "Available" => "fa-check-circle", "Maintenance" => "fa-tools", "Reserved" => "fa-clock", _ => "fa-bed" };
+                    <div class="bed-item @bedClass" title="@bed.Notes">
+                        <i class="fas @bedIcon" style="font-size:1.1rem;margin-bottom:6px;display:block"></i>
+                        <div style="font-weight:700;font-size:.85rem">@bed.BedNumber</div>
+                        <div style="font-size:.7rem;color:var(--hms-muted)">@bed.BedType</div>
+                        <span style="display:inline-block;padding:1px 8px;border-radius:6px;font-size:.65rem;font-weight:600;margin-top:4px">@bed.Status</span>
+                    </div>
+                }
+            </div>
+            <!-- Add Bed form -->
+            <div style="padding:0 18px 14px">
+                <button type="button" class="btn btn-sm btn-outline-primary btn-add" data-toggle="modal" data-target="#addBedModal-@room.Id">
+                    <i class="fas fa-plus mr-1"></i> Add Bed
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Bed Modal -->
+    <div class="modal fade" id="addBedModal-@room.Id" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header" style="background:linear-gradient(135deg,var(--hms-blue),var(--hms-blue-mid));color:white;border-radius:16px 16px 0 0">
+                    <h5 class="modal-title"><i class="fas fa-bed mr-2"></i> Add Bed — Room @room.RoomNumber</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+                </div>
+                <form asp-action="AddBed" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="wardId" value="@Model.Id" />
+                    <input type="hidden" name="roomId" value="@room.Id" />
+                    <div class="modal-body p-4">
+                        <div class="form-group">
+                            <label class="form-label" style="font-size:.82rem;font-weight:600">Bed Number <span style="color:#ef4444">*</span></label>
+                            <input name="BedNumber" class="form-control" required maxlength="20" style="border-radius:10px" placeholder="e.g. A-101" />
+                        </div>
+                        <div class="form-group mb-0">
+                            <label class="form-label" style="font-size:.82rem;font-weight:600">Bed Type <span style="color:#ef4444">*</span></label>
+                            <select name="BedType" class="form-control" style="border-radius:10px">
+                                <option value="Standard">Standard</option>
+                                <option value="ICU">ICU</option>
+                                <option value="Electric">Electric</option>
+                                <option value="Pediatric">Pediatric</option>
+                                <option value="Bariatric">Bariatric</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="border:none;padding:16px 24px">
+                        <button type="submit" class="btn btn-primary" style="border-radius:9px;font-weight:600">
+                            <i class="fas fa-plus mr-1"></i> Add Bed
+                        </button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal" style="border-radius:9px">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Add Room -->
+<div class="mt-3" style="display:flex;gap:10px">
+    <button type="button" class="btn btn-primary" style="border-radius:9px;font-weight:600" data-toggle="modal" data-target="#addRoomModal">
+        <i class="fas fa-plus mr-1"></i> Add Room
+    </button>
+    <a asp-action="Index" class="btn btn-secondary" style="border-radius:9px;font-weight:600">
+        <i class="fas fa-arrow-left mr-1"></i> Back to Wards
+    </a>
+</div>
+
+<!-- Add Room Modal -->
+<div class="modal fade" id="addRoomModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header" style="background:linear-gradient(135deg,var(--hms-blue),var(--hms-blue-mid));color:white;border-radius:16px 16px 0 0">
+                <h5 class="modal-title"><i class="fas fa-door-open mr-2"></i> Add Room — @Model.Name</h5>
+                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <form asp-action="AddRoom" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="wardId" value="@Model.Id" />
+                <div class="modal-body p-4">
+                    <div class="form-group">
+                        <label class="form-label" style="font-size:.82rem;font-weight:600">Room Number <span style="color:#ef4444">*</span></label>
+                        <input name="RoomNumber" class="form-control" required maxlength="20" style="border-radius:10px" placeholder="e.g. 201" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" style="font-size:.82rem;font-weight:600">Room Type <span style="color:#ef4444">*</span></label>
+                        <select name="RoomType" class="form-control" style="border-radius:10px">
+                            <option value="General">General</option>
+                            <option value="Private">Private</option>
+                            <option value="SemiPrivate">Semi-Private</option>
+                            <option value="ICU">ICU</option>
+                            <option value="Isolation">Isolation</option>
+                        </select>
+                    </div>
+                    <div class="form-group mb-0">
+                        <label class="form-label" style="font-size:.82rem;font-weight:600">Capacity <span style="color:#ef4444">*</span></label>
+                        <input name="Capacity" type="number" class="form-control" required min="1" max="20" style="border-radius:10px" value="4" />
+                    </div>
+                </div>
+                <div class="modal-footer" style="border:none;padding:16px 24px">
+                    <button type="submit" class="btn btn-primary" style="border-radius:9px;font-weight:600">
+                        <i class="fas fa-plus mr-1"></i> Add Room
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" style="border-radius:9px">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function toggleRoom(id) {
+            var el = document.getElementById('room-' + id);
+            var ch = document.getElementById('chevron-' + id);
+            if (el.style.display === 'none') {
+                el.style.display = 'block';
+                ch.style.transform = 'rotate(0deg)';
+            } else {
+                el.style.display = 'none';
+                ch.style.transform = 'rotate(-90deg)';
+            }
+        }
+        // Start with all rooms collapsed on very small screens
+        if (window.innerWidth < 768) {
+            @foreach (var room in Model.Rooms)
+            {
+                    <text>document.getElementById('room-@room.Id').style.display = 'none';
+                        document.getElementById('chevron-@room.Id').style.transform = 'rotate(-90deg)';</text>
+                }
+            }
+        </script>
+    }

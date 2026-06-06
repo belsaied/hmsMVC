@@ -1,0 +1,149 @@
+﻿@using HMS.BLL.Shared.Dtos.WardBedModule.AdmissionDtos
+@model IEnumerable<AdmissionResultDto>
+
+@{
+    ViewData["Title"] = "Admissions — " + ViewBag.PatientName;
+    var list = Model?.ToList() ?? [];
+}
+
+@section Styles {
+    <style>
+        :root {
+            --hms-blue: #1a3a5c;
+            --hms-blue-mid: #2563a8;
+            --hms-accent: #0ea5e9;
+            --hms-green: #10b981;
+            --hms-red: #ef4444;
+            --hms-orange: #f59e0b;
+            --hms-border: #e2e8f0;
+            --hms-text: #1e293b;
+            --hms-muted: #64748b;
+        }
+
+        .page-header-card {
+            background: linear-gradient(135deg,var(--hms-blue),var(--hms-blue-mid));
+            color: white;
+            border-radius: 14px;
+            padding: 22px 28px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .adm-item {
+            background: white;
+            border: 1px solid var(--hms-border);
+            border-radius: 12px;
+            padding: 18px 22px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            transition: box-shadow .15s;
+        }
+
+            .adm-item:hover {
+                box-shadow: 0 4px 16px rgba(0,0,0,.08);
+            }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: .72rem;
+            font-weight: 600;
+        }
+
+        .status-Active {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-Discharged {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--hms-muted);
+        }
+    </style>
+}
+
+@section PageHeader {
+    <div class="row mb-2">
+        <div class="col-sm-6"><h1 class="m-0">Patient Admissions</h1></div>
+        <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a asp-controller="Patients" asp-action="Details" asp-route-id="@ViewBag.PatientId">@ViewBag.PatientName</a></li>
+                <li class="breadcrumb-item active">Admissions</li>
+            </ol>
+        </div>
+    </div>
+}
+
+<div class="page-header-card">
+    <div>
+        <div style="font-size:1.1rem;font-weight:700"><i class="fas fa-procedures mr-2"></i>@ViewBag.PatientName — Admissions</div>
+        <div style="font-size:.82rem;opacity:.75;margin-top:2px">MRN: @ViewBag.MRN · @list.Count total admission(s)</div>
+    </div>
+    <a asp-action="Admit" class="btn btn-light btn-sm" style="border-radius:8px;font-weight:600">
+        <i class="fas fa-plus mr-1"></i> New Admission
+    </a>
+</div>
+
+@if (!list.Any())
+{
+    <div class="empty-state">
+        <i class="fas fa-procedures"></i>
+        <p style="font-size:1rem;font-weight:600;color:var(--hms-text)">No admissions found</p>
+        <p>This patient has no recorded admissions.</p>
+        <a asp-action="Admit" class="btn btn-primary mt-2" style="border-radius:9px;font-weight:600">
+            <i class="fas fa-plus mr-1"></i> Admit Patient
+        </a>
+    </div>
+}
+else
+{
+    foreach (var a in list.OrderByDescending(x => x.AdmissionDate))
+    {
+        <div class="adm-item">
+            <div style="min-width:50px;text-align:center">
+                <div style="font-size:1.3rem;font-weight:800;color:var(--hms-blue-mid)">@a.AdmissionDate.Day</div>
+                <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;color:var(--hms-muted)">@a.AdmissionDate.ToString("MMM")</div>
+            </div>
+            <div style="flex:1;min-width:0">
+                <div style="font-weight:700;font-size:.95rem">
+                    Bed @a.BedNumber · @a.WardName
+                    <span style="font-size:.78rem;color:var(--hms-muted);font-weight:400">· Room @a.RoomNumber</span>
+                </div>
+                <div style="font-size:.82rem;color:var(--hms-muted);margin-top:2px">
+                    Dr. @a.DoctorName · @a.AdmissionDate.ToString("dd MMM yyyy HH:mm")
+                </div>
+                <div style="font-size:.82rem;color:var(--hms-text);margin-top:4px">@a.AdmissionReason</div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+                <span class="status-badge status-@a.Status">@a.Status</span>
+                @if (a.ActualDischargeDate.HasValue)
+                {
+                    <span style="font-size:.72rem;color:var(--hms-muted)">Discharged: @a.ActualDischargeDate.Value.ToString("dd MMM yyyy")</span>
+                }
+                <a asp-action="AdmissionDetails" asp-route-id="@a.Id" class="btn btn-sm btn-outline-primary" style="border-radius:7px;font-size:.75rem;padding:3px 10px">
+                    <i class="fas fa-eye mr-1"></i> View
+                </a>
+            </div>
+        </div>
+    }
+}
+
+<div class="mt-3">
+    <a asp-controller="Patients" asp-action="Details" asp-route-id="@ViewBag.PatientId" class="btn btn-secondary" style="border-radius:9px;font-weight:600">
+        <i class="fas fa-arrow-left mr-1"></i> Back to Patient
+    </a>
+</div>

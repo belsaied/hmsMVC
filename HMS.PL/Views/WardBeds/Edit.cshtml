@@ -1,0 +1,248 @@
+﻿@using HMS.BLL.Shared.Dtos.WardBedModule.WardDtos
+@model UpdateWardDto
+
+@{
+    ViewData["Title"] = "Edit Ward — " + ViewBag.WardName;
+}
+
+@section Styles {
+    <style>
+        :root {
+            --hms-blue: #1a3a5c;
+            --hms-blue-mid: #2563a8;
+            --hms-accent: #0ea5e9;
+            --hms-border: #e2e8f0;
+            --hms-text: #1e293b;
+            --hms-muted: #64748b;
+        }
+
+        .form-header {
+            background: linear-gradient(135deg, #92400e, #d97706);
+            color: white;
+            padding: 24px 32px;
+            border-radius: 16px 16px 0 0;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .form-header-icon {
+            width: 52px;
+            height: 52px;
+            background: rgba(255,255,255,.15);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .form-body {
+            background: white;
+            border-radius: 0 0 16px 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,.09);
+            border: 1px solid var(--hms-border);
+            border-top: none;
+        }
+
+        .form-section {
+            padding: 28px 32px;
+            border-bottom: 1px solid var(--hms-border);
+        }
+
+            .form-section:last-child {
+                border-bottom: none;
+            }
+
+        .section-title {
+            font-size: .78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            color: var(--hms-muted);
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            font-size: .82rem;
+            font-weight: 600;
+            color: var(--hms-text);
+            margin-bottom: 6px;
+        }
+
+        .form-control {
+            border-radius: 10px;
+            border: 1.5px solid var(--hms-border);
+            padding: 10px 14px;
+            font-size: .9rem;
+        }
+
+            .form-control:focus {
+                border-color: var(--hms-accent);
+                box-shadow: 0 0 0 3px rgba(14,165,233,.12);
+                outline: none;
+            }
+
+        .req {
+            color: #ef4444;
+        }
+
+        .form-footer {
+            padding: 20px 32px;
+            background: #f8faff;
+            border-radius: 0 0 16px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-top: 1px solid var(--hms-border);
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #d97706, #92400e);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 11px 28px;
+            font-weight: 700;
+            font-size: .9rem;
+            box-shadow: 0 4px 14px rgba(217,119,6,.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+            .btn-submit:hover {
+                transform: translateY(-1px);
+                color: white;
+            }
+
+        .btn-cancel-link {
+            background: white;
+            color: var(--hms-muted);
+            border: 1.5px solid var(--hms-border);
+            border-radius: 10px;
+            padding: 10px 22px;
+            font-weight: 600;
+            font-size: .9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+            .btn-cancel-link:hover {
+                background: #f1f5f9;
+                color: var(--hms-text);
+            }
+
+        .alert-validation {
+            border-radius: 10px;
+            border: none;
+            background: #fef2f2;
+            border-left: 4px solid #ef4444;
+            color: #991b1b;
+            padding: 14px 18px;
+            font-size: .875rem;
+            margin: 20px 32px 0;
+        }
+
+        .text-danger.small {
+            font-size: .78rem;
+            margin-top: 4px;
+            display: block;
+        }
+    </style>
+}
+
+@section PageHeader {
+    <div class="row mb-2">
+        <div class="col-sm-6"><h1 class="m-0">Edit Ward</h1></div>
+        <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a asp-action="Index">Wards</a></li>
+                <li class="breadcrumb-item"><a asp-action="Details" asp-route-id="@ViewBag.WardId">@ViewBag.WardName</a></li>
+                <li class="breadcrumb-item active">Edit</li>
+            </ol>
+        </div>
+    </div>
+}
+
+<div>
+    <div class="form-header">
+        <div class="form-header-icon"><i class="fas fa-edit"></i></div>
+        <div>
+            <div style="font-size:1.3rem;font-weight:700;margin:0">Edit Ward — @ViewBag.WardName</div>
+            <div style="font-size:.84rem;opacity:.7;margin-top:2px">Update ward details and configuration</div>
+        </div>
+    </div>
+
+    <form asp-action="Edit" asp-route-id="@ViewBag.WardId" method="post">
+        @Html.AntiForgeryToken()
+
+        @if (!ViewContext.ModelState.IsValid)
+        {
+            <div asp-validation-summary="All" class="alert-validation"></div>
+        }
+
+        <div class="form-body">
+            <div class="form-section">
+                <div class="section-title"><i class="fas fa-info-circle mr-1"></i> Ward Information</div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Name" class="form-label">Ward Name</label>
+                            <input asp-for="Name" class="form-control" placeholder="e.g. Cardiology Wing" />
+                            <span asp-validation-for="Name" class="text-danger small"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="WardType" class="form-label">Ward Type</label>
+                            <select asp-for="WardType" asp-items="ViewBag.WardTypeList" class="form-control">
+                                <option value="">— Select Type —</option>
+                            </select>
+                            <span asp-validation-for="WardType" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Floor" class="form-label">Floor</label>
+                            <input asp-for="Floor" type="number" class="form-control" placeholder="e.g. 2" />
+                            <span asp-validation-for="Floor" class="text-danger small"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="PhoneExtension" class="form-label">Phone Extension</label>
+                            <input asp-for="PhoneExtension" class="form-control" placeholder="e.g. 1234" maxlength="20" />
+                            <span asp-validation-for="PhoneExtension" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Description" class="form-label">Description</label>
+                    <textarea asp-for="Description" class="form-control" rows="4" placeholder="Optional description..." maxlength="500"></textarea>
+                    <span asp-validation-for="Description" class="text-danger small"></span>
+                </div>
+                <div class="form-group mb-0">
+                    <div class="custom-control custom-switch">
+                        <input asp-for="IsActive" type="checkbox" class="custom-control-input" id="isActiveSwitch" />
+                        <label class="custom-control-label" for="isActiveSwitch">Ward is active</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-footer">
+            <button type="submit" class="btn-submit">
+                <i class="fas fa-save"></i> Save Changes
+            </button>
+            <a asp-action="Details" asp-route-id="@ViewBag.WardId" class="btn-cancel-link">
+                <i class="fas fa-times"></i> Cancel
+            </a>
+        </div>
+    </form>
+</div>

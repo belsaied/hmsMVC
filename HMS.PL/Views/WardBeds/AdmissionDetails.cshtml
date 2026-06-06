@@ -1,0 +1,456 @@
+﻿@using HMS.BLL.Shared.Dtos.WardBedModule.AdmissionDtos
+@model AdmissionResultDto
+
+@{
+    ViewData["Title"] = "Admission — " + Model.PatientName;
+    bool isActive = Model.Status == "Active";
+}
+
+@section Styles {
+    <style>
+        :root {
+            --hms-blue: #1a3a5c;
+            --hms-blue-mid: #2563a8;
+            --hms-accent: #0ea5e9;
+            --hms-green: #10b981;
+            --hms-red: #ef4444;
+            --hms-orange: #f59e0b;
+            --hms-border: #e2e8f0;
+            --hms-text: #1e293b;
+            --hms-muted: #64748b;
+        }
+
+        .adm-header {
+            background: linear-gradient(135deg, var(--hms-blue), var(--hms-blue-mid));
+            color: white;
+            padding: 24px 32px;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .detail-card {
+            background: white;
+            border: 1px solid var(--hms-border);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,.07);
+        }
+
+        .info-section {
+            padding: 24px 32px;
+            border-bottom: 1px solid var(--hms-border);
+        }
+
+            .info-section:last-child {
+                border-bottom: none;
+            }
+
+        .section-title {
+            font-size: .72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: var(--hms-muted);
+            border-bottom: 1px solid var(--hms-border);
+            padding-bottom: 8px;
+            margin-bottom: 16px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .info-label {
+            font-size: .75rem;
+            color: var(--hms-muted);
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            margin-bottom: 3px;
+        }
+
+        .info-value {
+            font-size: .92rem;
+            font-weight: 500;
+            color: var(--hms-text);
+        }
+
+        .side-card {
+            background: white;
+            border-radius: 14px;
+            box-shadow: 0 2px 12px rgba(0,0,0,.07);
+            border: 1px solid var(--hms-border);
+            margin-bottom: 16px;
+        }
+
+        .side-card-header {
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--hms-border);
+            font-size: .8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: var(--hms-muted);
+        }
+
+        .side-card-body {
+            padding: 16px 18px;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: .875rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all .15s;
+            text-decoration: none;
+            width: 100%;
+            margin-bottom: 8px;
+        }
+
+            .action-btn:last-child {
+                margin-bottom: 0;
+            }
+
+        .btn-discharge {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+            .btn-discharge:hover {
+                background: #10b981;
+                color: white;
+            }
+
+        .btn-transfer {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+            .btn-transfer:hover {
+                background: #2563a8;
+                color: white;
+            }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 16px;
+            border-radius: 20px;
+            font-size: .8rem;
+            font-weight: 700;
+        }
+
+        .notes-box {
+            background: #f8faff;
+            border: 1px solid var(--hms-border);
+            border-radius: 10px;
+            padding: 14px 16px;
+            font-size: .875rem;
+            color: var(--hms-text);
+            line-height: 1.6;
+        }
+
+        .timeline {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .timeline-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-top: 5px;
+            flex-shrink: 0;
+        }
+
+        .timeline-val {
+            font-size: .875rem;
+            font-weight: 500;
+            color: var(--hms-text);
+        }
+
+        .timeline-text {
+            font-size: .82rem;
+            color: var(--hms-muted);
+        }
+
+        .transfer-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: .85rem;
+        }
+
+            .transfer-row:last-child {
+                border-bottom: none;
+            }
+
+        .modal-content {
+            border-radius: 16px;
+            border: none;
+        }
+    </style>
+}
+
+@section PageHeader {
+    <div class="row mb-2">
+        <div class="col-sm-6"><h1 class="m-0">Admission Details</h1></div>
+        <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a asp-action="Admissions">Admissions</a></li>
+                <li class="breadcrumb-item active">@Model.PatientName</li>
+            </ol>
+        </div>
+    </div>
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="detail-card mb-4">
+            <div class="adm-header">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px">
+                    <div>
+                        <div style="font-size:.82rem;opacity:.7;text-transform:uppercase;letter-spacing:.08em">Admission</div>
+                        <div style="font-size:1.5rem;font-weight:700;margin-top:4px">@Model.PatientName</div>
+                        <div style="font-size:.84rem;opacity:.7;margin-top:2px">ID: @Model.Id</div>
+                    </div>
+                    <span class="status-pill" style="background:#d1fae5;color:#065f46">
+                        <i class="fas fa-circle" style="font-size:.5rem"></i> @Model.Status
+                    </span>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <div class="section-title"><i class="fas fa-info-circle mr-1"></i> Admission Info</div>
+                <div class="info-grid">
+                    <div><div class="info-label">Admission Date</div><div class="info-value">@Model.AdmissionDate.ToString("dd MMM yyyy HH:mm")</div></div>
+                    <div><div class="info-label">Admitted By</div><div class="info-value">@Model.AdmittedBy</div></div>
+                    @if (Model.ExpectedDischargeDate.HasValue)
+                    {
+                        <div><div class="info-label">Expected Discharge</div><div class="info-value">@Model.ExpectedDischargeDate.Value.ToString("dd MMM yyyy")</div></div>
+                    }
+                    @if (Model.ActualDischargeDate.HasValue)
+                    {
+                        <div><div class="info-label">Actual Discharge</div><div class="info-value">@Model.ActualDischargeDate.Value.ToString("dd MMM yyyy HH:mm")</div></div>
+                    }
+                </div>
+            </div>
+
+            <div class="info-section">
+                <div class="section-title"><i class="fas fa-stethoscope mr-1"></i> Reason for Admission</div>
+                <div class="notes-box">@Model.AdmissionReason</div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.DischargeSummary))
+            {
+                <div class="info-section">
+                    <div class="section-title"><i class="fas fa-file-alt mr-1"></i> Discharge Summary</div>
+                    <div class="notes-box">@Model.DischargeSummary</div>
+                </div>
+            }
+
+            <!-- Transfers -->
+            @if (Model.Transfers.Any())
+            {
+                <div class="info-section">
+                    <div class="section-title"><i class="fas fa-exchange-alt mr-1"></i> Bed Transfers (@Model.Transfers.Count())</div>
+                    @foreach (var t in Model.Transfers)
+                    {
+                        <div class="transfer-row">
+                            <i class="fas fa-arrow-right" style="color:var(--hms-orange)"></i>
+                            <div style="flex:1">
+                                <div style="font-weight:500">Bed @t.FromBedNumber → Bed @t.ToBedNumber</div>
+                                <div style="font-size:.78rem;color:var(--hms-muted)">@t.Reason</div>
+                            </div>
+                            <div style="text-align:right;font-size:.8rem">
+                                <div style="font-weight:500">@t.TransferredAt.ToString("dd MMM HH:mm")</div>
+                                <div style="font-size:.72rem;color:var(--hms-muted)">by @t.TransferredBy</div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        @if (isActive)
+        {
+            <div class="side-card">
+                <div class="side-card-header"><i class="fas fa-bolt mr-1"></i> Actions</div>
+                <div class="side-card-body">
+                    <button type="button" class="action-btn btn-discharge" data-toggle="modal" data-target="#dischargeModal">
+                        <i class="fas fa-sign-out-alt"></i> Discharge Patient
+                    </button>
+                    <button type="button" class="action-btn btn-transfer" data-toggle="modal" data-target="#transferModal">
+                        <i class="fas fa-exchange-alt"></i> Transfer Bed
+                    </button>
+                </div>
+            </div>
+        }
+
+        <div class="side-card">
+            <div class="side-card-header"><i class="fas fa-bed mr-1"></i> Bed Details</div>
+            <div class="side-card-body">
+                <div class="info-label">Bed</div>
+                <div class="info-value">@Model.BedNumber</div>
+                <div class="info-label mt-2">Room</div>
+                <div class="info-value">@Model.RoomNumber</div>
+                <div class="info-label mt-2">Ward</div>
+                <div class="info-value">@Model.WardName</div>
+                <div class="info-label mt-2">Attending Doctor</div>
+                <div class="info-value">Dr. @Model.DoctorName</div>
+            </div>
+        </div>
+
+        <div class="side-card">
+            <div class="side-card-header"><i class="fas fa-history mr-1"></i> Timeline</div>
+            <div class="side-card-body">
+                <ul class="timeline">
+                    <li class="timeline-item">
+                        <div class="timeline-dot" style="background:#10b981"></div>
+                        <div>
+                            <div class="timeline-val">Admitted</div>
+                            <div class="timeline-text">@Model.AdmissionDate.ToString("dd MMM yyyy HH:mm")</div>
+                        </div>
+                    </li>
+                    @if (Model.ActualDischargeDate.HasValue)
+                    {
+                        <li class="timeline-item">
+                            <div class="timeline-dot" style="background:#7c3aed"></div>
+                            <div>
+                                <div class="timeline-val">Discharged</div>
+                                <div class="timeline-text">@Model.ActualDischargeDate.Value.ToString("dd MMM yyyy HH:mm")</div>
+                            </div>
+                        </li>
+                    }
+                    @if (Model.ExpectedDischargeDate.HasValue)
+                    {
+                        <li class="timeline-item">
+                            <div class="timeline-dot" style="background:#d97706"></div>
+                            <div>
+                                <div class="timeline-val">Expected Discharge</div>
+                                <div class="timeline-text">@Model.ExpectedDischargeDate.Value.ToString("dd MMM yyyy")</div>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+
+        <a asp-action="Admissions" class="btn btn-secondary btn-block" style="border-radius:10px;font-weight:600">
+            <i class="fas fa-arrow-left mr-1"></i> Back to Admissions
+        </a>
+    </div>
+</div>
+
+@if (isActive)
+{
+    <!-- Discharge Modal -->
+    <div class="modal fade" id="dischargeModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header" style="background:linear-gradient(135deg,#065f46,#10b981);color:white;border-radius:16px 16px 0 0">
+                    <h5 class="modal-title"><i class="fas fa-sign-out-alt mr-2"></i> Discharge Patient</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+                </div>
+                <form asp-action="Discharge" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="admissionId" value="@Model.Id" />
+                    <div class="modal-body p-4">
+                        <p style="color:var(--hms-muted);font-size:.9rem">
+                            Discharging <strong>@Model.PatientName</strong> from Bed @Model.BedNumber · @Model.WardName
+                        </p>
+                        <div class="form-group mb-0">
+                            <label class="form-label" style="font-size:.82rem;font-weight:600">Discharge Summary</label>
+                            <textarea name="DischargeSummary" class="form-control" rows="5" style="border-radius:10px"
+                                      placeholder="Optional summary of the patient's condition at discharge..." maxlength="2000"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="border:none;padding:16px 24px">
+                        <button type="submit" class="btn btn-success" style="border-radius:9px;font-weight:600">
+                            <i class="fas fa-check mr-1"></i> Confirm Discharge
+                        </button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal" style="border-radius:9px">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transfer Modal -->
+    <div class="modal fade" id="transferModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header" style="background:linear-gradient(135deg,#1e40af,#2563a8);color:white;border-radius:16px 16px 0 0">
+                    <h5 class="modal-title"><i class="fas fa-exchange-alt mr-2"></i> Transfer Bed</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+                </div>
+                <form asp-action="TransferBed" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="admissionId" value="@Model.Id" />
+                    <div class="modal-body p-4">
+                        <p style="color:var(--hms-muted);font-size:.9rem">
+                            Transferring <strong>@Model.PatientName</strong> from Bed @Model.BedNumber
+                        </p>
+                        <div class="form-group">
+                            <label class="form-label" style="font-size:.82rem;font-weight:600">Destination Bed <span style="color:#ef4444">*</span></label>
+                            <select name="ToBedId" class="form-control" style="border-radius:10px" required>
+                                <option value="">— Select Available Bed —</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" style="font-size:.82rem;font-weight:600">Transferred By <span style="color:#ef4444">*</span></label>
+                            <input name="TransferredBy" class="form-control" required maxlength="100" style="border-radius:10px" placeholder="Staff name" />
+                        </div>
+                        <div class="form-group mb-0">
+                            <label class="form-label" style="font-size:.82rem;font-weight:600">Reason <span style="color:#ef4444">*</span></label>
+                            <textarea name="Reason" class="form-control" rows="3" style="border-radius:10px"
+                                      placeholder="Reason for transfer..." required maxlength="500"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="border:none;padding:16px 24px">
+                        <button type="submit" class="btn btn-primary" style="border-radius:9px;font-weight:600">
+                            <i class="fas fa-exchange-alt mr-1"></i> Transfer
+                        </button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal" style="border-radius:9px">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        // Load available beds for transfer dropdown
+        $('#transferModal').on('show.bs.modal', function () {
+            var sel = $(this).find('select[name="ToBedId"]');
+            if (sel.find('option').length > 1) return;
+            $.getJSON('@Url.Action("AvailableBeds", "Wards")', function (beds) {
+                var html = '<option value="">— Select Available Bed —</option>';
+                beds.forEach(function(b) {
+                    html += '<option value="' + b.bedId + '">' + b.wardName + ' / Room ' + b.roomNumber + ' / Bed ' + b.bedNumber + ' (' + b.bedType + ')</option>';
+                });
+                sel.html(html);
+            });
+        });
+    </script>
+}
