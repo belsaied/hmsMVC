@@ -1,4 +1,4 @@
-﻿@using HMS.BLL.Shared.Dtos.AppointmentModule
+﻿﻿@using HMS.BLL.Shared.Dtos.AppointmentModule
 @model CreateAppointmentDto
 
 @{
@@ -20,105 +20,273 @@
 
         .book-header {
             background: linear-gradient(135deg, var(--hms-blue) 0%, var(--hms-blue-mid) 100%);
-            color: white; padding: 24px 32px; border-radius: 16px 16px 0 0;
-            display: flex; align-items: center; gap: 16px;
+            color: white;
+            padding: 24px 32px;
+            border-radius: 16px 16px 0 0;
+            display: flex;
+            align-items: center;
+            gap: 16px;
         }
+
         .book-header-icon {
-            width: 52px; height: 52px; background: rgba(255,255,255,.15);
-            border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;
+            width: 52px;
+            height: 52px;
+            background: rgba(255,255,255,.15);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
         }
+
         .book-body {
-            background: white; border-radius: 0 0 16px 16px;
-            box-shadow: 0 8px 32px rgba(0,0,0,.09); border: 1px solid var(--hms-border); border-top: none;
+            background: white;
+            border-radius: 0 0 16px 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,.09);
+            border: 1px solid var(--hms-border);
+            border-top: none;
         }
-        .form-section { padding: 28px 32px; border-bottom: 1px solid var(--hms-border); }
-        .form-section:last-child { border-bottom: none; }
+
+        .form-section {
+            padding: 28px 32px;
+            border-bottom: 1px solid var(--hms-border);
+        }
+
+            .form-section:last-child {
+                border-bottom: none;
+            }
+
         .section-title {
-            font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em;
-            color: var(--hms-muted); display: flex; align-items: center; gap: 8px;
-            margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #f1f5f9;
+            font-size: .78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            color: var(--hms-muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #f1f5f9;
         }
+
         .section-icon {
-            width: 28px; height: 28px; border-radius: 7px; display: flex;
-            align-items: center; justify-content: center; font-size: .82rem;
+            width: 28px;
+            height: 28px;
+            border-radius: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .82rem;
         }
-        .form-label { font-size: .82rem; font-weight: 600; color: var(--hms-text); margin-bottom: 6px; }
-        .form-control { border-radius: 10px; border: 1.5px solid var(--hms-border); padding: 10px 14px; font-size: .9rem; }
-        .form-control:focus { border-color: var(--hms-accent); box-shadow: 0 0 0 3px rgba(14,165,233,.12); outline: none; }
-        .req { color: #ef4444; margin-left: 3px; }
+
+        .form-label {
+            font-size: .82rem;
+            font-weight: 600;
+            color: var(--hms-text);
+            margin-bottom: 6px;
+        }
+
+        .form-control {
+            border-radius: 10px;
+            border: 1.5px solid var(--hms-border);
+            padding: 10px 14px;
+            font-size: .9rem;
+        }
+
+            .form-control:focus {
+                border-color: var(--hms-accent);
+                box-shadow: 0 0 0 3px rgba(14,165,233,.12);
+                outline: none;
+            }
+
+        .req {
+            color: #ef4444;
+            margin-left: 3px;
+        }
+
         .form-footer {
-            padding: 20px 32px; background: #f8faff; border-radius: 0 0 16px 16px;
-            display: flex; align-items: center; gap: 12px; border-top: 1px solid var(--hms-border);
+            padding: 20px 32px;
+            background: #f8faff;
+            border-radius: 0 0 16px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-top: 1px solid var(--hms-border);
         }
+
         .btn-submit {
             background: linear-gradient(135deg, var(--hms-blue-mid), var(--hms-blue));
-            color: white; border: none; border-radius: 10px; padding: 11px 28px;
-            font-weight: 700; font-size: .9rem; box-shadow: 0 4px 14px rgba(37,99,168,.3);
-            display: inline-flex; align-items: center; gap: 8px;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 11px 28px;
+            font-weight: 700;
+            font-size: .9rem;
+            box-shadow: 0 4px 14px rgba(37,99,168,.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
-        .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(37,99,168,.4); color: white; }
-        .btn-cancel-link {
-            background: white; color: var(--hms-muted); border: 1.5px solid var(--hms-border);
-            border-radius: 10px; padding: 10px 22px; font-weight: 600; font-size: .9rem;
-            display: inline-flex; align-items: center; gap: 8px; text-decoration: none;
-        }
-        .btn-cancel-link:hover { background: #f1f5f9; color: var(--hms-text); }
 
-        .text-danger.small { font-size: .78rem; margin-top: 4px; display: block; }
+            .btn-submit:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 6px 20px rgba(37,99,168,.4);
+                color: white;
+            }
+
+        .btn-cancel-link {
+            background: white;
+            color: var(--hms-muted);
+            border: 1.5px solid var(--hms-border);
+            border-radius: 10px;
+            padding: 10px 22px;
+            font-weight: 600;
+            font-size: .9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+            .btn-cancel-link:hover {
+                background: #f1f5f9;
+                color: var(--hms-text);
+            }
+
+        .text-danger.small {
+            font-size: .78rem;
+            margin-top: 4px;
+            display: block;
+        }
+
         .alert-validation {
-            border-radius: 10px; border: none; background: #fef2f2;
-            border-left: 4px solid #ef4444; color: #991b1b; padding: 14px 18px;
-            font-size: .875rem; margin: 20px 32px 0;
+            border-radius: 10px;
+            border: none;
+            background: #fef2f2;
+            border-left: 4px solid #ef4444;
+            color: #991b1b;
+            padding: 14px 18px;
+            font-size: .875rem;
+            margin: 20px 32px 0;
         }
 
         .select2-container .select2-selection--single {
-            height: 44px !important; border: 1.5px solid var(--hms-border) !important; border-radius: 10px !important;
+            height: 44px !important;
+            border: 1.5px solid var(--hms-border) !important;
+            border-radius: 10px !important;
         }
-        .select2-selection__rendered { line-height: 44px !important; padding: 0 14px !important; font-size: .9rem; }
-        .select2-selection__arrow { height: 44px !important; }
+
+        .select2-selection__rendered {
+            line-height: 44px !important;
+            padding: 0 14px !important;
+            font-size: .9rem;
+        }
+
+        .select2-selection__arrow {
+            height: 44px !important;
+        }
 
         .schedule-preview {
-            background: #f8faff; border: 1px solid #bfdbfe; border-radius: 12px;
-            padding: 16px; margin-top: 12px; display: none;
+            background: #f8faff;
+            border: 1px solid #bfdbfe;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 12px;
+            display: none;
         }
+
         .schedule-preview-title {
-            font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
-            color: var(--hms-blue-mid); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+            font-size: .75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: var(--hms-blue-mid);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
+
         .time-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 8px;
         }
+
         .time-slot {
-            display: flex; align-items: center; justify-content: center; gap: 6px;
-            padding: 10px 12px; border-radius: 9px; font-size: .8rem; font-weight: 600;
-            border: 1.5px solid var(--hms-border); cursor: pointer;
-            transition: all .15s; text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 10px 12px;
+            border-radius: 9px;
+            font-size: .8rem;
+            font-weight: 600;
+            border: 1.5px solid var(--hms-border);
+            cursor: pointer;
+            transition: all .15s;
+            text-align: center;
         }
-        .time-slot.available {
-            background: #f0fdf4; border-color: #bbf7d0; color: #166534;
-        }
-        .time-slot.available:hover {
-            background: var(--hms-green); border-color: var(--hms-green); color: white; transform: translateY(-1px);
-        }
-        .time-slot.available.selected {
-            background: var(--hms-green); border-color: var(--hms-green); color: white;
-            box-shadow: 0 2px 8px rgba(16,185,129,.3);
-        }
-        .time-slot.booked {
-            background: #fef2f2; border-color: #fecaca; color: #991b1b; cursor: not-allowed; opacity: .6;
-        }
+
+            .time-slot.available {
+                background: #f0fdf4;
+                border-color: #bbf7d0;
+                color: #166534;
+            }
+
+                .time-slot.available:hover {
+                    background: var(--hms-green);
+                    border-color: var(--hms-green);
+                    color: white;
+                    transform: translateY(-1px);
+                }
+
+                .time-slot.available.selected {
+                    background: var(--hms-green);
+                    border-color: var(--hms-green);
+                    color: white;
+                    box-shadow: 0 2px 8px rgba(16,185,129,.3);
+                }
+
+            .time-slot.booked {
+                background: #fef2f2;
+                border-color: #fecaca;
+                color: #991b1b;
+                cursor: not-allowed;
+                opacity: .6;
+            }
+
         .no-slots-msg {
-            grid-column: 1 / -1; text-align: center; padding: 20px; color: var(--hms-muted); font-size: .85rem;
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 20px;
+            color: var(--hms-muted);
+            font-size: .85rem;
         }
+
         .loading-slots {
-            grid-column: 1 / -1; text-align: center; padding: 20px; color: var(--hms-muted);
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 20px;
+            color: var(--hms-muted);
         }
 
         .full-schedule-link {
-            display: inline-flex; align-items: center; gap: 6px;
-            font-size: .8rem; font-weight: 600; color: var(--hms-blue-mid); margin-top: 10px; text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: .8rem;
+            font-weight: 600;
+            color: var(--hms-blue-mid);
+            margin-top: 10px;
+            text-decoration: none;
         }
-        .full-schedule-link:hover { color: #1e40af; text-decoration: underline; }
+
+            .full-schedule-link:hover {
+                color: #1e40af;
+                text-decoration: underline;
+            }
     </style>
 }
 
@@ -271,19 +439,131 @@
         $(function () {
             $('.select2').select2({ theme: 'classic', width: '100%' });
 
-            function maybeShowSlotButton() {
-                const doc  = $('#doctorSelect').val();
-                const date = $('#apptDate').val();
-                if (doc && date) {
-                    $('#checkSlotsBtn').show();
-                    autoCheckSlots(doc, date);
-                } else {
-                    $('#checkSlotsBtn').hide();
-                    $('#schedulePreview').hide();
+            var availableDayNames = []; // e.g. ["Monday","Wednesday"]
+
+            // Map day name → JS day index (0=Sun)
+            var dayNameToIndex = {
+                'Sunday': 0, 'Monday': 1, 'Tuesday': 2,
+                'Wednesday': 3, 'Thursday': 4, 'Friday': 5, 'Saturday': 6
+            };
+
+            function loadDoctorScheduleDays(doctorId) {
+                if (!doctorId) {
+                    availableDayNames = [];
+                    updateDatePickerConstraints();
+                    return;
+                }
+                $.getJSON('@Url.Action("GetDoctorScheduleDays", "Appointments")', { doctorId: doctorId })
+                    .done(function (days) {
+                        availableDayNames = days; // ["Monday", "Wednesday", ...]
+                        updateDatePickerConstraints();
+                        // Clear previously selected date if it's now invalid
+                        var currentDate = $('#apptDate').val();
+                        if (currentDate && !isDateAvailable(currentDate)) {
+                            $('#apptDate').val('');
+                            $('#startTimeInput').val('');
+                            $('#schedulePreview').hide();
+                            $('#checkSlotsBtn').hide();
+                        }
+                    })
+                    .fail(function () {
+                        availableDayNames = [];
+                        updateDatePickerConstraints();
+                    });
+            }
+
+            function isDateAvailable(dateStr) {
+                if (!dateStr) return false;
+                if (availableDayNames.length === 0) return false;
+                var d = new Date(dateStr);
+                // new Date('2026-06-08') can be off by timezone; force UTC parsing
+                var parts = dateStr.split('-');
+                d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+                var jsDay = d.getDay(); // 0=Sun
+                return availableDayNames.some(function (name) {
+                    return dayNameToIndex[name] === jsDay;
+                });
+            }
+
+            function updateDatePickerConstraints() {
+                var $dateInput = $('#apptDate');
+                var today = new Date();
+                var todayStr = today.toISOString().split('T')[0];
+                $dateInput.attr('min', todayStr);
+
+                if (availableDayNames.length === 0) {
+                    // No doctor selected or no schedule — disable date input
+                    $dateInput.prop('disabled', true).attr('placeholder', 'Select a doctor first');
+                    $('#scheduleLegend').remove();
+                    return;
+                }
+
+                $dateInput.prop('disabled', false).attr('placeholder', '');
+
+                // Show a legend of available days
+                $('#scheduleLegend').remove();
+                var dayLabels = availableDayNames.join(', ');
+                $dateInput.after(
+                    '<div id="scheduleLegend" style="font-size:.72rem;color:#0f766e;margin-top:4px;">' +
+                    '<i class="fas fa-calendar-check mr-1"></i>Available days: <strong>' + dayLabels + '</strong>' +
+                    '</div>'
+                );
+            }
+
+            function showDateError(msg) {
+                $('#dateError').remove();
+                if (msg) {
+                    $('#apptDate').after('<div id="dateError" style="font-size:.72rem;color:#dc2626;margin-top:4px;">' +
+                        '<i class="fas fa-exclamation-circle mr-1"></i>' + msg + '</div>');
                 }
             }
 
-            $('#doctorSelect, #apptDate').on('change', maybeShowSlotButton);
+            function maybeShowSlotButton() {
+                var doc  = $('#doctorSelect').val();
+                var date = $('#apptDate').val();
+                $('#dateError').remove();
+
+                if (!doc || !date) {
+                    $('#checkSlotsBtn').hide();
+                    $('#schedulePreview').hide();
+                    return;
+                }
+
+                if (!isDateAvailable(date)) {
+                    var parts = date.split('-');
+                    var d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+                    var dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+                    showDateError(dayNames[d.getDay()] + ' is not in this doctor\'s schedule. Available: ' + availableDayNames.join(', '));
+                    $('#checkSlotsBtn').hide();
+                    $('#schedulePreview').hide();
+                    return;
+                }
+
+                $('#checkSlotsBtn').show();
+                autoCheckSlots(doc, date);
+            }
+
+            // Load schedule days when doctor changes
+            $('#doctorSelect').on('change', function () {
+                var doctorId = $(this).val();
+                // Reset date & slots
+                $('#apptDate').val('');
+                $('#startTimeInput').val('');
+                $('#schedulePreview').hide();
+                $('#checkSlotsBtn').hide();
+                $('#dateError').remove();
+                loadDoctorScheduleDays(doctorId);
+            });
+
+            $('#apptDate').on('change', maybeShowSlotButton);
+
+            // Block keyboard input of unavailable dates
+            $('#apptDate').on('blur', function () {
+                var date = $(this).val();
+                if (date && availableDayNames.length > 0 && !isDateAvailable(date)) {
+                    maybeShowSlotButton(); // will show error
+                }
+            });
 
             function selectSlot(startTime) {
                 $('.time-slot').removeClass('selected');
@@ -294,31 +574,32 @@
 
             function autoCheckSlots(doctorId, date) {
                 $('#loadingIndicator').show();
-                $('#checkSlotsBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Loading...');
+                $('#checkSlotsBtn').prop('disabled', true)
+                    .html('<i class="fas fa-spinner fa-spin mr-1"></i> Loading...');
                 $('#schedulePreview').show();
 
                 $.ajax({
                     url: '@Url.Action("GetDailySchedule", "Appointments")',
                     data: { doctorId: doctorId, date: date },
-                    success: function(data) {
+                    success: function (data) {
                         var slots = data.slots || [];
-                        var appointments = data.appointments || [];
-                        var bookedCount = appointments.length;
-
                         var html = '';
+
                         if (slots.length === 0) {
-                            html = '<div class="no-slots-msg"><i class="fas fa-calendar-times mr-1"></i>No schedule configured for this date.</div>';
+                            html = '<div class="no-slots-msg"><i class="fas fa-calendar-times mr-1"></i>No slots found for this date.</div>';
                         } else {
                             var availableCount = 0;
-                            slots.forEach(function(s) {
+                            slots.forEach(function (s) {
                                 var st = s.startTime;
                                 if (typeof st === 'string' && st.length > 5) st = st.substring(0, 5);
                                 if (s.isAvailable) {
                                     availableCount++;
-                                    html += '<div class="time-slot available" data-time="' + st + '" onclick="selectSlot(\'' + st + '\')">'
-                                         + '<i class="fas fa-check-circle" style="font-size:.65rem"></i> ' + st + '</div>';
+                                    html += '<div class="time-slot available" data-time="' + st +
+                                        '" onclick="selectSlot(\'' + st + '\')">' +
+                                        '<i class="fas fa-check-circle" style="font-size:.65rem"></i> ' + st + '</div>';
                                 } else {
-                                    html += '<div class="time-slot booked" title="Already booked"><i class="fas fa-times-circle" style="font-size:.65rem"></i> ' + st + '</div>';
+                                    html += '<div class="time-slot booked" title="Already booked">' +
+                                        '<i class="fas fa-times-circle" style="font-size:.65rem"></i> ' + st + '</div>';
                                 }
                             });
                             if (availableCount === 0) {
@@ -328,23 +609,30 @@
                         }
 
                         $('#timeGrid').html(html);
-                        $('#fullScheduleLink').attr('href', '@Url.Action("AvailableSlots", "Appointments")?doctorId=' + doctorId + '&date=' + date).show();
+                        $('#fullScheduleLink')
+                            .attr('href', '@Url.Action("AvailableSlots", "Appointments")?doctorId=' + doctorId + '&date=' + date)
+                            .show();
                         $('#loadingIndicator').hide();
-                        $('#checkSlotsBtn').prop('disabled', false).html('<i class="fas fa-sync-alt mr-1"></i> Refresh Slots');
+                        $('#checkSlotsBtn').prop('disabled', false)
+                            .html('<i class="fas fa-sync-alt mr-1"></i> Refresh Slots');
                     },
-                    error: function() {
+                    error: function () {
                         $('#timeGrid').html('<div class="no-slots-msg"><i class="fas fa-exclamation-triangle mr-1"></i>Could not load schedule.</div>');
                         $('#loadingIndicator').hide();
-                        $('#checkSlotsBtn').prop('disabled', false).html('<i class="fas fa-search mr-1"></i> Check Available Slots');
+                        $('#checkSlotsBtn').prop('disabled', false)
+                            .html('<i class="fas fa-search mr-1"></i> Check Available Slots');
                     }
                 });
             }
 
             $('#checkSlotsBtn').on('click', function () {
-                const doc  = $('#doctorSelect').val();
-                const date = $('#apptDate').val();
+                var doc  = $('#doctorSelect').val();
+                var date = $('#apptDate').val();
                 if (doc && date) autoCheckSlots(doc, date);
             });
+
+            // Initialize — disable date picker until doctor chosen
+            updateDatePickerConstraints();
         });
     </script>
 }

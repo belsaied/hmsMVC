@@ -212,7 +212,9 @@ namespace HMS.PL.Controllers
             try
             {
                 await _services.DoctorService.SetScheduleAsync(doctorId, dto);
-                TempData["Success"] = $"Schedule added for {dto.DayOfWeek}.";
+                var start = dto.StartTime.ToString("HH:mm");
+                var end = dto.EndTime.ToString("HH:mm");
+                TempData["Success"] = $"<i class=\"fas fa-check-circle mr-1\"></i> Schedule added for <strong>{dto.DayOfWeek}</strong> ({start} – {end}, {dto.SlotDurationMinutes} min slots)";
             }
             catch (Exception ex)
             {
@@ -268,8 +270,12 @@ namespace HMS.PL.Controllers
         {
             try
             {
+                var schedules = await _services.DoctorService.GetScheduleAsync(doctorId);
+                var match = schedules.FirstOrDefault(s => s.Id == scheduleId);
+                var dayName = match?.DayOfWeek ?? "Unknown";
+
                 await _services.DoctorService.RemoveScheduleAsync(scheduleId);
-                TempData["Success"] = "Schedule slot removed.";
+                TempData["Success"] = $"<i class=\"fas fa-trash-alt mr-1\"></i> Schedule removed for <strong>{dayName}</strong>.";
             }
             catch (Exception ex)
             {

@@ -1,6 +1,8 @@
 ﻿using HMS.BLL.Services.Exceptions;
 using HMS.BLL.ServicesAbstraction.Contracts;
+using HMS.BLL.Shared;
 using HMS.BLL.Shared.Dtos.AppointmentModule;
+using HMS.BLL.Shared.Dtos.DoctorModule.DoctorDtos;
 using HMS.BLL.Shared.Parameters;
 using HMS.DAL.Models.Enums.AppointmentEnums;
 using Microsoft.AspNetCore.Mvc;
@@ -265,18 +267,59 @@ namespace HMS.PL.Controllers
             }
         }
 
+        // GET /Appointments/GetDoctorScheduleDays?doctorId=5
+        [HttpGet]
+        public async Task<IActionResult> GetDoctorScheduleDays(int doctorId)
+        {
+            try
+            {
+                var schedules = await _services.DoctorService.GetScheduleAsync(doctorId);
+                var availableDays = schedules
+                    .Where(s => s.IsAvailable)
+                    .Select(s => s.DayOfWeek) // e.g. "Monday", "Wednesday"
+                    .ToList();
+                return Json(availableDays);
+            }
+            catch
+            {
+                return Json(new List<string>());
+            }
+        }
         // ── HELPERS ──────────────────────────────────────────────────────────────
 
         private async Task PopulateBookDropdownsAsync()
         {
             var patients = await _services.PatientService.GetAllPatientsAsync(new() { PageSize = 100 });
-            var doctors = await _services.DoctorService.GetAllDoctorsAsync(new() { PageSize = 100 });
-
             ViewBag.PatientList = new SelectList(
                 patients.Data.Select(p => new { p.Id, Name = p.FullName }), "Id", "Name");
-            ViewBag.DoctorList = new SelectList(
-                doctors.Data.Select(d => new { d.Id, Name = $"Dr. {d.FullName} — {d.Specialization}" }), "Id", "Name");
             ViewBag.TypeList = BuildEnumSelectList<AppointmentType>();
+
+            // Collect all doctors across pages
+            var allDoctors = new List<DoctorResultDto>();
+            var page = 1;
+            PaginatedResult<DoctorResultDto> pageResult;
+            do
+            {
+                pageResult = await _services.DoctorService.GetAllDoctorsAsync(
+                    new() { PageIndex = page, PageSize = 20 });
+                allDoctors.AddRange(pageResult.Data);
+                page++;
+            } while (allDoctors.Count < pageResult.TotalCount);
+
+            // Filter to only doctors with at least one available schedule slot
+            var filtered = new List<SelectListItem>();
+            foreach (var doc in allDoctors)
+            {
+                var schedules = await _services.DoctorService.GetScheduleAsync(doc.Id);
+                if (schedules.Any(s => s.IsAvailable))
+                {
+                    filtered.Add(new SelectListItem(
+                        $"{doc.FullName}|{doc.Specialization}",
+                        doc.Id.ToString()));
+                }
+            }
+
+            ViewBag.DoctorList = new SelectList(filtered, "Value", "Text");
         }
 
         private static SelectList BuildEnumSelectList<TEnum>(string? selected = null) where TEnum : struct, Enum
