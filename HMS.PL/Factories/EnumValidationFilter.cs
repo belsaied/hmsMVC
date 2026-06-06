@@ -22,27 +22,33 @@ namespace HMS.PL.Factories
 
             if (!context.ModelState.IsValid)
             {
-                var errors = context.ModelState
-                    .Where(e => e.Value!.Errors.Count > 0)
-                    .ToDictionary(
-                        x => x.Key,
-                        x => x.Value!.Errors
-                            .Select(e =>
-                                string.IsNullOrWhiteSpace(e.ErrorMessage)
-                                    ? "Invalid value provided."
-                                    : e.ErrorMessage)
-                    )
-                    .ToArray();
+                var acceptsJson = context.HttpContext.Request.Headers.Accept.ToString()
+                    .Contains("application/json", StringComparison.OrdinalIgnoreCase);
 
-                var problem = new ProblemDetails
+                if (acceptsJson)
                 {
-                    Title = "Validation Errors",
-                    Status = StatusCodes.Status400BadRequest,
-                    Detail = "One or more validation errors occurred",
-                    Extensions = { { "Errors", errors } }
-                };
+                    var errors = context.ModelState
+                        .Where(e => e.Value!.Errors.Count > 0)
+                        .ToDictionary(
+                            x => x.Key,
+                            x => x.Value!.Errors
+                                .Select(e =>
+                                    string.IsNullOrWhiteSpace(e.ErrorMessage)
+                                        ? "Invalid value provided."
+                                        : e.ErrorMessage)
+                        )
+                        .ToArray();
 
-                context.Result = new BadRequestObjectResult(problem);
+                    var problem = new ProblemDetails
+                    {
+                        Title = "Validation Errors",
+                        Status = StatusCodes.Status400BadRequest,
+                        Detail = "One or more validation errors occurred",
+                        Extensions = { { "Errors", errors } }
+                    };
+
+                    context.Result = new BadRequestObjectResult(problem);
+                }
             }
         }
 

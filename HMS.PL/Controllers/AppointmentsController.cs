@@ -106,6 +106,8 @@ namespace HMS.PL.Controllers
                 ModelState.AddModelError(string.Empty, ex.Message);
             }
 
+            System.Diagnostics.Debug.WriteLine($"[Book] Validation failed — DoctorId={dto.DoctorId}, Date={dto.AppointmentDate:yyyy-MM-dd} ({dto.AppointmentDate.DayOfWeek}), StartTime={dto.StartTime:HH:mm}, Type={dto.Type}");
+
             await PopulateBookDropdownsAsync();
             return View(dto);
         }
@@ -264,6 +266,45 @@ namespace HMS.PL.Controllers
             {
                 TempData["Error"] = "Doctor not found.";
                 return RedirectToAction(nameof(Index));
+            }
+        }
+
+        // GET /Appointments/GetDoctorScheduleJson?doctorId=5
+        [HttpGet]
+        public async Task<IActionResult> GetDoctorScheduleJson(int doctorId)
+        {
+            try
+            {
+                var schedules = await _services.DoctorService.GetScheduleAsync(doctorId);
+                var schedule = schedules
+                    .Where(s => s.IsAvailable)
+                    .Select(s => new
+                    {
+                        dayOfWeek = (int)Enum.Parse<DayOfWeek>(s.DayOfWeek),
+                        startTime = s.StartTime,
+                        endTime = s.EndTime,
+                        slotDuration = s.SlotDurationMinutes
+                    });
+                return Json(schedule);
+            }
+            catch
+            {
+                return Json(Array.Empty<object>());
+            }
+        }
+
+        // GET /Appointments/GetAvailableSlots?doctorId=5&date=2026-06-10
+        [HttpGet]
+        public async Task<IActionResult> GetAvailableSlots(int doctorId, DateOnly date)
+        {
+            try
+            {
+                var slots = await _services.AppointmentService.GetAvailableSlotsAsync(doctorId, date);
+                return Json(slots);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
             }
         }
 

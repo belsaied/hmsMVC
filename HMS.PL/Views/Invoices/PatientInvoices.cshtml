@@ -1,0 +1,92 @@
+@model IEnumerable<HMS.BLL.Shared.Dtos.BillingModule.Results.InvoiceSummaryResultDto>
+@using HMS.DAL.Models.Enums.BillingEnums
+@{ ViewData["Title"] = "Patient Invoices"; }
+
+@section PageHeader {
+    <div class="row mb-2">
+        <div class="col-sm-6"><h1 class="m-0">Patient Invoices</h1></div>
+        <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a asp-controller="Patients" asp-action="Index">Patients</a></li>
+                <li class="breadcrumb-item active">Invoices</li>
+            </ol>
+        </div>
+    </div>
+}
+
+@section Styles {
+<style>
+    :root { --hms-blue: #1a3a5c; --hms-blue-mid: #2563a8; --hms-border: #e2e8f0; --hms-text: #1e293b; --hms-muted: #64748b; }
+    .badge-status { border-radius:20px; padding:4px 12px; font-size:.75rem; font-weight:700; }
+    .badge-status.Draft { background:#f1f5f9; color:#475569; }
+    .badge-status.Issued { background:#dbeafe; color:#1d4ed8; }
+    .badge-status.Paid { background:#dcfce7; color:#166534; }
+    .badge-status.Overdue { background:#fee2e2; color:#991b1b; }
+    .badge-status.Cancelled { background:#f3f4f6; color:#9ca3af; }
+    .table-card { background:#fff; border-radius:14px; overflow:hidden; box-shadow:0 2px 16px rgba(0,0,0,.07); border:1px solid var(--hms-border); }
+    .table-card thead th { background:#1e40af; color:white; font-weight:600; font-size:.8rem; text-transform:uppercase; letter-spacing:.06em; padding:14px 16px; border:none; }
+    .table-card tbody tr { transition:background .15s; border-bottom:1px solid var(--hms-border); }
+    .table-card tbody tr:hover { background:#f8faff; }
+    .table-card tbody td { padding:13px 16px; vertical-align:middle; color:var(--hms-text); font-size:.9rem; border:none; }
+</style>
+}
+
+<div class="row mb-3">
+    <div class="col-12">
+        <div style="background:linear-gradient(135deg,#1a3a5c,#2563a8);color:#fff;border-radius:16px;padding:20px 28px;">
+            <h4 style="font-weight:700;margin:0"><i class="fas fa-user-injured mr-2"></i> @ViewBag.PatientName</h4>
+            <p style="opacity:.75;margin:4px 0 0">Patient ID: @ViewBag.PatientId &middot; Invoices</p>
+        </div>
+    </div>
+</div>
+
+<div class="table-card">
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5 text-muted">
+            <i class="fas fa-file-invoice fa-3x mb-3" style="opacity:.2"></i>
+            <p>No invoices for this patient.</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Invoice #</th>
+                        <th>Status</th>
+                        <th class="text-right">Total</th>
+                        <th class="text-right">Outstanding</th>
+                        <th>Due Date</th>
+                        <th>Created</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var inv in Model)
+                    {
+                        <tr>
+                            <td><strong>@inv.InvoiceNumber</strong></td>
+                            <td><span class="badge-status @inv.Status">@inv.Status</span></td>
+                            <td class="text-right">@inv.TotalAmount.ToString("C")</td>
+                            <td class="text-right @(inv.OutstandingBalance > 0 ? "text-danger font-weight-bold" : "text-success")">@inv.OutstandingBalance.ToString("C")</td>
+                            <td>@(inv.DueDate?.ToString("dd MMM yyyy") ?? "—")</td>
+                            <td>@inv.CreatedAt.ToString("dd MMM yyyy")</td>
+                            <td class="text-right">
+                                <a asp-action="Details" asp-route-id="@inv.Id" class="btn btn-xs btn-outline-primary" style="border-radius:7px">View</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<div class="mt-3">
+    <a asp-controller="Patients" asp-action="Details" asp-route-id="@ViewBag.PatientId" class="btn btn-outline-secondary" style="border-radius:9px;font-weight:600">
+        <i class="fas fa-arrow-left mr-1"></i> Back to Patient
+    </a>
+</div>

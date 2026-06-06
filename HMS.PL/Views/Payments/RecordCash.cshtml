@@ -1,0 +1,69 @@
+@model HMS.PL.ViewModels.BillingModule.RecordCashViewModel
+@{ ViewData["Title"] = "Record Cash Payment"; }
+
+@section PageHeader {
+    <div class="row mb-2">
+        <div class="col-sm-6"><h1 class="m-0">Record Cash Payment</h1></div>
+        <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a asp-controller="Invoices" asp-action="Index">Invoices</a></li>
+                <li class="breadcrumb-item active">Record Cash</li>
+            </ol>
+        </div>
+    </div>
+}
+
+@section Styles {
+<style>
+    :root { --hms-blue: #1a3a5c; --hms-border: #e2e8f0; --hms-text: #1e293b; --hms-muted: #64748b; }
+    .form-card { background:#fff; border-radius:14px; box-shadow:0 2px 12px rgba(0,0,0,.06); border:1px solid var(--hms-border); overflow:hidden; }
+    .form-card-header { padding:16px 22px; border-bottom:1px solid var(--hms-border); font-weight:700; font-size:.9rem; background:#f8fafc; }
+    .form-card-body { padding:22px; }
+    .form-control { border-radius:10px; border:1.5px solid var(--hms-border); padding:10px 14px; font-size:.9rem; }
+    .form-control:focus { border-color:#2563a8; box-shadow:0 0 0 3px rgba(37,99,168,.12); }
+    .form-label { font-size:.82rem; font-weight:600; color:var(--hms-text); margin-bottom:4px; }
+    .input-group-text { border-radius:10px 0 0 10px; border-color:var(--hms-border); }
+</style>
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="form-card">
+            <div class="form-card-header">
+                <i class="fas fa-money-bill-wave mr-2 text-warning"></i> Record Cash Payment
+            </div>
+            <div class="form-card-body">
+                <p class="text-muted mb-1">Invoice: <strong>@Model.InvoiceNumber</strong></p>
+                <p class="mb-3">Outstanding: <strong class="text-danger">@Model.OutstandingBalance.ToString("C")</strong></p>
+
+                <form asp-action="RecordCash" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="InvoiceId" />
+                    <input type="hidden" asp-for="InvoiceNumber" />
+                    <input type="hidden" asp-for="OutstandingBalance" />
+
+                    <div class="form-group">
+                        <label asp-for="Amount" class="form-label">Amount Received ($)</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend"><span class="input-group-text">$</span></div>
+                            <input asp-for="Amount" type="number" step="0.01" min="0.01"
+                                   max="@Model.OutstandingBalance" class="form-control" required />
+                        </div>
+                        <span asp-validation-for="Amount" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-flex gap-2" style="gap:8px">
+                        <button type="submit" class="btn btn-warning text-dark font-weight-bold" style="border-radius:9px;padding:10px 20px">
+                            <i class="fas fa-check mr-1"></i> Record Payment
+                        </button>
+                        <a asp-controller="Invoices" asp-action="Details" asp-route-id="@Model.InvoiceId"
+                           class="btn btn-outline-secondary" style="border-radius:9px;font-weight:600">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

@@ -1,0 +1,131 @@
+@model HMS.PL.ViewModels.BillingModule.RevenueReportViewModel
+@{ ViewData["Title"] = "Revenue Report"; }
+
+@section PageHeader {
+    <div class="row mb-2">
+        <div class="col-sm-6"><h1 class="m-0">Revenue Report</h1></div>
+        <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item active">Revenue Report</li>
+            </ol>
+        </div>
+    </div>
+}
+
+@section Styles {
+<style>
+    :root { --hms-blue: #1a3a5c; --hms-blue-mid: #2563a8; --hms-border: #e2e8f0; --hms-text: #1e293b; --hms-muted: #64748b; --hms-green: #10b981; --hms-red: #ef4444; }
+    .page-header-card { background: linear-gradient(135deg,#1e40af 0%,#3b82f6 100%); color:white; padding:28px 32px; border-radius:16px; margin-bottom:24px; box-shadow:0 8px 32px rgba(59,130,246,0.18); position:relative; overflow:hidden; }
+    .page-header-card::before { content:''; position:absolute; top:-40px; right:-40px; width:160px; height:160px; background:rgba(255,255,255,0.07); border-radius:50%; }
+    .page-header-card::after { content:''; position:absolute; bottom:-60px; right:80px; width:220px; height:220px; background:rgba(255,255,255,0.04); border-radius:50%; }
+    .header-title { font-size:1.75rem; font-weight:700; letter-spacing:-0.5px; margin:0; position:relative; z-index:1; }
+    .header-subtitle { font-size:.875rem; opacity:.75; margin-top:4px; position:relative; z-index:1; }
+    .search-card { background:#fff; border-radius:14px; padding:24px; margin-bottom:20px; box-shadow:0 2px 12px rgba(0,0,0,.06); border:1px solid var(--hms-border); }
+    .info-box { border-radius:14px; min-height:100px; }
+    .table-card { background:#fff; border-radius:14px; overflow:hidden; box-shadow:0 2px 16px rgba(0,0,0,.07); border:1px solid var(--hms-border); }
+    .table-card thead th { background:#1e40af; color:white; font-weight:600; font-size:.8rem; text-transform:uppercase; letter-spacing:.06em; padding:14px 16px; border:none; }
+    .table-card tbody tr { transition:background .15s; border-bottom:1px solid var(--hms-border); }
+    .table-card tbody tr:hover { background:#f8faff; }
+    .table-card tbody td { padding:13px 16px; vertical-align:middle; color:var(--hms-text); font-size:.9rem; border:none; }
+</style>
+}
+
+<div class="page-header-card">
+    <div style="position:relative;z-index:1">
+        <h2 class="header-title"><i class="fas fa-chart-bar mr-2"></i> Revenue Report</h2>
+        <p class="header-subtitle">Financial summary and revenue breakdown</p>
+    </div>
+</div>
+
+<div class="search-card">
+    <form method="get" class="form-inline flex-wrap" style="gap:10px">
+        <div class="form-group">
+            <label class="mr-2 small font-weight-bold">From</label>
+            <input type="date" name="startDate" value="@Model.StartDate?.ToString("yyyy-MM-dd")"
+                   class="form-control form-control-sm" style="border-radius:9px;border:1.5px solid var(--hms-border)" />
+        </div>
+        <div class="form-group">
+            <label class="mr-2 small font-weight-bold">To</label>
+            <input type="date" name="endDate" value="@Model.EndDate?.ToString("yyyy-MM-dd")"
+                   class="form-control form-control-sm" style="border-radius:9px;border:1.5px solid var(--hms-border)" />
+        </div>
+        <button type="submit" class="btn btn-primary btn-sm" style="border-radius:8px;font-weight:600">
+            <i class="fas fa-chart-bar mr-1"></i> Generate
+        </button>
+        <a asp-action="ExportExcel"
+           asp-route-startDate="@Model.StartDate?.ToString("yyyy-MM-dd")"
+           asp-route-endDate="@Model.EndDate?.ToString("yyyy-MM-dd")"
+           class="btn btn-success btn-sm" style="border-radius:8px;font-weight:600">
+            <i class="fas fa-file-excel mr-1"></i> Export Excel
+        </a>
+        <a asp-action="Outstanding" class="btn btn-outline-warning btn-sm" style="border-radius:8px;font-weight:600">
+            <i class="fas fa-exclamation-triangle mr-1"></i> Outstanding Invoices
+        </a>
+    </form>
+</div>
+
+@if (Model.Report != null)
+{
+    var r = Model.Report;
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="info-box bg-success">
+                <span class="info-box-icon"><i class="fas fa-dollar-sign"></i></span>
+                <div class="info-box-content">
+                    <span class="info-box-text">Total Revenue Collected</span>
+                    <span class="info-box-number">@r.TotalRevenue.ToString("C")</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="info-box bg-info">
+                <span class="info-box-icon"><i class="fas fa-file-invoice"></i></span>
+                <div class="info-box-content">
+                    <span class="info-box-text">Total Invoiced</span>
+                    <span class="info-box-number">@r.TotalInvoiced.ToString("C")</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="info-box bg-warning">
+                <span class="info-box-icon"><i class="fas fa-hourglass-half"></i></span>
+                <div class="info-box-content">
+                    <span class="info-box-text">Outstanding</span>
+                    <span class="info-box-number">@r.TotalOutstanding.ToString("C")</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-card">
+        <div class="card-header" style="background:#f8fafc;border-bottom:1px solid var(--hms-border);padding:14px 20px;font-weight:700;font-size:.85rem">
+            <i class="fas fa-chart-pie mr-2" style="color:var(--hms-blue-mid)"></i> Revenue by Service Type
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Service Type</th>
+                        <th class="text-center">Invoice Count</th>
+                        <th class="text-right">Total Revenue</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var g in r.ByServiceType)
+                    {
+                        <tr>
+                            <td>@g.Label</td>
+                            <td class="text-center">@g.InvoiceCount</td>
+                            <td class="text-right font-weight-bold">@g.TotalRevenue.ToString("C")</td>
+                        </tr>
+                    }
+                    @if (!r.ByServiceType.Any())
+                    {
+                        <tr><td colspan="3" class="text-center text-muted py-3">No data for this period.</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

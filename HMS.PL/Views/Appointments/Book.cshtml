@@ -1,4 +1,4 @@
-﻿﻿@using HMS.BLL.Shared.Dtos.AppointmentModule
+﻿@using HMS.BLL.Shared.Dtos.AppointmentModule
 @model CreateAppointmentDto
 
 @{
@@ -6,288 +6,59 @@
 }
 
 @section Styles {
-    <style>
-        :root {
-            --hms-blue: #1a3a5c;
-            --hms-blue-mid: #2563a8;
-            --hms-accent: #0ea5e9;
-            --hms-border: #e2e8f0;
-            --hms-text: #1e293b;
-            --hms-muted: #64748b;
-            --hms-green: #10b981;
-            --hms-red: #ef4444;
-        }
+<style>
+    :root {
+        --hms-blue: #1a3a5c;
+        --hms-blue-mid: #2563a8;
+        --hms-accent: #0ea5e9;
+        --hms-border: #e2e8f0;
+        --hms-text: #1e293b;
+        --hms-muted: #64748b;
+        --hms-green: #10b981;
+        --hms-red: #ef4444;
+    }
 
-        .book-header {
-            background: linear-gradient(135deg, var(--hms-blue) 0%, var(--hms-blue-mid) 100%);
-            color: white;
-            padding: 24px 32px;
-            border-radius: 16px 16px 0 0;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
+    .book-header {
+        background: linear-gradient(135deg, var(--hms-blue) 0%, var(--hms-blue-mid) 100%);
+        color: white;
+        padding: 24px 32px;
+        border-radius: 16px 16px 0 0;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+    .book-header-icon { width:52px; height:52px; background:rgba(255,255,255,.15); border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; }
+    .book-body { background:white; border-radius:0 0 16px 16px; box-shadow:0 8px 32px rgba(0,0,0,.09); border:1px solid var(--hms-border); border-top:none; }
+    .form-section { padding:28px 32px; border-bottom:1px solid var(--hms-border); }
+    .form-section:last-child { border-bottom:none; }
+    .section-title { font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--hms-muted); display:flex; align-items:center; gap:8px; margin-bottom:20px; padding-bottom:10px; border-bottom:1px solid #f1f5f9; }
+    .section-icon { width:28px; height:28px; border-radius:7px; display:flex; align-items:center; justify-content:center; font-size:.82rem; }
+    .form-label { font-size:.82rem; font-weight:600; color:var(--hms-text); margin-bottom:6px; }
+    .form-control { border-radius:10px; border:1.5px solid var(--hms-border); padding:10px 14px; font-size:.9rem; }
+    .form-control:focus { border-color:var(--hms-accent); box-shadow:0 0 0 3px rgba(14,165,233,.12); outline:none; }
+    .req { color:#ef4444; margin-left:3px; }
+    .form-footer { padding:20px 32px; background:#f8faff; border-radius:0 0 16px 16px; display:flex; align-items:center; gap:12px; border-top:1px solid var(--hms-border); }
+    .btn-submit { background:linear-gradient(135deg, var(--hms-blue-mid), var(--hms-blue)); color:white; border:none; border-radius:10px; padding:11px 28px; font-weight:700; font-size:.9rem; box-shadow:0 4px 14px rgba(37,99,168,.3); display:inline-flex; align-items:center; gap:8px; }
+    .btn-submit:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(37,99,168,.4); color:white; }
+    .btn-cancel-link { background:white; color:var(--hms-muted); border:1.5px solid var(--hms-border); border-radius:10px; padding:10px 22px; font-weight:600; font-size:.9rem; display:inline-flex; align-items:center; gap:8px; text-decoration:none; }
+    .btn-cancel-link:hover { background:#f1f5f9; color:var(--hms-text); }
 
-        .book-header-icon {
-            width: 52px;
-            height: 52px;
-            background: rgba(255,255,255,.15);
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-        }
+    .schedule-preview { background:#f8faff; border:1px solid #bfdbfe; border-radius:12px; padding:16px; margin-top:12px; display:none; }
+    .schedule-preview-title { font-size:.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--hms-blue-mid); margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+    .slot-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:8px; }
+    .slot-chip { display:flex; align-items:center; justify-content:center; gap:6px; padding:10px 12px; border-radius:9px; font-size:.8rem; font-weight:600; border:1.5px solid var(--hms-border); cursor:pointer; transition:all .15s; text-align:center; }
+    .slot-chip.available { background:#f0fdf4; border-color:#bbf7d0; color:#166534; }
+    .slot-chip.available:hover { background:var(--hms-green); border-color:var(--hms-green); color:white; transform:translateY(-1px); }
+    .slot-chip.available.selected { background:var(--hms-green); border-color:var(--hms-green); color:white; box-shadow:0 2px 8px rgba(16,185,129,.3); }
+    .slot-chip.booked { background:#fef2f2; border-color:#fecaca; color:#991b1b; cursor:not-allowed; opacity:.6; }
+    .no-slots-msg { grid-column:1/-1; text-align:center; padding:20px; color:var(--hms-muted); font-size:.85rem; }
+    .loading-slots { grid-column:1/-1; text-align:center; padding:20px; color:var(--hms-muted); }
 
-        .book-body {
-            background: white;
-            border-radius: 0 0 16px 16px;
-            box-shadow: 0 8px 32px rgba(0,0,0,.09);
-            border: 1px solid var(--hms-border);
-            border-top: none;
-        }
-
-        .form-section {
-            padding: 28px 32px;
-            border-bottom: 1px solid var(--hms-border);
-        }
-
-            .form-section:last-child {
-                border-bottom: none;
-            }
-
-        .section-title {
-            font-size: .78rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: .07em;
-            color: var(--hms-muted);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #f1f5f9;
-        }
-
-        .section-icon {
-            width: 28px;
-            height: 28px;
-            border-radius: 7px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: .82rem;
-        }
-
-        .form-label {
-            font-size: .82rem;
-            font-weight: 600;
-            color: var(--hms-text);
-            margin-bottom: 6px;
-        }
-
-        .form-control {
-            border-radius: 10px;
-            border: 1.5px solid var(--hms-border);
-            padding: 10px 14px;
-            font-size: .9rem;
-        }
-
-            .form-control:focus {
-                border-color: var(--hms-accent);
-                box-shadow: 0 0 0 3px rgba(14,165,233,.12);
-                outline: none;
-            }
-
-        .req {
-            color: #ef4444;
-            margin-left: 3px;
-        }
-
-        .form-footer {
-            padding: 20px 32px;
-            background: #f8faff;
-            border-radius: 0 0 16px 16px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border-top: 1px solid var(--hms-border);
-        }
-
-        .btn-submit {
-            background: linear-gradient(135deg, var(--hms-blue-mid), var(--hms-blue));
-            color: white;
-            border: none;
-            border-radius: 10px;
-            padding: 11px 28px;
-            font-weight: 700;
-            font-size: .9rem;
-            box-shadow: 0 4px 14px rgba(37,99,168,.3);
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-            .btn-submit:hover {
-                transform: translateY(-1px);
-                box-shadow: 0 6px 20px rgba(37,99,168,.4);
-                color: white;
-            }
-
-        .btn-cancel-link {
-            background: white;
-            color: var(--hms-muted);
-            border: 1.5px solid var(--hms-border);
-            border-radius: 10px;
-            padding: 10px 22px;
-            font-weight: 600;
-            font-size: .9rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            text-decoration: none;
-        }
-
-            .btn-cancel-link:hover {
-                background: #f1f5f9;
-                color: var(--hms-text);
-            }
-
-        .text-danger.small {
-            font-size: .78rem;
-            margin-top: 4px;
-            display: block;
-        }
-
-        .alert-validation {
-            border-radius: 10px;
-            border: none;
-            background: #fef2f2;
-            border-left: 4px solid #ef4444;
-            color: #991b1b;
-            padding: 14px 18px;
-            font-size: .875rem;
-            margin: 20px 32px 0;
-        }
-
-        .select2-container .select2-selection--single {
-            height: 44px !important;
-            border: 1.5px solid var(--hms-border) !important;
-            border-radius: 10px !important;
-        }
-
-        .select2-selection__rendered {
-            line-height: 44px !important;
-            padding: 0 14px !important;
-            font-size: .9rem;
-        }
-
-        .select2-selection__arrow {
-            height: 44px !important;
-        }
-
-        .schedule-preview {
-            background: #f8faff;
-            border: 1px solid #bfdbfe;
-            border-radius: 12px;
-            padding: 16px;
-            margin-top: 12px;
-            display: none;
-        }
-
-        .schedule-preview-title {
-            font-size: .75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: .06em;
-            color: var(--hms-blue-mid);
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .time-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-            gap: 8px;
-        }
-
-        .time-slot {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            padding: 10px 12px;
-            border-radius: 9px;
-            font-size: .8rem;
-            font-weight: 600;
-            border: 1.5px solid var(--hms-border);
-            cursor: pointer;
-            transition: all .15s;
-            text-align: center;
-        }
-
-            .time-slot.available {
-                background: #f0fdf4;
-                border-color: #bbf7d0;
-                color: #166534;
-            }
-
-                .time-slot.available:hover {
-                    background: var(--hms-green);
-                    border-color: var(--hms-green);
-                    color: white;
-                    transform: translateY(-1px);
-                }
-
-                .time-slot.available.selected {
-                    background: var(--hms-green);
-                    border-color: var(--hms-green);
-                    color: white;
-                    box-shadow: 0 2px 8px rgba(16,185,129,.3);
-                }
-
-            .time-slot.booked {
-                background: #fef2f2;
-                border-color: #fecaca;
-                color: #991b1b;
-                cursor: not-allowed;
-                opacity: .6;
-            }
-
-        .no-slots-msg {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 20px;
-            color: var(--hms-muted);
-            font-size: .85rem;
-        }
-
-        .loading-slots {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 20px;
-            color: var(--hms-muted);
-        }
-
-        .full-schedule-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-size: .8rem;
-            font-weight: 600;
-            color: var(--hms-blue-mid);
-            margin-top: 10px;
-            text-decoration: none;
-        }
-
-            .full-schedule-link:hover {
-                color: #1e40af;
-                text-decoration: underline;
-            }
-    </style>
+    .alert-validation { border-radius:10px; border:none; background:#fef2f2; border-left:4px solid #ef4444; color:#991b1b; padding:14px 18px; font-size:.875rem; margin:20px 32px 0; }
+    .select2-container .select2-selection--single { height:44px !important; border:1.5px solid var(--hms-border) !important; border-radius:10px !important; }
+    .select2-selection__rendered { line-height:44px !important; padding:0 14px !important; font-size:.9rem; }
+    .select2-selection__arrow { height:44px !important; }
+</style>
 }
 
 @section PageHeader {
@@ -321,56 +92,20 @@
         }
 
         <div class="book-body">
-            <!-- Patient & Doctor -->
+            <!-- STEP 1: Patient & Type -->
             <div class="form-section">
                 <div class="section-title">
                     <div class="section-icon" style="background:#dbeafe"><i class="fas fa-users" style="color:#2563a8"></i></div>
-                    Participants
+                    Patient & Appointment Type
                 </div>
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <div class="form-group">
                             <label asp-for="PatientId" class="form-label">Patient <span class="req">*</span></label>
                             <select asp-for="PatientId" asp-items="ViewBag.PatientList" class="form-control select2">
                                 <option value="">— Select Patient —</option>
                             </select>
                             <span asp-validation-for="PatientId" class="text-danger small"></span>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label asp-for="DoctorId" class="form-label">Doctor <span class="req">*</span></label>
-                            <select asp-for="DoctorId" asp-items="ViewBag.DoctorList" class="form-control select2" id="doctorSelect">
-                                <option value="">— Select Doctor —</option>
-                            </select>
-                            <span asp-validation-for="DoctorId" class="text-danger small"></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Schedule -->
-            <div class="form-section">
-                <div class="section-title">
-                    <div class="section-icon" style="background:#d1fae5"><i class="fas fa-calendar-alt" style="color:#059669"></i></div>
-                    Schedule
-                </div>
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label asp-for="AppointmentDate" class="form-label">Date <span class="req">*</span></label>
-                            <input asp-for="AppointmentDate" type="date" class="form-control" id="apptDate"
-                                   min="@DateTime.Today.ToString("yyyy-MM-dd")" />
-                            <span asp-validation-for="AppointmentDate" class="text-danger small"></span>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label asp-for="StartTime" class="form-label">Start Time <span class="req">*</span></label>
-                            <input asp-for="StartTime" type="time" class="form-control" id="startTimeInput" readonly
-                                   style="background:#f8faff;cursor:pointer" />
-                            <span asp-validation-for="StartTime" class="text-danger small"></span>
-                            <div style="font-size:.72rem;color:var(--hms-muted);margin-top:2px">Click an available slot above to fill this in</div>
                         </div>
                     </div>
                     <div class="col-md-4">
@@ -382,49 +117,75 @@
                             <span asp-validation-for="Type" class="text-danger small"></span>
                         </div>
                     </div>
-                </div>
-
-                <!-- Schedule preview panel -->
-                <div id="schedulePreview" class="schedule-preview">
-                    <div class="schedule-preview-title">
-                        <i class="fas fa-clock"></i>
-                        <span id="previewTitle">Available Slots</span>
-                        <span id="loadingIndicator" style="display:none;margin-left:8px">
-                            <i class="fas fa-spinner fa-spin"></i> Loading...
-                        </span>
+                    <div class="col-md-12 form-group">
+                        <label asp-for="ReasonForVisit" class="form-label">Reason for Visit</label>
+                        <textarea asp-for="ReasonForVisit" class="form-control" rows="2" maxlength="500"></textarea>
+                        <span asp-validation-for="ReasonForVisit" class="text-danger small"></span>
                     </div>
-                    <div id="timeGrid" class="time-grid">
-                        <div class="loading-slots">Select a doctor and date, then click "Check Slots"</div>
-                    </div>
-                    <a id="fullScheduleLink" href="#" class="full-schedule-link" target="_blank" style="display:none">
-                        <i class="fas fa-external-link-alt"></i> View Full Schedule
-                    </a>
                 </div>
-                <button type="button" id="checkSlotsBtn" class="btn btn-sm mt-2"
-                        style="border-radius:8px;border:1.5px solid #0ea5e9;color:#0ea5e9;font-weight:600;font-size:.8rem;display:none">
-                    <i class="fas fa-search mr-1"></i> Check Available Slots
-                </button>
             </div>
 
-            <!-- Visit Details -->
+            <!-- STEP 2: Doctor -->
             <div class="form-section">
                 <div class="section-title">
-                    <div class="section-icon" style="background:#fef3c7"><i class="fas fa-stethoscope" style="color:#d97706"></i></div>
-                    Visit Details
+                    <div class="section-icon" style="background:#d1fae5"><i class="fas fa-user-md" style="color:#059669"></i></div>
+                    Select Doctor
                 </div>
                 <div class="form-group">
-                    <label asp-for="ReasonForVisit" class="form-label">Reason for Visit <span class="req">*</span></label>
-                    <textarea asp-for="ReasonForVisit" class="form-control" rows="4"
-                              placeholder="Describe the reason for the appointment..." maxlength="500"></textarea>
-                    <span asp-validation-for="ReasonForVisit" class="text-danger small"></span>
-                    <div style="font-size:.75rem;color:var(--hms-muted);margin-top:4px">Max 500 characters</div>
+                    <label asp-for="DoctorId" class="form-label">Doctor <span class="req">*</span></label>
+                    <select asp-for="DoctorId" id="doctorSelect" asp-items="ViewBag.DoctorList" class="form-control select2">
+                        <option value="">— Select Doctor —</option>
+                    </select>
+                    <span asp-validation-for="DoctorId" class="text-danger small"></span>
                 </div>
+                <div id="scheduleNotice" class="d-none" style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:14px 18px;font-size:.875rem;color:#1e40af;margin-top:12px">
+                    <i class="fas fa-calendar-alt mr-2"></i>
+                    <span id="scheduleText"></span>
+                </div>
+                <div id="noScheduleNotice" class="d-none" style="background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:14px 18px;color:#9a3412;margin-top:12px">
+                    <i class="fas fa-exclamation-triangle mr-1"></i>
+                    This doctor has no availability schedule configured. Please contact the receptionist.
+                </div>
+            </div>
+
+            <!-- STEP 3: Date -->
+            <div class="form-section" id="dateStep" style="display:none">
+                <div class="section-title">
+                    <div class="section-icon" style="background:#d1fae5"><i class="fas fa-calendar-alt" style="color:#059669"></i></div>
+                    Choose a Date
+                </div>
+                <input id="datePicker" class="form-control" placeholder="Click to pick a date"
+                       style="max-width:300px;background:#fff" readonly />
+                <input type="hidden" asp-for="AppointmentDate" id="appointmentDateHidden" />
+                <p class="text-muted mt-2" style="font-size:.8rem">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Only the doctor's working days are selectable.
+                </p>
+            </div>
+
+            <!-- STEP 4: Time Slot -->
+            <div class="form-section" id="slotStep" style="display:none">
+                <div class="section-title">
+                    <div class="section-icon" style="background:#d1fae5"><i class="fas fa-clock" style="color:#059669"></i></div>
+                    Choose a Time Slot
+                </div>
+                <div id="slots-loading" class="text-center py-3" style="display:none">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-2 text-muted">Loading slots...</p>
+                </div>
+                <div id="slotGrid" class="slot-grid"></div>
+                <input type="hidden" asp-for="StartTime" id="startTimeHidden" />
+                <p id="noSlotsMsg" class="text-danger d-none mt-2">
+                    <i class="fas fa-times-circle mr-1"></i>
+                    No available slots on this date. Please choose another day.
+                </p>
             </div>
         </div>
 
-        <div class="form-footer">
-            <button type="submit" class="btn-submit">
-                <i class="fas fa-calendar-check"></i> Book Appointment
+        <!-- STEP 5: Submit -->
+        <div class="form-footer" id="submitSection" style="display:none">
+            <button type="submit" class="btn-submit" id="submitBtn" disabled>
+                <i class="fas fa-calendar-check"></i> Confirm Booking
             </button>
             <a asp-action="Index" class="btn-cancel-link">
                 <i class="fas fa-times"></i> Cancel
@@ -434,205 +195,119 @@
 </div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-    <script>
-        $(function () {
-            $('.select2').select2({ theme: 'classic', width: '100%' });
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+    let doctorSchedule = [];
+    let calendarInstance = null;
 
-            var availableDayNames = []; // e.g. ["Monday","Wednesday"]
+    const doctorSelect = document.getElementById('doctorSelect');
+    const scheduleNotice = document.getElementById('scheduleNotice');
+    const scheduleText = document.getElementById('scheduleText');
+    const noScheduleNotice = document.getElementById('noScheduleNotice');
+    const dateStep = document.getElementById('dateStep');
+    const slotStep = document.getElementById('slotStep');
+    const slotGrid = document.getElementById('slotGrid');
+    const submitSection = document.getElementById('submitSection');
+    const submitBtn = document.getElementById('submitBtn');
+    const startTimeHidden = document.getElementById('startTimeHidden');
+    const dateHidden = document.getElementById('appointmentDateHidden');
+    const noSlotsMsg = document.getElementById('noSlotsMsg');
 
-            // Map day name → JS day index (0=Sun)
-            var dayNameToIndex = {
-                'Sunday': 0, 'Monday': 1, 'Tuesday': 2,
-                'Wednesday': 3, 'Thursday': 4, 'Friday': 5, 'Saturday': 6
-            };
+    const DAY_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 
-            function loadDoctorScheduleDays(doctorId) {
-                if (!doctorId) {
-                    availableDayNames = [];
-                    updateDatePickerConstraints();
-                    return;
-                }
-                $.getJSON('@Url.Action("GetDoctorScheduleDays", "Appointments")', { doctorId: doctorId })
-                    .done(function (days) {
-                        availableDayNames = days; // ["Monday", "Wednesday", ...]
-                        updateDatePickerConstraints();
-                        // Clear previously selected date if it's now invalid
-                        var currentDate = $('#apptDate').val();
-                        if (currentDate && !isDateAvailable(currentDate)) {
-                            $('#apptDate').val('');
-                            $('#startTimeInput').val('');
-                            $('#schedulePreview').hide();
-                            $('#checkSlotsBtn').hide();
-                        }
-                    })
-                    .fail(function () {
-                        availableDayNames = [];
-                        updateDatePickerConstraints();
-                    });
+    doctorSelect.addEventListener('change', async () => {
+        const doctorId = doctorSelect.value;
+        resetFromDoctor();
+        if (!doctorId) return;
+
+        const res = await fetch('/Appointments/GetDoctorScheduleJson?doctorId=' + doctorId);
+        if (!res.ok) { showNoSchedule(); return; }
+        doctorSchedule = await res.json();
+
+        if (doctorSchedule.length === 0) { showNoSchedule(); return; }
+
+        const dayNames = doctorSchedule.map(s => DAY_NAMES[s.dayOfWeek]).join(', ');
+        scheduleText.innerHTML = '<strong>Working days:</strong> ' + dayNames;
+        scheduleNotice.classList.remove('d-none');
+        noScheduleNotice.classList.add('d-none');
+
+        const enabledDays = new Set(doctorSchedule.map(s => s.dayOfWeek));
+
+        if (calendarInstance) calendarInstance.destroy();
+        calendarInstance = flatpickr('#datePicker', {
+            minDate: 'today',
+            disable: [date => !enabledDays.has(date.getDay())],
+            onChange: function(selectedDates, dateStr) {
+                if (!dateStr) return;
+                dateHidden.value = dateStr;
+                loadSlots(parseInt(doctorId), dateStr);
             }
-
-            function isDateAvailable(dateStr) {
-                if (!dateStr) return false;
-                if (availableDayNames.length === 0) return false;
-                var d = new Date(dateStr);
-                // new Date('2026-06-08') can be off by timezone; force UTC parsing
-                var parts = dateStr.split('-');
-                d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
-                var jsDay = d.getDay(); // 0=Sun
-                return availableDayNames.some(function (name) {
-                    return dayNameToIndex[name] === jsDay;
-                });
-            }
-
-            function updateDatePickerConstraints() {
-                var $dateInput = $('#apptDate');
-                var today = new Date();
-                var todayStr = today.toISOString().split('T')[0];
-                $dateInput.attr('min', todayStr);
-
-                if (availableDayNames.length === 0) {
-                    // No doctor selected or no schedule — disable date input
-                    $dateInput.prop('disabled', true).attr('placeholder', 'Select a doctor first');
-                    $('#scheduleLegend').remove();
-                    return;
-                }
-
-                $dateInput.prop('disabled', false).attr('placeholder', '');
-
-                // Show a legend of available days
-                $('#scheduleLegend').remove();
-                var dayLabels = availableDayNames.join(', ');
-                $dateInput.after(
-                    '<div id="scheduleLegend" style="font-size:.72rem;color:#0f766e;margin-top:4px;">' +
-                    '<i class="fas fa-calendar-check mr-1"></i>Available days: <strong>' + dayLabels + '</strong>' +
-                    '</div>'
-                );
-            }
-
-            function showDateError(msg) {
-                $('#dateError').remove();
-                if (msg) {
-                    $('#apptDate').after('<div id="dateError" style="font-size:.72rem;color:#dc2626;margin-top:4px;">' +
-                        '<i class="fas fa-exclamation-circle mr-1"></i>' + msg + '</div>');
-                }
-            }
-
-            function maybeShowSlotButton() {
-                var doc  = $('#doctorSelect').val();
-                var date = $('#apptDate').val();
-                $('#dateError').remove();
-
-                if (!doc || !date) {
-                    $('#checkSlotsBtn').hide();
-                    $('#schedulePreview').hide();
-                    return;
-                }
-
-                if (!isDateAvailable(date)) {
-                    var parts = date.split('-');
-                    var d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
-                    var dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-                    showDateError(dayNames[d.getDay()] + ' is not in this doctor\'s schedule. Available: ' + availableDayNames.join(', '));
-                    $('#checkSlotsBtn').hide();
-                    $('#schedulePreview').hide();
-                    return;
-                }
-
-                $('#checkSlotsBtn').show();
-                autoCheckSlots(doc, date);
-            }
-
-            // Load schedule days when doctor changes
-            $('#doctorSelect').on('change', function () {
-                var doctorId = $(this).val();
-                // Reset date & slots
-                $('#apptDate').val('');
-                $('#startTimeInput').val('');
-                $('#schedulePreview').hide();
-                $('#checkSlotsBtn').hide();
-                $('#dateError').remove();
-                loadDoctorScheduleDays(doctorId);
-            });
-
-            $('#apptDate').on('change', maybeShowSlotButton);
-
-            // Block keyboard input of unavailable dates
-            $('#apptDate').on('blur', function () {
-                var date = $(this).val();
-                if (date && availableDayNames.length > 0 && !isDateAvailable(date)) {
-                    maybeShowSlotButton(); // will show error
-                }
-            });
-
-            function selectSlot(startTime) {
-                $('.time-slot').removeClass('selected');
-                $(`.time-slot[data-time="${startTime}"]`).addClass('selected');
-                $('#startTimeInput').val(startTime);
-            }
-            window.selectSlot = selectSlot;
-
-            function autoCheckSlots(doctorId, date) {
-                $('#loadingIndicator').show();
-                $('#checkSlotsBtn').prop('disabled', true)
-                    .html('<i class="fas fa-spinner fa-spin mr-1"></i> Loading...');
-                $('#schedulePreview').show();
-
-                $.ajax({
-                    url: '@Url.Action("GetDailySchedule", "Appointments")',
-                    data: { doctorId: doctorId, date: date },
-                    success: function (data) {
-                        var slots = data.slots || [];
-                        var html = '';
-
-                        if (slots.length === 0) {
-                            html = '<div class="no-slots-msg"><i class="fas fa-calendar-times mr-1"></i>No slots found for this date.</div>';
-                        } else {
-                            var availableCount = 0;
-                            slots.forEach(function (s) {
-                                var st = s.startTime;
-                                if (typeof st === 'string' && st.length > 5) st = st.substring(0, 5);
-                                if (s.isAvailable) {
-                                    availableCount++;
-                                    html += '<div class="time-slot available" data-time="' + st +
-                                        '" onclick="selectSlot(\'' + st + '\')">' +
-                                        '<i class="fas fa-check-circle" style="font-size:.65rem"></i> ' + st + '</div>';
-                                } else {
-                                    html += '<div class="time-slot booked" title="Already booked">' +
-                                        '<i class="fas fa-times-circle" style="font-size:.65rem"></i> ' + st + '</div>';
-                                }
-                            });
-                            if (availableCount === 0) {
-                                html = '<div class="no-slots-msg"><i class="fas fa-clock mr-1"></i>All slots are booked for this date.</div>';
-                            }
-                            $('#previewTitle').text(availableCount + ' Available Slot' + (availableCount !== 1 ? 's' : ''));
-                        }
-
-                        $('#timeGrid').html(html);
-                        $('#fullScheduleLink')
-                            .attr('href', '@Url.Action("AvailableSlots", "Appointments")?doctorId=' + doctorId + '&date=' + date)
-                            .show();
-                        $('#loadingIndicator').hide();
-                        $('#checkSlotsBtn').prop('disabled', false)
-                            .html('<i class="fas fa-sync-alt mr-1"></i> Refresh Slots');
-                    },
-                    error: function () {
-                        $('#timeGrid').html('<div class="no-slots-msg"><i class="fas fa-exclamation-triangle mr-1"></i>Could not load schedule.</div>');
-                        $('#loadingIndicator').hide();
-                        $('#checkSlotsBtn').prop('disabled', false)
-                            .html('<i class="fas fa-search mr-1"></i> Check Available Slots');
-                    }
-                });
-            }
-
-            $('#checkSlotsBtn').on('click', function () {
-                var doc  = $('#doctorSelect').val();
-                var date = $('#apptDate').val();
-                if (doc && date) autoCheckSlots(doc, date);
-            });
-
-            // Initialize — disable date picker until doctor chosen
-            updateDatePickerConstraints();
         });
-    </script>
+
+        dateStep.style.display = '';
+        submitSection.style.display = '';
+    });
+
+    async function loadSlots(doctorId, date) {
+        slotStep.style.display = '';
+        slotGrid.innerHTML = '';
+        noSlotsMsg.classList.add('d-none');
+        document.getElementById('slots-loading').style.display = '';
+        startTimeHidden.value = '';
+        submitBtn.disabled = true;
+
+        const res = await fetch('/Appointments/GetAvailableSlots?doctorId=' + doctorId + '&date=' + date);
+        document.getElementById('slots-loading').style.display = 'none';
+
+        if (!res.ok) { noSlotsMsg.classList.remove('d-none'); return; }
+
+        const slots = await res.json();
+        const available = slots.filter(s => s.isAvailable);
+
+        if (available.length === 0) {
+            noSlotsMsg.classList.remove('d-none');
+            return;
+        }
+
+        available.forEach(s => {
+            const btn = document.createElement('div');
+            btn.className = 'slot-chip available';
+            btn.textContent = formatTime(s.startTime);
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.slot-chip').forEach(b => b.classList.remove('selected'));
+                this.classList.add('selected');
+                startTimeHidden.value = s.startTime;
+                submitBtn.disabled = false;
+            });
+            slotGrid.appendChild(btn);
+        });
+    }
+
+    function formatTime(t) {
+        const [h, m] = t.split(':').map(Number);
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        const h12 = h % 12 || 12;
+        return h12 + ':' + String(m).padStart(2,'0') + ' ' + ampm;
+    }
+
+    function showNoSchedule() {
+        noScheduleNotice.classList.remove('d-none');
+        scheduleNotice.classList.add('d-none');
+    }
+
+    function resetFromDoctor() {
+        doctorSchedule = [];
+        scheduleNotice.classList.add('d-none');
+        noScheduleNotice.classList.add('d-none');
+        dateStep.style.display = 'none';
+        slotStep.style.display = 'none';
+        submitSection.style.display = 'none';
+        slotGrid.innerHTML = '';
+        startTimeHidden.value = '';
+        dateHidden.value = '';
+        submitBtn.disabled = true;
+        if (calendarInstance) { calendarInstance.destroy(); calendarInstance = null; }
+    }
+</script>
+<partial name="_ValidationScriptsPartial" />
 }

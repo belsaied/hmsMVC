@@ -154,12 +154,35 @@
 
                         <li class="nav-header">BILLING</li>
 
-                        <li class="nav-item">
-                            <a asp-controller="Invoices" asp-action="Index"
-                               class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Invoices" ? "active" : "")">
+                        <li class="nav-item has-treeview @(ViewContext.RouteData.Values["controller"]?.ToString()
+                            is "Invoices" or "Payments" or "Insurance" or "Reports" ? "menu-open" : "")">
+                            <a href="#" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString()
+                                is "Invoices" or "Payments" or "Insurance" or "Reports" ? "active" : "")">
                                 <i class="nav-icon fas fa-file-invoice-dollar"></i>
-                                <p>Invoices</p>
+                                <p>Billing <i class="right fas fa-angle-left"></i></p>
                             </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a asp-controller="Invoices" asp-action="Index" class="nav-link
+                                       @(ViewContext.RouteData.Values["controller"]?.ToString() == "Invoices" ? "active" : "")">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Invoices</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a asp-controller="Reports" asp-action="Revenue" class="nav-link
+                                       @(ViewContext.RouteData.Values["controller"]?.ToString() == "Reports" ? "active" : "")">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Revenue Report</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a asp-controller="Reports" asp-action="Outstanding" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Outstanding Invoices</p>
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
 
                     </ul>

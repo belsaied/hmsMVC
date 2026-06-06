@@ -1,0 +1,127 @@
+@model HMS.PL.ViewModels.BillingModule.CreateInvoiceViewModel
+@using HMS.DAL.Models.Enums.BillingEnums
+@{ ViewData["Title"] = "New Invoice"; }
+
+@section PageHeader {
+    <div class="row mb-2">
+        <div class="col-sm-6"><h1 class="m-0">New Invoice</h1></div>
+        <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a asp-action="Index">Invoices</a></li>
+                <li class="breadcrumb-item active">New</li>
+            </ol>
+        </div>
+    </div>
+}
+
+@section Styles {
+<style>
+    :root {
+        --hms-blue: #1a3a5c; --hms-blue-mid: #2563a8; --hms-accent: #0ea5e9;
+        --hms-border: #e2e8f0; --hms-text: #1e293b; --hms-muted: #64748b;
+        --hms-green: #10b981; --hms-red: #ef4444;
+    }
+    .form-card { background:#fff; border-radius:14px; box-shadow:0 2px 12px rgba(0,0,0,.06); border:1px solid var(--hms-border); overflow:hidden; margin-bottom:20px; }
+    .form-card-header { padding:16px 22px; border-bottom:1px solid var(--hms-border); font-weight:700; font-size:.9rem; color:var(--hms-text); background:#f8fafc; display:flex; align-items:center; gap:10px; }
+    .form-card-body { padding:22px; }
+    .form-control { border-radius:10px; border:1.5px solid var(--hms-border); padding:10px 14px; font-size:.9rem; }
+    .form-control:focus { border-color:var(--hms-accent); box-shadow:0 0 0 3px rgba(14,165,233,.12); }
+    .form-label { font-size:.82rem; font-weight:600; color:var(--hms-text); margin-bottom:4px; }
+    .btn-primary-custom { background:#1e40af; border:none; border-radius:9px; padding:11px 24px; font-weight:700; font-size:.9rem; color:white; }
+    .btn-primary-custom:hover { background:#1e3a8a; color:white; }
+</style>
+}
+
+<form asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+
+    <div class="form-card">
+        <div class="form-card-header">
+            <i class="fas fa-file-invoice" style="color:var(--hms-blue-mid)"></i> Invoice Details
+        </div>
+        <div class="form-card-body">
+            <div class="row">
+                <div class="col-md-4 form-group">
+                    <label asp-for="PatientId" class="form-label"></label>
+                    <input asp-for="PatientId" class="form-control" />
+                    <span asp-validation-for="PatientId" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4 form-group">
+                    <label asp-for="AppointmentId" class="form-label"></label>
+                    <input asp-for="AppointmentId" class="form-control" />
+                </div>
+                <div class="col-md-4 form-group">
+                    <label asp-for="DueDate" class="form-label"></label>
+                    <input asp-for="DueDate" type="date" class="form-control" />
+                </div>
+                <div class="col-12 form-group">
+                    <label asp-for="Notes" class="form-label"></label>
+                    <textarea asp-for="Notes" class="form-control" rows="2"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-card">
+        <div class="form-card-header d-flex align-items-center justify-content-between">
+            <div><i class="fas fa-list" style="color:var(--hms-blue-mid)"></i> Initial Line Items <small class="text-muted">(optional)</small></div>
+            <button type="button" id="addRow" class="btn btn-sm btn-outline-info" style="border-radius:8px;font-weight:600">
+                <i class="fas fa-plus mr-1"></i> Add Row
+            </button>
+        </div>
+        <div class="form-card-body p-0">
+            <table class="table table-sm mb-0" id="lineItemTable">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Description</th>
+                        <th>Type</th>
+                        <th style="width:80px">Qty</th>
+                        <th style="width:130px">Unit Price</th>
+                        <th style="width:40px"></th>
+                    </tr>
+                </thead>
+                <tbody id="lineItemBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="d-flex gap-2" style="gap:10px">
+        <button type="submit" class="btn-primary-custom">
+            <i class="fas fa-save mr-1"></i> Create Invoice
+        </button>
+        <a asp-action="Index" class="btn btn-outline-secondary" style="border-radius:9px;font-weight:600">Cancel</a>
+    </div>
+</form>
+
+@section Scripts {
+<script>
+    const types = @Html.Raw(
+        System.Text.Json.JsonSerializer.Serialize(
+            Enum.GetValues<LineItemType>()
+                .Select(v => new { value = (int)v, text = v.ToString() })
+        )
+    );
+    let rowIndex = 0;
+    function typeOptions() {
+        return types.map(t => `<option value="${t.value}">${t.text}</option>`).join('');
+    }
+    function addRow() {
+        const i = rowIndex++;
+        const row = `<tr>
+            <td><input name="LineItems[${i}].Description" class="form-control form-control-sm" required maxlength="300"/></td>
+            <td><select name="LineItems[${i}].LineItemType" class="form-control form-control-sm">${typeOptions()}</select></td>
+            <td><input name="LineItems[${i}].Quantity" type="number" min="1" value="1" class="form-control form-control-sm"/></td>
+            <td><input name="LineItems[${i}].UnitPrice" type="number" step="0.01" min="0.01" class="form-control form-control-sm" required/></td>
+            <td><button type="button" class="btn btn-xs btn-outline-danger removeRow"><i class="fas fa-trash"></i></button></td>
+        </tr>`;
+        document.getElementById('lineItemBody').insertAdjacentHTML('beforeend', row);
+    }
+    document.getElementById('addRow').addEventListener('click', addRow);
+    document.getElementById('lineItemBody').addEventListener('click', e => {
+        if (e.target.closest('.removeRow')) e.target.closest('tr').remove();
+    });
+    addRow();
+</script>
+<partial name="_ValidationScriptsPartial" />
+}

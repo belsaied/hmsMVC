@@ -1,0 +1,291 @@
+@model HMS.BLL.Shared.Dtos.BillingModule.Results.InvoiceResultDto
+@using HMS.DAL.Models.Enums.BillingEnums
+
+@{
+    ViewData["Title"] = $"Invoice {Model.InvoiceNumber}";
+    bool isDraft = Model.Status == InvoiceStatus.Draft;
+    bool canCancel = Model.Status != InvoiceStatus.Cancelled && Model.Status != InvoiceStatus.Paid;
+    bool canPay = Model.Status is InvoiceStatus.Issued or InvoiceStatus.PartiallyPaid or InvoiceStatus.Overdue;
+}
+
+@section PageHeader {
+    <div class="row mb-2">
+        <div class="col-sm-6">
+            <h1 class="m-0">Invoice <small class="text-muted">@Model.InvoiceNumber</small></h1>
+        </div>
+        <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a asp-action="Index">Invoices</a></li>
+                <li class="breadcrumb-item active">@Model.InvoiceNumber</li>
+            </ol>
+        </div>
+    </div>
+}
+
+@section Styles {
+<style>
+    :root {
+        --hms-blue: #1a3a5c; --hms-blue-mid: #2563a8; --hms-accent: #0ea5e9;
+        --hms-border: #e2e8f0; --hms-text: #1e293b; --hms-muted: #64748b;
+        --hms-green: #10b981; --hms-red: #ef4444;
+    }
+    .inv-header { background: linear-gradient(135deg,#1a3a5c,#2563a8); color:#fff; border-radius:16px; padding:28px 32px; }
+    .fin-card { border-radius:14px; background:#f8fafc; border:1px solid var(--hms-border); }
+    .badge-status { border-radius:20px; padding:5px 16px; font-size:.8rem; font-weight:700; }
+    .badge-status.Draft { background:#f1f5f9; color:#475569; }
+    .badge-status.Issued { background:#dbeafe; color:#1d4ed8; }
+    .badge-status.PartiallyPaid { background:#fef3c7; color:#92400e; }
+    .badge-status.Paid { background:#dcfce7; color:#166534; }
+    .badge-status.Overdue { background:#fee2e2; color:#991b1b; }
+    .badge-status.Cancelled { background:#f3f4f6; color:#9ca3af; }
+    .line-item-row:hover { background:#f1f5f9; }
+    .payment-badge { border-radius:20px; padding:3px 10px; font-size:.72rem; font-weight:700; }
+    .detail-card { background:#fff; border-radius:14px; box-shadow:0 2px 12px rgba(0,0,0,.06); border:1px solid var(--hms-border); overflow:hidden; }
+    .detail-card-header { padding:14px 20px; border-bottom:1px solid var(--hms-border); font-weight:700; font-size:.85rem; color:var(--hms-text); background:#f8fafc; }
+    .detail-card-body { padding:20px; }
+    .btn-soft { border-radius:8px; font-weight:600; font-size:.82rem; padding:8px 16px; }
+</style>
+}
+
+<div class="inv-header mb-4 d-flex align-items-center justify-content-between flex-wrap" style="gap:12px">
+    <div>
+        <h2 style="font-size:1.6rem;font-weight:800;margin:0">@Model.InvoiceNumber</h2>
+        <p style="margin:4px 0 0;opacity:.75">
+            Patient: <strong>@Model.PatientName</strong> &middot;
+            Status: <span class="badge-status @Model.Status">@Model.Status</span> &middot;
+            Created @Model.CreatedAt.ToString("dd MMM yyyy")
+        </p>
+    </div>
+    <div class="d-flex gap-2 flex-wrap" style="gap:8px">
+        <a asp-action="DownloadPdf" asp-route-id="@Model.Id" class="btn btn-light btn-sm btn-soft">
+            <i class="fas fa-file-pdf mr-1 text-danger"></i> PDF
+        </a>
+        @if (isDraft)
+        {
+            <a asp-action="Issue" asp-route-id="@Model.Id" class="btn btn-success btn-sm btn-soft">
+                <i class="fas fa-paper-plane mr-1"></i> Issue
+            </a>
+        }
+        @if (canPay)
+        {
+            <a asp-controller="Payments" asp-action="RecordCash" asp-route-invoiceId="@Model.Id"
+               class="btn btn-warning btn-sm btn-soft text-dark">
+                <i class="fas fa-money-bill-wave mr-1"></i> Record Cash
+            </a>
+            <a asp-controller="Payments" asp-action="StripeCheckout" asp-route-invoiceId="@Model.Id"
+               class="btn btn-info btn-sm btn-soft">
+                <i class="fab fa-stripe-s mr-1"></i> Pay by Card
+            </a>
+            <a asp-controller="Insurance" asp-action="Submit" asp-route-invoiceId="@Model.Id"
+               class="btn btn-secondary btn-sm btn-soft">
+                <i class="fas fa-shield-alt mr-1"></i> Submit Claim
+            </a>
+        }
+        @if (canCancel)
+        {
+            <a asp-action="Cancel" asp-route-id="@Model.Id" class="btn btn-outline-danger btn-sm btn-soft">
+                <i class="fas fa-ban mr-1"></i> Cancel
+            </a>
+        }
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="detail-card mb-4">
+            <div class="detail-card-header">Line Items</div>
+            <div class="detail-card-body p-0">
+                <table class="table table-sm mb-0">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Description</th>
+                            <th>Type</th>
+                            <th class="text-center">Qty</th>
+                            <th class="text-right">Unit Price</th>
+                            <th class="text-right">Total</th>
+                            @if (isDraft) { <th></th> }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var li in Model.LineItems)
+                        {
+                            <tr class="line-item-row">
+                                <td>@li.Description</td>
+                                <td><span class="badge badge-light">@li.LineItemType</span></td>
+                                <td class="text-center">@li.Quantity</td>
+                                <td class="text-right">@li.UnitPrice.ToString("C")</td>
+                                <td class="text-right font-weight-bold">@li.Total.ToString("C")</td>
+                                @if (isDraft)
+                                {
+                                    <td>
+                                        <form asp-action="RemoveLineItem" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="invoiceId" value="@Model.Id" />
+                                            <input type="hidden" name="lineItemId" value="@li.Id" />
+                                            <button class="btn btn-xs btn-outline-danger" onclick="return confirm('Remove this line item?')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                }
+                            </tr>
+                        }
+                        @if (!Model.LineItems.Any())
+                        {
+                            <tr><td colspan="6" class="text-center text-muted py-3">No line items yet.</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        @if (isDraft)
+        {
+            <div class="detail-card mb-4">
+                <div class="detail-card-header">Add Line Item</div>
+                <div class="detail-card-body">
+                    <form asp-action="AddLineItem" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="invoiceId" value="@Model.Id" />
+                        <div class="row">
+                            <div class="col-md-4 form-group">
+                                <label class="small font-weight-bold">Description</label>
+                                <input name="Description" class="form-control form-control-sm" required maxlength="300" />
+                            </div>
+                            <div class="col-md-3 form-group">
+                                <label class="small font-weight-bold">Type</label>
+                                <select name="LineItemType" class="form-control form-control-sm">
+                                    @foreach (var t in Enum.GetValues<LineItemType>())
+                                    {
+                                        <option value="@((int)t)">@t</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-1 form-group">
+                                <label class="small font-weight-bold">Qty</label>
+                                <input name="Quantity" type="number" min="1" value="1" class="form-control form-control-sm" />
+                            </div>
+                            <div class="col-md-2 form-group">
+                                <label class="small font-weight-bold">Unit Price</label>
+                                <input name="UnitPrice" type="number" step="0.01" min="0.01" class="form-control form-control-sm" required />
+                            </div>
+                            <div class="col-md-2 form-group d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary btn-sm btn-block">
+                                    <i class="fas fa-plus mr-1"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        }
+
+        @if (Model.Payments.Any())
+        {
+            <div class="detail-card">
+                <div class="detail-card-header">Payment History</div>
+                <div class="detail-card-body p-0">
+                    <table class="table table-sm mb-0">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>Method</th>
+                                <th>Status</th>
+                                <th class="text-right">Amount</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var p in Model.Payments)
+                            {
+                                <tr>
+                                    <td>@(p.PaidAt?.ToString("dd MMM yyyy HH:mm") ?? p.CreatedAt.ToString("dd MMM yyyy"))</td>
+                                    <td>@p.PaymentMethod</td>
+                                    <td>
+                                        <span class="payment-badge badge @(p.Status.ToString() == "Succeeded" ? "badge-success" : p.Status.ToString() == "Refunded" ? "badge-warning" : p.Status.ToString() == "Failed" ? "badge-danger" : "badge-secondary")">
+                                            @p.Status
+                                        </span>
+                                    </td>
+                                    <td class="text-right">@p.Amount.ToString("C")</td>
+                                    <td>
+                                        @if (p.Status.ToString() == "Succeeded")
+                                        {
+                                            <a asp-controller="Payments" asp-action="Refund"
+                                               asp-route-paymentId="@p.Id" asp-route-invoiceId="@Model.Id"
+                                               class="btn btn-xs btn-outline-warning">Refund</a>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="col-lg-4">
+        <div class="fin-card p-4 mb-4">
+            <h5 class="font-weight-bold mb-3" style="color:var(--hms-text)">Financial Summary</h5>
+            <div class="d-flex justify-content-between mb-2">
+                <span style="color:var(--hms-muted)">Sub-Total</span>
+                <strong>@Model.SubTotal.ToString("C")</strong>
+            </div>
+            @if (Model.DiscountAmount > 0 || Model.DiscountPercent > 0)
+            {
+                <div class="d-flex justify-content-between mb-2" style="color:var(--hms-green)">
+                    <span>Discount (@Model.DiscountPercent%)</span>
+                    <strong>-@Model.DiscountAmount.ToString("C")</strong>
+                </div>
+            }
+            @if (Model.TaxPercent > 0)
+            {
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Tax (@Model.TaxPercent%)</span>
+                    <strong>@Model.TaxAmount.ToString("C")</strong>
+                </div>
+            }
+            <hr />
+            <div class="d-flex justify-content-between mb-2">
+                <span class="font-weight-bold">Total</span>
+                <strong style="font-size:1.1rem">@Model.TotalAmount.ToString("C")</strong>
+            </div>
+            <div class="d-flex justify-content-between mb-2" style="color:var(--hms-green)">
+                <span>Paid</span>
+                <strong>@Model.PaidAmount.ToString("C")</strong>
+            </div>
+            <div class="d-flex justify-content-between @(Model.OutstandingBalance > 0 ? "text-danger" : "text-success")">
+                <span class="font-weight-bold">Outstanding</span>
+                <strong style="font-size:1.15rem">@Model.OutstandingBalance.ToString("C")</strong>
+            </div>
+            @if (Model.DueDate.HasValue)
+            {
+                <hr />
+                <div class="d-flex justify-content-between">
+                    <span style="color:var(--hms-muted)">Due Date</span>
+                    <span class="@(Model.DueDate < DateOnly.FromDateTime(DateTime.Today) && Model.OutstandingBalance > 0 ? "text-danger font-weight-bold" : "")">
+                        @Model.DueDate.Value.ToString("dd MMM yyyy")
+                    </span>
+                </div>
+            }
+        </div>
+
+        <div class="detail-card">
+            <div class="detail-card-header">Insurance</div>
+            <div class="detail-card-body text-center">
+                <a asp-controller="Insurance" asp-action="ClaimDetails" asp-route-invoiceId="@Model.Id"
+                   class="btn btn-outline-secondary btn-sm btn-block mb-2 btn-soft">
+                    <i class="fas fa-shield-alt mr-1"></i> View Claim
+                </a>
+                @if (canPay)
+                {
+                    <a asp-controller="Insurance" asp-action="Submit" asp-route-invoiceId="@Model.Id"
+                       class="btn btn-secondary btn-sm btn-block btn-soft">
+                        <i class="fas fa-upload mr-1"></i> Submit Claim
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</div>

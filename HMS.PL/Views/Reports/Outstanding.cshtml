@@ -1,0 +1,102 @@
+@model IEnumerable<HMS.BLL.Shared.Dtos.BillingModule.Results.InvoiceSummaryResultDto>
+@{ ViewData["Title"] = "Outstanding Invoices"; }
+
+@section PageHeader {
+    <div class="row mb-2">
+        <div class="col-sm-6"><h1 class="m-0">Outstanding Invoices</h1></div>
+        <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a asp-action="Revenue">Revenue Report</a></li>
+                <li class="breadcrumb-item active">Outstanding</li>
+            </ol>
+        </div>
+    </div>
+}
+
+@section Styles {
+<style>
+    :root { --hms-blue: #1a3a5c; --hms-blue-mid: #2563a8; --hms-border: #e2e8f0; --hms-text: #1e293b; --hms-muted: #64748b; --hms-green: #10b981; --hms-red: #ef4444; }
+    .page-header-card { background: linear-gradient(135deg,#d97706 0%,#f59e0b 100%); color:white; padding:28px 32px; border-radius:16px; margin-bottom:24px; box-shadow:0 8px 32px rgba(245,158,11,0.18); position:relative; overflow:hidden; }
+    .page-header-card::before { content:''; position:absolute; top:-40px; right:-40px; width:160px; height:160px; background:rgba(255,255,255,0.07); border-radius:50%; }
+    .page-header-card::after { content:''; position:absolute; bottom:-60px; right:80px; width:220px; height:220px; background:rgba(255,255,255,0.04); border-radius:50%; }
+    .header-title { font-size:1.75rem; font-weight:700; letter-spacing:-0.5px; margin:0; position:relative; z-index:1; }
+    .header-subtitle { font-size:.875rem; opacity:.75; margin-top:4px; position:relative; z-index:1; }
+    .table-card { background:#fff; border-radius:14px; overflow:hidden; box-shadow:0 2px 16px rgba(0,0,0,.07); border:1px solid var(--hms-border); }
+    .table-card thead th { background:#d97706; color:white; font-weight:600; font-size:.8rem; text-transform:uppercase; letter-spacing:.06em; padding:14px 16px; border:none; }
+    .table-card tbody tr { transition:background .15s; border-bottom:1px solid var(--hms-border); }
+    .table-card tbody tr:hover { background:#fffbeb; }
+    .table-card tbody td { padding:13px 16px; vertical-align:middle; color:var(--hms-text); font-size:.9rem; border:none; }
+    .empty-state { text-align:center; padding:60px 20px; color:var(--hms-muted); }
+    .empty-state i { font-size:3.5rem; opacity:.2; margin-bottom:16px; display:block; }
+</style>
+}
+
+<div class="page-header-card">
+    <div style="position:relative;z-index:1">
+        <h2 class="header-title"><i class="fas fa-exclamation-triangle mr-2"></i> Outstanding Invoices</h2>
+        <p class="header-subtitle">Invoices awaiting payment</p>
+    </div>
+</div>
+
+<div class="table-card">
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <i class="fas fa-check-circle text-success"></i>
+            <p style="font-size:1rem;font-weight:600;color:var(--hms-text)">All invoices are fully settled!</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Invoice #</th>
+                        <th>Patient</th>
+                        <th>Status</th>
+                        <th class="text-right">Total</th>
+                        <th class="text-right">Outstanding</th>
+                        <th>Due Date</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var inv in Model)
+                    {
+                        bool overdue = inv.DueDate < DateOnly.FromDateTime(DateTime.Today);
+                        <tr class="@(overdue ? "table-danger" : "")">
+                            <td><strong>@inv.InvoiceNumber</strong></td>
+                            <td>@inv.PatientName</td>
+                            <td>
+                                <span class="badge @(inv.Status.ToString() == "Overdue" ? "badge-danger" : "badge-warning")">
+                                    @inv.Status
+                                </span>
+                            </td>
+                            <td class="text-right">@inv.TotalAmount.ToString("C")</td>
+                            <td class="text-right font-weight-bold text-danger">@inv.OutstandingBalance.ToString("C")</td>
+                            <td class="@(overdue ? "text-danger font-weight-bold" : "")">
+                                @(inv.DueDate?.ToString("dd MMM yyyy") ?? "—")
+                                @if (overdue) { <span class="badge badge-danger ml-1">Overdue</span> }
+                            </td>
+                            <td>
+                                <a asp-controller="Invoices" asp-action="Details" asp-route-id="@inv.Id"
+                                   class="btn btn-xs btn-outline-primary" style="border-radius:7px">View</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot style="background:#f8fafc">
+                    <tr class="font-weight-bold">
+                        <td colspan="4" class="text-right">Total Outstanding:</td>
+                        <td class="text-right text-danger">
+                            @Model.Sum(i => i.OutstandingBalance).ToString("C")
+                        </td>
+                        <td colspan="2"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    }
+</div>

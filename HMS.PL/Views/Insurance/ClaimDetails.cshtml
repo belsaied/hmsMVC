@@ -1,0 +1,79 @@
+@model HMS.BLL.Shared.Dtos.BillingModule.Results.ClaimResultDto
+@using HMS.DAL.Models.Enums.BillingEnums
+@{ ViewData["Title"] = "Insurance Claim"; }
+
+@section PageHeader {
+    <div class="row mb-2">
+        <div class="col-sm-6"><h1 class="m-0">Insurance Claim</h1></div>
+        <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a asp-controller="Invoices" asp-action="Index">Invoices</a></li>
+                <li class="breadcrumb-item active">Claim</li>
+            </ol>
+        </div>
+    </div>
+}
+
+@section Styles {
+<style>
+    :root { --hms-blue: #1a3a5c; --hms-blue-mid: #2563a8; --hms-border: #e2e8f0; --hms-text: #1e293b; --hms-muted: #64748b; }
+    .detail-card { background:#fff; border-radius:14px; box-shadow:0 2px 12px rgba(0,0,0,.06); border:1px solid var(--hms-border); overflow:hidden; }
+    .detail-card-header { padding:16px 22px; border-bottom:1px solid var(--hms-border); font-weight:700; font-size:.9rem; background:#f8fafc; display:flex; align-items:center; justify-content:space-between; }
+    .detail-card-body { padding:22px; }
+    .dl-term { font-weight:600; color:var(--hms-muted); }
+    .dl-desc { color:var(--hms-text); }
+</style>
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="detail-card">
+            <div class="detail-card-header">
+                <span><i class="fas fa-shield-alt mr-2 text-secondary"></i> Claim Details</span>
+                <div style="gap:6px" class="d-flex">
+                    @if (Model.ClaimStatus == ClaimStatus.Rejected)
+                    {
+                        <a asp-action="Resubmit"
+                           asp-route-claimId="@Model.Id"
+                           asp-route-invoiceId="@Model.InvoiceId"
+                           class="btn btn-sm btn-outline-warning" style="border-radius:8px;font-weight:600">Resubmit</a>
+                    }
+                    <a asp-action="UpdateStatus"
+                       asp-route-claimId="@Model.Id"
+                       asp-route-invoiceId="@Model.InvoiceId"
+                       class="btn btn-sm btn-outline-primary" style="border-radius:8px;font-weight:600">Update Status</a>
+                </div>
+            </div>
+            <div class="detail-card-body">
+                <dl class="row">
+                    <dt class="col-sm-4 dl-term">Status</dt>
+                    <dd class="col-sm-8">
+                        <span class="badge @(Model.ClaimStatus == ClaimStatus.Approved ? "badge-success" : Model.ClaimStatus == ClaimStatus.Rejected ? "badge-danger" : Model.ClaimStatus == ClaimStatus.Submitted ? "badge-info" : "badge-warning")">
+                            @Model.ClaimStatus
+                        </span>
+                    </dd>
+                    <dt class="col-sm-4 dl-term">Provider</dt><dd class="col-sm-8 dl-desc">@Model.InsuranceProvider</dd>
+                    <dt class="col-sm-4 dl-term">Policy #</dt><dd class="col-sm-8 dl-desc">@Model.PolicyNumber</dd>
+                    <dt class="col-sm-4 dl-term">Membership #</dt><dd class="col-sm-8 dl-desc">@Model.MembershipNumber</dd>
+                    <dt class="col-sm-4 dl-term">Claimed Amount</dt><dd class="col-sm-8 dl-desc">@Model.ClaimedAmount.ToString("C")</dd>
+                    <dt class="col-sm-4 dl-term">Approved Amount</dt><dd class="col-sm-8" style="color:var(--hms-green);font-weight:700">@Model.ApprovedAmount.ToString("C")</dd>
+                    <dt class="col-sm-4 dl-term">Patient Copayment</dt><dd class="col-sm-8" style="color:#ef4444;font-weight:700">@Model.PatientCopayment.ToString("C")</dd>
+                    @if (!string.IsNullOrWhiteSpace(Model.RejectionReason))
+                    {
+                        <dt class="col-sm-4 dl-term">Rejection Reason</dt>
+                        <dd class="col-sm-8 text-danger">@Model.RejectionReason</dd>
+                    }
+                    <dt class="col-sm-4 dl-term">Submitted</dt>
+                    <dd class="col-sm-8 dl-desc">@(Model.SubmittedAt?.ToString("dd MMM yyyy HH:mm") ?? "—")</dd>
+                    <dt class="col-sm-4 dl-term">Resolved</dt>
+                    <dd class="col-sm-8 dl-desc">@(Model.ResolvedAt?.ToString("dd MMM yyyy HH:mm") ?? "—")</dd>
+                </dl>
+                @if (!string.IsNullOrWhiteSpace(Model.Notes))
+                {
+                    <div class="alert alert-light mt-2">@Model.Notes</div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

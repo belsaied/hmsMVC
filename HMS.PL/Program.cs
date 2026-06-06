@@ -54,7 +54,20 @@ app.MapHub<AppointmentHub>("/hubs/appointments");
 app.MapHub<WardHub>("/hubs/beds");
 app.MapHub<NotificationHub>("/hubs/notifications");
 
-// ── MVC Route ─────────────────────────────────────────────────────────────
+// ── Raw body buffering for Stripe webhook ────────────────────────────────
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.StartsWithSegments("/Payments/StripeWebhook"))
+        context.Request.EnableBuffering();
+    await next();
+});
+
+// ── MVC Routes ────────────────────────────────────────────────────────────
+app.MapControllerRoute(
+    name: "stripe-webhook",
+    pattern: "Payments/StripeWebhook",
+    defaults: new { controller = "Payments", action = "StripeWebhook" });
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Dashboard}/{action=Index}/{id?}");
