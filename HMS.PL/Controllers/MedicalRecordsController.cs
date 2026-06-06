@@ -212,14 +212,16 @@ namespace HMS.PL.Controllers
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.RecordId = id;
+                await PopulateEditViewBags(id);
                 return View(dto);
             }
 
             try
             {
                 var requestingDoctorId = 0;
-                int.TryParse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value, out requestingDoctorId);
+                var doctorIdClaim = User.FindFirst("doctor_id")?.Value;
+                if (!string.IsNullOrEmpty(doctorIdClaim))
+                    int.TryParse(doctorIdClaim, out requestingDoctorId);
 
                 var updated = await _services.MedicalRecordService.UpdateMedicalRecordAsync(id, dto, requestingDoctorId);
                 TempData["Success"] = "Medical record updated successfully.";
@@ -238,8 +240,22 @@ namespace HMS.PL.Controllers
                 TempData["Error"] = ex.Message;
             }
 
+            return RedirectToAction(nameof(Edit), new { id });
+        }
+
+        private async Task PopulateEditViewBags(int id)
+        {
             ViewBag.RecordId = id;
-            return View(dto);
+            try
+            {
+                var record = await _services.MedicalRecordService.GetMedicalRecordByIdAsync(id);
+                ViewBag.PatientName = record.PatientName;
+                ViewBag.DoctorName = record.DoctorName;
+                ViewBag.VisitDate = record.VisitDate;
+            }
+            catch
+            {
+            }
         }
 
         public async Task<IActionResult> PatientRecords(int patientId, int pageIndex = 1)
@@ -330,7 +346,7 @@ namespace HMS.PL.Controllers
             {
                 TempData["Error"] = ex.Message;
             }
-            return RedirectToAction(nameof(Details), new { id = recordId });
+            return RedirectToAction(nameof(Prescriptions), new { id = recordId });
         }
 
         [HttpPost]
@@ -346,7 +362,51 @@ namespace HMS.PL.Controllers
             {
                 TempData["Error"] = ex.Message;
             }
-            return RedirectToAction(nameof(Details), new { id = recordId });
+            return RedirectToAction(nameof(Prescriptions), new { id = recordId });
+        }
+
+        public async Task<IActionResult> Prescriptions(int id)
+        {
+            try
+            {
+                var record = await _services.MedicalRecordService.GetMedicalRecordByIdAsync(id);
+                ViewBag.RecordId = id;
+                ViewBag.PriorityList = new SelectList(Enum.GetNames(typeof(LabOrderPriority)));
+                ViewBag.StatusList = new SelectList(Enum.GetNames(typeof(LabOrderStatus)));
+                return View(record);
+            }
+            catch (NotFoundException)
+            {
+                TempData["Error"] = "Medical record not found.";
+                return RedirectToAction("Index", "Patients");
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+                return RedirectToAction("Index", "Patients");
+            }
+        }
+
+        public async Task<IActionResult> LabOrders(int id)
+        {
+            try
+            {
+                var record = await _services.MedicalRecordService.GetMedicalRecordByIdAsync(id);
+                ViewBag.RecordId = id;
+                ViewBag.PriorityList = new SelectList(Enum.GetNames(typeof(LabOrderPriority)));
+                ViewBag.StatusList = new SelectList(Enum.GetNames(typeof(LabOrderStatus)));
+                return View(record);
+            }
+            catch (NotFoundException)
+            {
+                TempData["Error"] = "Medical record not found.";
+                return RedirectToAction("Index", "Patients");
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+                return RedirectToAction("Index", "Patients");
+            }
         }
 
         public async Task<IActionResult> DownloadPrescriptionPdf(int prescriptionId, int patientId)
@@ -376,7 +436,7 @@ namespace HMS.PL.Controllers
             {
                 TempData["Error"] = ex.Message;
             }
-            return RedirectToAction(nameof(Details), new { id = recordId });
+            return RedirectToAction(nameof(LabOrders), new { id = recordId });
         }
 
         [HttpPost]
@@ -392,7 +452,7 @@ namespace HMS.PL.Controllers
             {
                 TempData["Error"] = ex.Message;
             }
-            return RedirectToAction(nameof(Details), new { id = recordId });
+            return RedirectToAction(nameof(LabOrders), new { id = recordId });
         }
 
         [HttpPost]
@@ -408,7 +468,7 @@ namespace HMS.PL.Controllers
             {
                 TempData["Error"] = ex.Message;
             }
-            return RedirectToAction(nameof(Details), new { id = recordId });
+            return RedirectToAction(nameof(LabOrders), new { id = recordId });
         }
     }
 }

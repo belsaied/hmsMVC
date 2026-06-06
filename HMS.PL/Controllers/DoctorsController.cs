@@ -1,4 +1,5 @@
-﻿using HMS.BLL.ServicesAbstraction.Contracts;
+﻿using HMS.BLL.Services.Exceptions;
+using HMS.BLL.ServicesAbstraction.Contracts;
 using HMS.BLL.Shared;
 using HMS.BLL.Shared.Dtos.DoctorModule.DoctorDtos;
 using HMS.BLL.Shared.Parameters;
@@ -282,6 +283,29 @@ namespace HMS.PL.Controllers
                 TempData["Error"] = ex.Message;
             }
             return RedirectToAction(nameof(Schedule), new { id = doctorId });
+        }
+
+        // GET: /Doctors/Patients/5
+        public async Task<IActionResult> Patients(int id)
+        {
+            try
+            {
+                var doctor = await _services.DoctorService.GetDoctorByIdAsync(id);
+                var patients = await _services.AppointmentService.GetDoctorPatientsAsync(id);
+                ViewBag.DoctorId = id;
+                ViewBag.DoctorName = doctor.FullName;
+                return View(patients);
+            }
+            catch (NotFoundException)
+            {
+                TempData["Error"] = "Doctor not found.";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+                return RedirectToAction(nameof(Index));
+            }
         }
 
         // GET: /Doctors/GetAvailableDoctors?date=2026-06-06

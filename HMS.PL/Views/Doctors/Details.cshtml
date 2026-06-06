@@ -180,6 +180,7 @@
                 <li class="nav-item"><a class="nav-link active" href="#tab-info"><i class="fas fa-info-circle mr-1"></i> Personal Info</a></li>
                 <li class="nav-item"><a class="nav-link" asp-action="Qualifications" asp-route-id="@Model.Id"><i class="fas fa-graduation-cap mr-1"></i> Qualifications @(Model.Qualifications.Any() ? $"({Model.Qualifications.Count()})" : "")</a></li>
                 <li class="nav-item"><a class="nav-link" asp-action="Schedule" asp-route-id="@Model.Id"><i class="fas fa-clock mr-1"></i> Schedule @(Model.AvailabilitySchedules.Any() ? $"({Model.AvailabilitySchedules.Count()})" : "")</a></li>
+                <li class="nav-item"><a class="nav-link" asp-action="Patients" asp-route-id="@Model.Id"><i class="fas fa-users mr-1"></i> Patients</a></li>
             </ul>
             <div class="tab-content">
                 <div class="tab-pane active" id="tab-info">

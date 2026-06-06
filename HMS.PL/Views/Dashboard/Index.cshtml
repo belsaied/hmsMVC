@@ -1,5 +1,8 @@
 ﻿@{
     ViewData["Title"] = "Dashboard";
+    var patientCount = ViewBag.PatientCount ?? 0;
+    var doctorCount = ViewBag.DoctorCount ?? 0;
+    var appointmentCount = ViewBag.AppointmentCount ?? 0;
 }
 
 @section Styles {
@@ -549,17 +552,12 @@
             requestAnimationFrame(step);
         }
 
-        // Simulate dashboard data (in real scenario these come from controller ViewBag or API)
+        // Dashboard data from server
         document.addEventListener('DOMContentLoaded', function () {
             setTimeout(() => {
-                animateCounter(document.getElementById('kpiPatients'), 5);
-                animateCounter(document.getElementById('kpiDoctors'), 14);
-                animateCounter(document.getElementById('kpiAppointments'), 3);
-                animateCounter(document.getElementById('kpiBeds'), 12);
-                animateCounter(document.getElementById('modDepts'), 15);
-                animateCounter(document.getElementById('modWards'), 3);
-                animateCounter(document.getElementById('modInvoices'), 0);
-                animateCounter(document.getElementById('modBeds'), 18);
+                animateCounter(document.getElementById('kpiPatients'), @patientCount);
+                animateCounter(document.getElementById('kpiDoctors'), @doctorCount);
+                animateCounter(document.getElementById('kpiAppointments'), @appointmentCount);
             }, 300);
 
             // Ward occupancy placeholder

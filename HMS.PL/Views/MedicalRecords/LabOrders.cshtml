@@ -1,0 +1,274 @@
+@using HMS.BLL.Shared.Dtos.MedicalRecordsDto
+@model MedicalRecordResultDto
+
+@{
+ViewData["Title"] = "Lab Orders · Record #" + Model.Id;
+}
+
+@section Styles {
+<style>
+:root {
+--blue: #1e40af; --blue-light: #dbeafe; --blue-bg: #eff6ff;
+--red: #dc2626; --red-light: #fee2e2; --red-bg: #fef2f2;
+--green: #059669; --green-light: #d1fae5; --green-bg: #ecfdf5;
+--purple: #7c3aed; --purple-light: #ede9fe; --purple-bg: #f5f3ff;
+--amber: #d97706; --amber-light: #fef3c7;
+--teal: #0f766e; --teal-light: #ccfbf1;
+--text: #1e293b; --text-muted: #64748b; --border: #e2e8f0;
+--hms-primary: #3b82f6;
+}
+
+.clinical-card { background: white; border-radius: 16px; border: 1px solid var(--border); overflow: hidden; margin-bottom: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.05); }
+
+.info-sidebar { background: white; border-radius: 16px; border: 1px solid var(--border); overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.05); }
+.section { padding: 16px 18px; border-bottom: 1px solid var(--border); }
+.section:last-child { border-bottom: none; }
+.section-title { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+.info-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.info-row:last-child { margin-bottom: 0; }
+.info-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; flex-shrink: 0; }
+.info-label { font-size: 0.7rem; color: var(--text-muted); }
+.info-value { font-size: 0.88rem; font-weight: 600; color: var(--text); }
+
+.page-header-card {
+background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+color: white; padding: 28px 32px; border-radius: 16px; margin-bottom: 24px;
+display: flex; align-items: center; justify-content: space-between;
+box-shadow: 0 8px 32px rgba(5,150,105,0.18); position: relative; overflow: hidden;
+}
+.page-header-card::before { content: ''; position: absolute; top: -40px; right: -40px; width: 160px; height: 160px; background: rgba(255,255,255,0.07); border-radius: 50%; }
+.page-title { font-size: 1.5rem; font-weight: 700; margin: 0; position: relative; z-index: 1; }
+.page-subtitle { font-size: 0.85rem; opacity: 0.75; margin-top: 4px; position: relative; z-index: 1; }
+
+.lab-list { display: flex; flex-direction: column; gap: 10px; }
+.lab-item { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; }
+.lab-item .lab-top { display: flex; justify-content: space-between; align-items: flex-start; }
+.badge-lab { padding: 2px 10px; border-radius: 10px; font-size: 0.72rem; font-weight: 600; }
+.badge-lab-pending { background: var(--amber-light); color: var(--amber); }
+.badge-lab-progress { background: var(--blue-light); color: var(--blue); }
+.badge-lab-completed { background: var(--green-light); color: var(--green); }
+.badge-lab-cancelled { background: #f1f5f9; color: #475569; }
+.badge-priority { font-size: 0.68rem; font-weight: 700; }
+.badge-priority-urgent { color: var(--red); }
+.badge-priority-routine { color: var(--text-muted); }
+
+.result-panel { background: var(--green-bg); border: 1px solid #a7f3d0; border-radius: 10px; padding: 12px 16px; margin-top: 10px; }
+.result-panel.abnormal { background: var(--red-bg); border-color: #fecaca; }
+
+.add-section { background: #f8faff; border: 1px dashed #bfdbfe; border-radius: 12px; padding: 20px; margin-top: 16px; }
+.add-section-title { font-size: 0.8rem; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; color: var(--green); }
+</style>
+}
+
+<div class="page-header-card">
+<div>
+<h3 class="page-title"><i class="fas fa-flask mr-2"></i> Lab Orders · Record #@Model.Id</h3>
+<p class="page-subtitle">@Model.VisitDate.ToString("dddd, dd MMM yyyy") · @Model.PatientName · Dr. @Model.DoctorName</p>
+</div>
+<div style="position:relative;z-index:1">
+<a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-sm" style="background:rgba(255,255,255,0.2);color:white;border:none;border-radius:10px;font-weight:600">
+<i class="fas fa-arrow-left mr-1"></i> Back to Record
+</a>
+</div>
+</div>
+
+<div class="row">
+<div class="col-md-4">
+<div class="info-sidebar mb-4">
+<div class="section">
+<div class="section-title"><i class="fas fa-calendar-alt" style="color:var(--blue)"></i> Visit</div>
+<div class="info-row">
+<div class="info-icon" style="background:var(--blue-light);color:var(--blue)"><i class="fas fa-calendar-day"></i></div>
+<div><div class="info-label">Visit Date</div><div class="info-value">@Model.VisitDate.ToString("dd MMM yyyy")</div></div>
+</div>
+<div class="info-row">
+<div class="info-icon" style="background:var(--blue-light);color:var(--blue)"><i class="fas fa-clock"></i></div>
+<div><div class="info-label">Recorded</div><div class="info-value">@Model.RecordedAt.ToString("dd MMM yyyy · HH:mm")</div></div>
+</div>
+</div>
+<div class="section">
+<div class="section-title"><i class="fas fa-users" style="color:var(--teal)"></i> People</div>
+<div class="info-row">
+<div class="info-icon" style="background:var(--blue-light);color:var(--blue)"><i class="fas fa-user-injured"></i></div>
+<div><div class="info-label">Patient</div><div class="info-value">@Model.PatientName</div></div>
+</div>
+<div class="info-row">
+<div class="info-icon" style="background:var(--teal-light);color:var(--teal)"><i class="fas fa-user-md"></i></div>
+<div><div class="info-label">Doctor</div><div class="info-value">@Model.DoctorName</div></div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="col-md-8">
+<div class="clinical-card">
+<div style="padding:20px">
+@if (Model.LabOrders.Any())
+{
+<div class="lab-list">
+@foreach (var order in Model.LabOrders)
+{
+var lsClass = order.Status switch
+{
+"Pending" => "badge-lab-pending",
+"InProgress" or "In Progress" => "badge-lab-progress",
+"Completed" => "badge-lab-completed",
+"Cancelled" => "badge-lab-cancelled",
+_ => "badge-lab-pending"
+};
+var pClass = order.Priority == "Urgent" || order.Priority == "STAT" ? "badge-priority-urgent" : "badge-priority-routine";
+<div class="lab-item">
+<div class="lab-top">
+<div style="flex:1">
+<div style="display:flex;align-items:center;gap:8px">
+<i class="fas fa-flask" style="color:var(--green)"></i>
+<span style="font-weight:700">@order.TestName</span>
+@if (!string.IsNullOrEmpty(order.TestCode))
+{
+<span style="font-size:0.68rem;color:var(--text-muted);font-family:monospace">@order.TestCode</span>
+}
+<span class="badge-priority @pClass">@order.Priority</span>
+</div>
+@if (!string.IsNullOrEmpty(order.Notes))
+{
+<div style="font-size:0.82rem;color:var(--text-muted);margin-top:2px;margin-left:24px">
+<i class="fas fa-sticky-note mr-1"></i>@order.Notes
+</div>
+}
+</div>
+<div style="text-align:right;flex-shrink:0">
+<span class="badge-lab @lsClass">@order.Status</span>
+<div style="font-size:0.68rem;color:var(--text-muted);margin-top:2px">@order.OrderedAt.ToString("dd MMM · HH:mm")</div>
+</div>
+</div>
+
+@if (order.Result != null)
+{
+<div class="result-panel @(order.Result.IsAbnormal ? "abnormal" : "")">
+<div style="display:flex;justify-content:space-between;align-items:center">
+<div>
+<span style="font-weight:600;font-size:0.88rem">@order.Result.ResultText</span>
+@if (!string.IsNullOrEmpty(order.Result.NormalRange))
+{
+<span style="font-size:0.75rem;color:var(--text-muted)"> (normal: @order.Result.NormalRange)</span>
+}
+</div>
+@if (order.Result.IsAbnormal)
+{
+<span style="color:var(--red);font-size:0.72rem;font-weight:700">
+<i class="fas fa-exclamation-triangle mr-1"></i> Abnormal
+</span>
+}
+</div>
+<div style="font-size:0.72rem;color:var(--text-muted);margin-top:4px">
+@order.Result.PerformedBy · @order.Result.PerformedAt.ToString("dd MMM · HH:mm")
+</div>
+</div>
+}
+else if (order.Status != "Cancelled")
+{
+<div class="add-section mt-2" style="padding:12px">
+<div style="font-size:0.78rem;font-weight:700;margin-bottom:8px;color:var(--green)">
+<i class="fas fa-flask mr-1"></i> Add Result for @order.TestName
+</div>
+<form asp-action="AddLabResult" asp-route-orderId="@order.Id" asp-route-recordId="@Model.Id" method="post">
+@Html.AntiForgeryToken()
+<div class="row">
+<div class="col-md-4 mb-2">
+<input name="ResultText" type="text" class="form-control form-control-sm" style="border-radius:8px;border-color:var(--border)" placeholder="Result" required />
+</div>
+<div class="col-md-3 mb-2">
+<input name="NormalRange" type="text" class="form-control form-control-sm" style="border-radius:8px;border-color:var(--border)" placeholder="Normal range" />
+</div>
+<div class="col-md-3 mb-2">
+<input name="PerformedBy" type="text" class="form-control form-control-sm" style="border-radius:8px;border-color:var(--border)" placeholder="Performed by" required />
+</div>
+<div class="col-md-3 mb-2">
+<input name="PerformedAt" type="datetime-local" class="form-control form-control-sm" style="border-radius:8px;border-color:var(--border)" required />
+</div>
+<div class="col-md-3 mb-2">
+<input name="ReportedAt" type="datetime-local" class="form-control form-control-sm" style="border-radius:8px;border-color:var(--border)" required />
+</div>
+<div class="col-md-3 mb-2 d-flex align-items-end">
+<div class="form-check">
+<input name="IsAbnormal" type="checkbox" class="form-check-input" value="true" id="ab-@order.Id" />
+<label class="form-check-label" for="ab-@order.Id" style="font-size:0.8rem">Abnormal</label>
+<input name="IsAbnormal" type="hidden" value="false" />
+</div>
+</div>
+<div class="col-md-3 mb-2 d-flex align-items-end">
+<button type="submit" class="btn btn-sm" style="background:var(--green);color:white;border:none;border-radius:8px;font-weight:600;padding:4px 14px">
+<i class="fas fa-save mr-1"></i> Save
+</button>
+</div>
+</div>
+</form>
+</div>
+}
+
+@if (order.Status == "Pending" || order.Status == "InProgress" || order.Status == "In Progress")
+{
+<div style="margin-top:8px;display:flex;gap:6px">
+<form asp-action="UpdateLabOrderStatus" asp-route-orderId="@order.Id" asp-route-recordId="@Model.Id" method="post" class="d-inline">
+@Html.AntiForgeryToken()
+<input name="NewStatus" type="hidden" value="@(order.Status == "Pending" ? "InProgress" : "Completed")" />
+<button type="submit" class="btn btn-sm" style="background:var(--blue-light);color:var(--blue);border:none;border-radius:8px;font-size:0.72rem;font-weight:600;padding:3px 12px">
+<i class="fas fa-arrow-right mr-1"></i> @(order.Status == "Pending" ? "Mark In Progress" : "Mark Completed")
+</button>
+</form>
+<form asp-action="UpdateLabOrderStatus" asp-route-orderId="@order.Id" asp-route-recordId="@Model.Id" method="post" class="d-inline" onsubmit="return confirm('Cancel this lab order?')">
+@Html.AntiForgeryToken()
+<input name="NewStatus" type="hidden" value="Cancelled" />
+<button type="submit" class="btn btn-sm" style="background:var(--red-light);color:var(--red);border:none;border-radius:8px;font-size:0.72rem;font-weight:600;padding:3px 12px">
+<i class="fas fa-ban mr-1"></i> Cancel
+</button>
+</form>
+</div>
+}
+</div>
+}
+</div>
+}
+else
+{
+<div style="text-align:center;padding:24px;color:var(--text-muted)">
+<i class="fas fa-flask" style="font-size:2rem;opacity:0.2;display:block;margin-bottom:8px"></i>
+<p style="font-weight:600;margin:0">No lab orders for this visit</p>
+</div>
+}
+</div>
+</div>
+
+<div class="clinical-card">
+<div class="add-section">
+<div class="add-section-title"><i class="fas fa-plus-circle"></i> Order Lab Test</div>
+<form asp-action="AddLabOrder" asp-route-recordId="@Model.Id" method="post">
+@Html.AntiForgeryToken()
+<div class="row">
+<div class="col-md-5 mb-2">
+<label style="font-size:0.7rem;font-weight:600;color:var(--text-muted)">Test Name</label>
+<input name="TestName" type="text" class="form-control form-control-sm" style="border-radius:8px;border-color:var(--border)" required />
+</div>
+<div class="col-md-3 mb-2">
+<label style="font-size:0.7rem;font-weight:600;color:var(--text-muted)">Test Code</label>
+<input name="TestCode" type="text" class="form-control form-control-sm" style="border-radius:8px;border-color:var(--border)" />
+</div>
+<div class="col-md-2 mb-2">
+<label style="font-size:0.7rem;font-weight:600;color:var(--text-muted)">Priority</label>
+<select name="Priority" class="form-control form-control-sm" style="border-radius:8px;border-color:var(--border)" asp-items="ViewBag.PriorityList"></select>
+</div>
+<div class="col-md-2 mb-2 d-flex align-items-end">
+<button type="submit" class="btn btn-sm" style="background:var(--green);color:white;border:none;border-radius:8px;font-weight:600;padding:6px 16px;width:100%">
+<i class="fas fa-flask mr-1"></i> Order
+</button>
+</div>
+<div class="col-12 mb-2">
+<label style="font-size:0.7rem;font-weight:600;color:var(--text-muted)">Notes</label>
+<input name="Notes" type="text" class="form-control form-control-sm" style="border-radius:8px;border-color:var(--border)" />
+</div>
+</div>
+</form>
+</div>
+</div>
+</div>
+</div>

@@ -137,7 +137,8 @@
                 </div>
                 <div class="col-md-4 mb-3 d-flex align-items-end">
                     <div class="form-check">
-                        <input asp-for="IsConfidential" type="checkbox" class="form-check-input" />
+                        <input type="checkbox" class="form-check-input" id="IsConfidential" name="IsConfidential" value="true" @(Model.IsConfidential == true ? "checked" : "") />
+                        <input name="IsConfidential" type="hidden" value="false" />
                         <label class="form-check-label" style="font-size:0.85rem;font-weight:500">Confidential</label>
                     </div>
                 </div>

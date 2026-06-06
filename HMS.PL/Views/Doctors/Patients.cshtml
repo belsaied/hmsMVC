@@ -1,0 +1,187 @@
+@using HMS.BLL.Shared.Dtos.AppointmentModule
+@model IEnumerable<DoctorPatientSummaryDto>
+
+@{
+    ViewData["Title"] = "Doctor's Patients";
+}
+
+@section Styles {
+    <style>
+        :root {
+            --hms-teal: #0f766e;
+            --hms-teal-mid: #14b8a6;
+            --hms-border: #e2e8f0;
+            --hms-text: #1e293b;
+            --hms-muted: #64748b;
+        }
+
+        .page-header-card {
+            background: linear-gradient(135deg, #0f766e 0%, #14b8a6 100%);
+            color: white; padding: 24px 28px; border-radius: 16px; margin-bottom: 24px;
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 8px 32px rgba(20,184,166,0.18);
+        }
+        .page-title { font-size: 1.4rem; font-weight: 700; margin: 0; }
+        .page-subtitle { font-size: 0.84rem; opacity: 0.75; margin: 4px 0 0; }
+        .doctor-badge { background: rgba(255,255,255,0.15); padding: 8px 16px; border-radius: 10px; font-size: 0.82rem; }
+        .doctor-badge strong { color: white; }
+
+        .patient-card {
+            background: white; border-radius: 14px; border: 1px solid var(--hms-border);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06); margin-bottom: 16px; overflow: hidden;
+        }
+        .patient-card-header {
+            display: flex; align-items: center; gap: 16px;
+            padding: 16px 20px; cursor: pointer; transition: background 0.15s;
+            border-bottom: 1px solid transparent;
+        }
+        .patient-card-header:hover { background: #f8faff; }
+        .patient-card-header.expanded { border-bottom-color: var(--hms-border); background: #f8faff; }
+
+        .patient-avatar {
+            width: 44px; height: 44px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; flex-shrink: 0; background: #ccfbf1; color: #0f766e;
+        }
+        .patient-info { flex: 1; min-width: 0; }
+        .patient-name { font-weight: 600; font-size: 0.95rem; color: var(--hms-text); }
+        .patient-meta { font-size: 0.78rem; color: var(--hms-muted); margin-top: 2px; }
+
+        .patient-body { padding: 0 20px 16px; display: none; }
+        .patient-body.open { display: block; }
+
+        .appt-item {
+            background: #f8faff; border: 1px solid var(--hms-border); border-radius: 10px;
+            padding: 12px 16px; margin-bottom: 10px; position: relative;
+        }
+        .appt-item:last-child { margin-bottom: 0; }
+        .appt-date { font-weight: 600; font-size: 0.85rem; color: var(--hms-text); }
+        .appt-time { font-size: 0.8rem; color: var(--hms-muted); }
+        .appt-reason { font-size: 0.82rem; color: var(--hms-text); margin-top: 6px; }
+        .appt-status {
+            font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+            padding: 2px 10px; border-radius: 5px; letter-spacing: 0.04em;
+        }
+        .appt-conf { font-family: monospace; font-size: 0.78rem; color: var(--hms-muted); }
+
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--hms-muted); }
+        .empty-state i { font-size: 3rem; opacity: 0.2; display: block; margin-bottom: 12px; }
+
+        .btn-back {
+            background: white; color: var(--hms-muted); border: 1.5px solid var(--hms-border);
+            border-radius: 10px; padding: 9px 18px; font-weight: 600; font-size: 0.875rem;
+            text-decoration: none; display: inline-flex; align-items: center; gap: 8px; margin-top: 20px;
+        }
+        .btn-back:hover { background: #f1f5f9; color: var(--hms-text); }
+    </style>
+}
+
+<div class="page-header-card">
+    <div>
+        <h3 class="page-title"><i class="fas fa-users mr-2"></i> Doctor's Patients</h3>
+        <p class="page-subtitle">All unique patients this doctor has treated</p>
+    </div>
+    <div class="doctor-badge">
+        <strong>Dr. @ViewBag.DoctorName</strong>
+    </div>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="empty-state">
+        <i class="fas fa-user-injured"></i>
+        <p style="font-size:1rem;font-weight:600;color:var(--hms-text)">No patients found</p>
+        <p style="font-size:0.875rem">This doctor has not treated any patients yet.</p>
+    </div>
+}
+else
+{
+    <p style="font-size:0.85rem;color:var(--hms-muted);margin-bottom:16px">
+        <strong>@Model.Count()</strong> unique patient@(Model.Count() != 1 ? "s" : "")
+    </p>
+
+    @foreach (var patient in Model)
+    {
+        <div class="patient-card">
+            <div class="patient-card-header" onclick="togglePatient(this)">
+                <div class="patient-avatar"><i class="fas fa-user"></i></div>
+                <div class="patient-info">
+                    <div class="patient-name">@patient.PatientName</div>
+                    <div class="patient-meta">
+                        @patient.Gender · @patient.Age yrs · MRN: @patient.MedicalRecordNumber
+                        @if (!string.IsNullOrEmpty(patient.Phone))
+                        {
+                            <text> · @patient.Phone</text>
+                        }
+                    </div>
+                </div>
+                <div style="text-align:right;flex-shrink:0">
+                    <div style="font-size:0.75rem;font-weight:700;color:var(--hms-teal)">@patient.Appointments.Count() visit@(patient.Appointments.Count() != 1 ? "s" : "")</div>
+                    <i class="fas fa-chevron-down" style="color:var(--hms-muted);font-size:0.75rem;margin-top:4px"></i>
+                </div>
+            </div>
+            <div class="patient-body">
+                @foreach (var apt in patient.Appointments)
+                {
+                    var statusColor = apt.Status switch
+                    {
+                        "Scheduled" => "#2563a8", "Confirmed" => "#10b981",
+                        "Completed" => "#7c3aed", "Cancelled" => "#dc2626",
+                        "NoShow" => "#d97706", _ => "#64748b"
+                    };
+                    var statusBg = apt.Status switch
+                    {
+                        "Scheduled" => "#dbeafe", "Confirmed" => "#d1fae5",
+                        "Completed" => "#ede9fe", "Cancelled" => "#fee2e2",
+                        "NoShow" => "#fef3c7", _ => "#f1f5f9"
+                    };
+                    <div class="appt-item">
+                        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+                            <div>
+                                <div class="appt-date">@apt.AppointmentDate.ToString("dddd, dd MMM yyyy")</div>
+                                <div class="appt-time">@apt.StartTime.ToString("hh:mm tt") – @apt.EndTime.ToString("hh:mm tt") · @apt.Type</div>
+                            </div>
+                            <span class="appt-status" style="background:@statusBg;color:@statusColor">@apt.Status</span>
+                        </div>
+                        <div class="appt-reason">@apt.ReasonForVisit</div>
+                        <div class="appt-conf">@apt.ConfirmationNumber</div>
+                        @if (!string.IsNullOrEmpty(apt.Notes))
+                        {
+                            <div style="font-size:0.78rem;color:var(--hms-muted);margin-top:4px;padding-top:4px;border-top:1px dashed var(--hms-border)">
+                                <i class="fas fa-clipboard mr-1"></i> @apt.Notes
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(apt.CancellationReason))
+                        {
+                            <div style="font-size:0.78rem;color:#991b1b;margin-top:4px;padding-top:4px;border-top:1px dashed #fecaca">
+                                <i class="fas fa-ban mr-1"></i> @apt.CancellationReason
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    }
+}
+
+<div>
+    <a asp-action="Details" asp-route-id="@ViewBag.DoctorId" class="btn-back">
+        <i class="fas fa-arrow-left"></i> Back to Doctor
+    </a>
+</div>
+
+@section Scripts {
+    <script>
+        function togglePatient(header) {
+            var body = header.nextElementSibling;
+            var icon = header.querySelector('.fa-chevron-down, .fa-chevron-up');
+            header.classList.toggle('expanded');
+            body.classList.toggle('open');
+            if (icon) {
+                icon.className = body.classList.contains('open')
+                    ? 'fas fa-chevron-up'
+                    : 'fas fa-chevron-down';
+            }
+        }
+    </script>
+}
