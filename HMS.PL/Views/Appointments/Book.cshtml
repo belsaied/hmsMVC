@@ -58,6 +58,97 @@
     .select2-container .select2-selection--single { height:44px !important; border:1.5px solid var(--hms-border) !important; border-radius:10px !important; }
     .select2-selection__rendered { line-height:44px !important; padding:0 14px !important; font-size:.9rem; }
     .select2-selection__arrow { height:44px !important; }
+
+    /* Doctor card grid */
+    .doc-search-bar { position: relative; margin-bottom: 16px; }
+    .doc-search-bar input {
+        width: 100%; padding: 10px 14px 10px 38px;
+        border: 1.5px solid var(--hms-border); border-radius: 10px;
+        font-size: .9rem; outline: none;
+    }
+    .doc-search-bar input:focus { border-color: var(--hms-accent); box-shadow: 0 0 0 3px rgba(14,165,233,.12); }
+    .doc-search-bar .search-icon { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--hms-muted); font-size:.85rem; }
+
+    .spec-pills { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px; }
+    .spec-pill {
+        padding:6px 16px; border-radius:20px; font-size:.78rem; font-weight:600;
+        border:1.5px solid var(--hms-border); background:white; color:var(--hms-muted);
+        cursor:pointer; transition:all .15s;
+    }
+    .spec-pill:hover, .spec-pill.active {
+        background:var(--hms-blue-mid); border-color:var(--hms-blue-mid); color:white;
+    }
+
+    .doc-grid {
+        display:grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap:16px;
+    }
+
+    .doc-card {
+        background:white; border:1.5px solid var(--hms-border); border-radius:14px;
+        overflow:hidden; transition:all .18s; cursor:pointer; position:relative;
+    }
+    .doc-card:hover { box-shadow:0 8px 24px rgba(0,0,0,.10); transform:translateY(-2px); border-color:#cbd5e1; }
+    .doc-card.selected { border-color:var(--hms-blue-mid); box-shadow:0 0 0 3px rgba(37,99,168,.2); }
+
+    .doc-card-fav {
+        position:absolute; top:10px; right:10px; width:28px; height:28px;
+        background:white; border-radius:50%; display:flex; align-items:center; justify-content:center;
+        box-shadow:0 1px 4px rgba(0,0,0,.12); color:#cbd5e1; font-size:.85rem; cursor:pointer;
+        transition:color .15s;
+    }
+    .doc-card-fav:hover { color:#ef4444; }
+
+    .doc-card-photo {
+        width:100%; height:160px; object-fit:cover; object-position:top;
+        background:#f1f5f9; display:block;
+    }
+    .doc-card-photo-placeholder {
+        width:100%; height:160px; background:linear-gradient(135deg,#e0f2fe,#bfdbfe);
+        display:flex; align-items:center; justify-content:center; font-size:2.5rem; color:#93c5fd;
+    }
+
+    .doc-card-body { padding:12px; }
+    .doc-card-rating { display:flex; align-items:center; gap:4px; font-size:.75rem; font-weight:700; color:#f59e0b; margin-bottom:6px; }
+    .doc-card-name { font-size:.9rem; font-weight:700; color:var(--hms-text); margin-bottom:2px; line-height:1.3; }
+    .doc-card-spec { font-size:.76rem; font-weight:600; color:var(--hms-blue-mid); margin-bottom:6px; }
+    .doc-card-fee { font-size:.8rem; color:var(--hms-muted); margin-bottom:10px; }
+
+    .doc-card-actions { display:flex; gap:6px; }
+    .btn-doc-details {
+        flex:1; padding:7px 0; border:1.5px solid var(--hms-border); border-radius:8px;
+        font-size:.76rem; font-weight:600; color:var(--hms-text); background:white;
+        text-decoration:none; text-align:center; transition:all .12s;
+    }
+    .btn-doc-details:hover { background:#f1f5f9; color:var(--hms-text); }
+    .btn-doc-book {
+        flex:1.4; padding:7px 0; border:none; border-radius:8px;
+        font-size:.76rem; font-weight:700; color:white;
+        background:linear-gradient(135deg, var(--hms-blue-mid), var(--hms-blue));
+        cursor:pointer; transition:all .12s; text-align:center;
+    }
+    .btn-doc-book:hover { filter:brightness(1.08); }
+
+    .doc-card-chat {
+        width:100%; margin-top:8px; padding:6px 0;
+        border:1.5px solid var(--hms-border); border-radius:8px;
+        background:white; color:var(--hms-muted); font-size:.78rem;
+        display:flex; align-items:center; justify-content:center; gap:6px;
+        cursor:pointer; transition:all .12s;
+    }
+    .doc-card-chat:hover { background:#f1f5f9; }
+
+    .doc-selected-banner {
+        display:none; background:#eff6ff; border:1.5px solid #bfdbfe;
+        border-radius:12px; padding:14px 18px; margin-top:16px;
+        font-size:.875rem; color:#1e40af; align-items:center; gap:12px;
+    }
+    .doc-selected-banner.show { display:flex; }
+    .doc-selected-banner strong { color:#1a3a5c; }
+
+    .doc-no-results { text-align:center; padding:40px 20px; color:var(--hms-muted); }
+    .doc-no-results i { font-size:2.5rem; opacity:.2; margin-bottom:12px; display:block; }
 </style>
 }
 
@@ -125,19 +216,98 @@
                 </div>
             </div>
 
-            <!-- STEP 2: Doctor -->
+            <!-- STEP 2: Doctor Card Grid -->
             <div class="form-section">
                 <div class="section-title">
                     <div class="section-icon" style="background:#d1fae5"><i class="fas fa-user-md" style="color:#059669"></i></div>
-                    Select Doctor
+                    Choose a Doctor
                 </div>
-                <div class="form-group">
-                    <label asp-for="DoctorId" class="form-label">Doctor <span class="req">*</span></label>
-                    <select asp-for="DoctorId" id="doctorSelect" asp-items="ViewBag.DoctorList" class="form-control select2">
-                        <option value="">— Select Doctor —</option>
-                    </select>
-                    <span asp-validation-for="DoctorId" class="text-danger small"></span>
+
+                @* Hidden field that the form actually submits *@
+                <input type="hidden" asp-for="DoctorId" id="doctorHidden" />
+                <span asp-validation-for="DoctorId" class="text-danger small d-block mb-2"></span>
+
+                @* Search bar *@
+                <div class="doc-search-bar">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="docSearchInput" placeholder="Search doctors by name or specialty&hellip;" autocomplete="off" />
                 </div>
+
+                @* Specialty filter pills *@
+                <div class="spec-pills" id="specPills">
+                    <button type="button" class="spec-pill active" data-spec="">All</button>
+                    @foreach (var spec in (List<string>)ViewBag.Specializations)
+                    {
+                        <button type="button" class="spec-pill" data-spec="@spec">@spec</button>
+                    }
+                </div>
+
+                @* Doctor card grid *@
+                <div class="doc-grid" id="docGrid">
+                    @foreach (var doc in (List<HMS.BLL.Shared.Dtos.DoctorModule.DoctorDtos.DoctorResultDto>)ViewBag.DoctorCards)
+                    {
+                        <div class="doc-card"
+                             data-id="@doc.Id"
+                             data-name="@doc.FullName"
+                             data-spec="@doc.Specialization">
+
+                            <div class="doc-card-fav" title="Add to favourites">
+                                <i class="far fa-heart"></i>
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(doc.PictureUrl))
+                            {
+                                <img class="doc-card-photo" src="@doc.PictureUrl" alt="@doc.FullName" loading="lazy" />
+                            }
+                            else
+                            {
+                                <div class="doc-card-photo-placeholder">
+                                    <i class="fas fa-user-md"></i>
+                                </div>
+                            }
+
+                            <div class="doc-card-body">
+                                <div class="doc-card-rating">
+                                    <i class="fas fa-star"></i> 4.8
+                                </div>
+                                <div class="doc-card-name">@doc.FullName</div>
+                                <div class="doc-card-spec">@doc.Specialization</div>
+                                <div class="doc-card-fee">@doc.ConsultationFee.ToString("N0") EGP/hour</div>
+
+                                <div class="doc-card-actions">
+                                    <a asp-controller="Doctors" asp-action="Details" asp-route-id="@doc.Id"
+                                       class="btn-doc-details" target="_blank">Details</a>
+                                    <button type="button" class="btn-doc-book" data-id="@doc.Id">Book Now</button>
+                                </div>
+
+                                <button type="button" class="doc-card-chat" title="Quick message">
+                                    <i class="far fa-comment-dots"></i>
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                @* No-results message *@
+                <div class="doc-no-results d-none" id="docNoResults">
+                    <i class="fas fa-user-slash"></i>
+                    <p>No doctors match your search. Try a different name or specialty.</p>
+                </div>
+
+                @* Selected doctor banner (appears after clicking Book Now) *@
+                <div class="doc-selected-banner" id="docSelectedBanner">
+                    <i class="fas fa-check-circle" style="font-size:1.2rem;color:#059669"></i>
+                    <div>
+                        <strong id="docSelectedName"></strong> selected.
+                        <span style="color:var(--hms-muted);font-size:.82rem"> &mdash; Pick a date and time below.</span>
+                    </div>
+                    <button type="button" id="docChangeBtn"
+                            style="margin-left:auto;background:none;border:none;color:var(--hms-blue-mid);font-size:.82rem;font-weight:600;cursor:pointer;">
+                        Change
+                    </button>
+                </div>
+
+                @* Schedule notices (reused from original) *@
                 <div id="scheduleNotice" class="d-none" style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:14px 18px;font-size:.875rem;color:#1e40af;margin-top:12px">
                     <i class="fas fa-calendar-alt mr-2"></i>
                     <span id="scheduleText"></span>
@@ -197,117 +367,203 @@
 @section Scripts {
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
-    let doctorSchedule = [];
-    let calendarInstance = null;
+// ── STATE ────────────────────────────────────────────────────────────────────
+let doctorSchedule  = [];
+let calendarInstance = null;
+let selectedDoctorId = null;
 
-    const doctorSelect = document.getElementById('doctorSelect');
-    const scheduleNotice = document.getElementById('scheduleNotice');
-    const scheduleText = document.getElementById('scheduleText');
-    const noScheduleNotice = document.getElementById('noScheduleNotice');
-    const dateStep = document.getElementById('dateStep');
-    const slotStep = document.getElementById('slotStep');
-    const slotGrid = document.getElementById('slotGrid');
-    const submitSection = document.getElementById('submitSection');
-    const submitBtn = document.getElementById('submitBtn');
-    const startTimeHidden = document.getElementById('startTimeHidden');
-    const dateHidden = document.getElementById('appointmentDateHidden');
-    const noSlotsMsg = document.getElementById('noSlotsMsg');
+// ── DOM REFS ─────────────────────────────────────────────────────────────────
+const doctorHidden     = document.getElementById('doctorHidden');
+const scheduleNotice   = document.getElementById('scheduleNotice');
+const scheduleText     = document.getElementById('scheduleText');
+const noScheduleNotice = document.getElementById('noScheduleNotice');
+const dateStep         = document.getElementById('dateStep');
+const slotStep         = document.getElementById('slotStep');
+const slotGrid         = document.getElementById('slotGrid');
+const submitSection    = document.getElementById('submitSection');
+const submitBtn        = document.getElementById('submitBtn');
+const startTimeHidden  = document.getElementById('startTimeHidden');
+const dateHidden       = document.getElementById('appointmentDateHidden');
+const noSlotsMsg       = document.getElementById('noSlotsMsg');
 
-    const DAY_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const docGrid           = document.getElementById('docGrid');
+const docSearchInput    = document.getElementById('docSearchInput');
+const docNoResults      = document.getElementById('docNoResults');
+const docSelectedBanner = document.getElementById('docSelectedBanner');
+const docSelectedName   = document.getElementById('docSelectedName');
+const docChangeBtn      = document.getElementById('docChangeBtn');
 
-    doctorSelect.addEventListener('change', async () => {
-        const doctorId = doctorSelect.value;
-        resetFromDoctor();
-        if (!doctorId) return;
+const DAY_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 
-        const res = await fetch('/Appointments/GetDoctorScheduleJson?doctorId=' + doctorId);
-        if (!res.ok) { showNoSchedule(); return; }
-        doctorSchedule = await res.json();
+// ── SEARCH / FILTER ──────────────────────────────────────────────────────────
+let activeSpec = '';
 
-        if (doctorSchedule.length === 0) { showNoSchedule(); return; }
+docSearchInput.addEventListener('input', filterCards);
 
-        const dayNames = doctorSchedule.map(s => DAY_NAMES[s.dayOfWeek]).join(', ');
-        scheduleText.innerHTML = '<strong>Working days:</strong> ' + dayNames;
-        scheduleNotice.classList.remove('d-none');
-        noScheduleNotice.classList.add('d-none');
+document.querySelectorAll('.spec-pill').forEach(pill => {
+    pill.addEventListener('click', function () {
+        document.querySelectorAll('.spec-pill').forEach(p => p.classList.remove('active'));
+        this.classList.add('active');
+        activeSpec = this.dataset.spec;
+        filterCards();
+    });
+});
 
-        const enabledDays = new Set(doctorSchedule.map(s => s.dayOfWeek));
+function filterCards() {
+    const query = docSearchInput.value.toLowerCase().trim();
+    const cards  = docGrid.querySelectorAll('.doc-card');
+    let visible  = 0;
 
-        if (calendarInstance) calendarInstance.destroy();
-        calendarInstance = flatpickr('#datePicker', {
-            minDate: 'today',
-            disable: [date => !enabledDays.has(date.getDay())],
-            onChange: function(selectedDates, dateStr) {
-                if (!dateStr) return;
-                dateHidden.value = dateStr;
-                loadSlots(parseInt(doctorId), dateStr);
-            }
-        });
+    cards.forEach(card => {
+        const name = card.dataset.name.toLowerCase();
+        const spec = card.dataset.spec;
 
-        dateStep.style.display = '';
-        submitSection.style.display = '';
+        const matchSearch = !query || name.includes(query) || spec.toLowerCase().includes(query);
+        const matchSpec   = !activeSpec || spec === activeSpec;
+
+        if (matchSearch && matchSpec) {
+            card.style.display = '';
+            visible++;
+        } else {
+            card.style.display = 'none';
+        }
     });
 
-    async function loadSlots(doctorId, date) {
-        slotStep.style.display = '';
-        slotGrid.innerHTML = '';
-        noSlotsMsg.classList.add('d-none');
-        document.getElementById('slots-loading').style.display = '';
-        startTimeHidden.value = '';
-        submitBtn.disabled = true;
+    docNoResults.classList.toggle('d-none', visible > 0);
+}
 
-        const res = await fetch('/Appointments/GetAvailableSlots?doctorId=' + doctorId + '&date=' + date);
-        document.getElementById('slots-loading').style.display = 'none';
+// ── BOOK NOW CLICK ────────────────────────────────────────────────────────────
+docGrid.addEventListener('click', async function (e) {
+    const bookBtn = e.target.closest('.btn-doc-book');
+    if (!bookBtn) return;
 
-        if (!res.ok) { noSlotsMsg.classList.remove('d-none'); return; }
+    const card = bookBtn.closest('.doc-card');
+    selectDoctor(card);
+});
 
-        const slots = await res.json();
-        const available = slots.filter(s => s.isAvailable);
+async function selectDoctor(card) {
+    const doctorId   = parseInt(card.dataset.id);
+    const doctorName = card.dataset.name;
 
-        if (available.length === 0) {
-            noSlotsMsg.classList.remove('d-none');
-            return;
+    // Highlight selected card
+    docGrid.querySelectorAll('.doc-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+
+    // Update hidden input
+    doctorHidden.value   = doctorId;
+    selectedDoctorId     = doctorId;
+
+    // Show selected banner
+    docSelectedName.textContent = doctorName;
+    docSelectedBanner.classList.add('show');
+
+    // Reset downstream steps
+    resetFromDoctor();
+
+    // Load schedule
+    const res = await fetch('/Appointments/GetDoctorScheduleJson?doctorId=' + doctorId);
+    if (!res.ok) { showNoSchedule(); return; }
+    doctorSchedule = await res.json();
+
+    if (doctorSchedule.length === 0) { showNoSchedule(); return; }
+
+    const dayNames = doctorSchedule.map(s => DAY_NAMES[s.dayOfWeek]).join(', ');
+    scheduleText.innerHTML = '<strong>Working days:</strong> ' + dayNames;
+    scheduleNotice.classList.remove('d-none');
+    noScheduleNotice.classList.add('d-none');
+
+    const enabledDays = new Set(doctorSchedule.map(s => s.dayOfWeek));
+
+    if (calendarInstance) calendarInstance.destroy();
+    calendarInstance = flatpickr('#datePicker', {
+        minDate: 'today',
+        disable: [date => !enabledDays.has(date.getDay())],
+        onChange: function (selectedDates, dateStr) {
+            if (!dateStr) return;
+            dateHidden.value = dateStr;
+            loadSlots(doctorId, dateStr);
         }
+    });
 
-        available.forEach(s => {
-            const btn = document.createElement('div');
-            btn.className = 'slot-chip available';
-            btn.textContent = formatTime(s.startTime);
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.slot-chip').forEach(b => b.classList.remove('selected'));
-                this.classList.add('selected');
-                startTimeHidden.value = s.startTime;
-                submitBtn.disabled = false;
-            });
-            slotGrid.appendChild(btn);
+    dateStep.style.display    = '';
+    submitSection.style.display = '';
+
+    // Scroll smoothly to the date step
+    dateStep.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ── CHANGE DOCTOR ─────────────────────────────────────────────────────────────
+docChangeBtn.addEventListener('click', function () {
+    docSelectedBanner.classList.remove('show');
+    docGrid.querySelectorAll('.doc-card').forEach(c => c.classList.remove('selected'));
+    doctorHidden.value = '';
+    selectedDoctorId   = null;
+    resetFromDoctor();
+    docSearchInput.focus();
+});
+
+// ── SLOTS ─────────────────────────────────────────────────────────────────────
+async function loadSlots(doctorId, date) {
+    slotStep.style.display = '';
+    slotGrid.innerHTML     = '';
+    noSlotsMsg.classList.add('d-none');
+    document.getElementById('slots-loading').style.display = '';
+    startTimeHidden.value  = '';
+    submitBtn.disabled     = true;
+
+    const res = await fetch('/Appointments/GetAvailableSlots?doctorId=' + doctorId + '&date=' + date);
+    document.getElementById('slots-loading').style.display = 'none';
+
+    if (!res.ok) { noSlotsMsg.classList.remove('d-none'); return; }
+
+    const slots    = await res.json();
+    const available = slots.filter(s => s.isAvailable);
+
+    if (available.length === 0) {
+        noSlotsMsg.classList.remove('d-none');
+        return;
+    }
+
+    available.forEach(s => {
+        const btn = document.createElement('div');
+        btn.className   = 'slot-chip available';
+        btn.textContent = formatTime(s.startTime);
+        btn.addEventListener('click', function () {
+            document.querySelectorAll('.slot-chip').forEach(b => b.classList.remove('selected'));
+            this.classList.add('selected');
+            startTimeHidden.value = s.startTime;
+            submitBtn.disabled    = false;
         });
-    }
+        slotGrid.appendChild(btn);
+    });
+}
 
-    function formatTime(t) {
-        const [h, m] = t.split(':').map(Number);
-        const ampm = h >= 12 ? 'PM' : 'AM';
-        const h12 = h % 12 || 12;
-        return h12 + ':' + String(m).padStart(2,'0') + ' ' + ampm;
-    }
+function formatTime(t) {
+    const [h, m] = t.split(':').map(Number);
+    const ampm   = h >= 12 ? 'PM' : 'AM';
+    const h12    = h % 12 || 12;
+    return h12 + ':' + String(m).padStart(2, '0') + ' ' + ampm;
+}
 
-    function showNoSchedule() {
-        noScheduleNotice.classList.remove('d-none');
-        scheduleNotice.classList.add('d-none');
-    }
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function showNoSchedule() {
+    noScheduleNotice.classList.remove('d-none');
+    scheduleNotice.classList.add('d-none');
+}
 
-    function resetFromDoctor() {
-        doctorSchedule = [];
-        scheduleNotice.classList.add('d-none');
-        noScheduleNotice.classList.add('d-none');
-        dateStep.style.display = 'none';
-        slotStep.style.display = 'none';
-        submitSection.style.display = 'none';
-        slotGrid.innerHTML = '';
-        startTimeHidden.value = '';
-        dateHidden.value = '';
-        submitBtn.disabled = true;
-        if (calendarInstance) { calendarInstance.destroy(); calendarInstance = null; }
-    }
+function resetFromDoctor() {
+    doctorSchedule = [];
+    scheduleNotice.classList.add('d-none');
+    noScheduleNotice.classList.add('d-none');
+    dateStep.style.display    = 'none';
+    slotStep.style.display    = 'none';
+    submitSection.style.display = 'none';
+    slotGrid.innerHTML        = '';
+    startTimeHidden.value     = '';
+    dateHidden.value          = '';
+    submitBtn.disabled        = true;
+    if (calendarInstance) { calendarInstance.destroy(); calendarInstance = null; }
+}
 </script>
 <partial name="_ValidationScriptsPartial" />
 }

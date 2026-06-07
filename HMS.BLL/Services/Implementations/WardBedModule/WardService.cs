@@ -108,6 +108,21 @@ namespace HMS.BLL.Services.Implementations.WardBedModule
             return _mapper.Map<RoomResultDto>(loaded);
         }
 
+        public async Task DeleteWardAsync(int wardId)
+        {
+            var repo = _unitOfWork.GetRepository<Ward, int>();
+            var ward = await repo.GetByIdAsync(wardId);
+            if (ward is null) throw new WardNotFoundException(wardId);
+
+            var roomsRepo = _unitOfWork.GetRepository<Room, int>();
+            var rooms = await roomsRepo.GetAllAsync(new RoomsByWardSpecification(wardId));
+            if (rooms.Any(r => r.Beds.Any(b => b.Status == BedStatus.Occupied)))
+                throw new BusinessRuleException("Cannot delete a ward with occupied beds. Transfer or discharge patients first.");
+
+            repo.Delete(ward);
+            await _unitOfWork.SaveChangesAsync();
+        }
+
         public async Task<IEnumerable<RoomResultDto>> GetRoomsInWardAsync(int wardId)
         {
             var wardRepo = _unitOfWork.GetRepository<Ward, int>();

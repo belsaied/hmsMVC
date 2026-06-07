@@ -14,6 +14,7 @@ namespace HMS.BLL.ServicesAbstraction.Contracts.WardBedService
         Task<WardResultDto> UpdateWardAsync(int wardId, UpdateWardDto dto);
         Task<RoomResultDto> AddRoomToWardAsync(int wardId, CreateRoomDto dto);
         Task<IEnumerable<RoomResultDto>> GetRoomsInWardAsync(int wardId);
+        Task DeleteWardAsync(int wardId);
 
     }
 }
