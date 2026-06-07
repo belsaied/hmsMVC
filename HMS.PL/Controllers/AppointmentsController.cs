@@ -349,14 +349,15 @@ namespace HMS.PL.Controllers
 
         private async Task PopulateBookDropdownsAsync()
         {
+            // Patients & appointment types (unchanged)
             var patients = await _services.PatientService.GetAllPatientsAsync(new() { PageSize = 100 });
             ViewBag.PatientList = new SelectList(
                 patients.Data.Select(p => new { p.Id, Name = p.FullName }), "Id", "Name");
             ViewBag.TypeList = BuildEnumSelectList<AppointmentType>();
 
-            // Collect all doctors across pages
+            // Doctors — collect all pages, then filter to those with schedule
             var allDoctors = new List<DoctorResultDto>();
-            var page = 1;
+            int page = 1;
             PaginatedResult<DoctorResultDto> pageResult;
             do
             {
@@ -366,20 +367,24 @@ namespace HMS.PL.Controllers
                 page++;
             } while (allDoctors.Count < pageResult.TotalCount);
 
-            // Filter to only doctors with at least one available schedule slot
-            var filtered = new List<SelectListItem>();
-            foreach (var doc in allDoctors)
+            // Keep only active doctors with at least one available schedule day
+            var scheduledDoctors = new List<DoctorResultDto>();
+            foreach (var doc in allDoctors.Where(d => d.Status == "Active"))
             {
                 var schedules = await _services.DoctorService.GetScheduleAsync(doc.Id);
                 if (schedules.Any(s => s.IsAvailable))
-                {
-                    filtered.Add(new SelectListItem(
-                        $"{doc.FullName}|{doc.Specialization}",
-                        doc.Id.ToString()));
-                }
+                    scheduledDoctors.Add(doc);
             }
 
-            ViewBag.DoctorList = new SelectList(filtered, "Value", "Text");
+            // NEW: pass as a plain list, not SelectList
+            ViewBag.DoctorCards = scheduledDoctors;
+
+            // Distinct specializations for the filter pill row
+            ViewBag.Specializations = scheduledDoctors
+                .Select(d => d.Specialization)
+                .Distinct()
+                .OrderBy(s => s)
+                .ToList();
         }
 
         private static SelectList BuildEnumSelectList<TEnum>(string? selected = null) where TEnum : struct, Enum
