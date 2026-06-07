@@ -253,12 +253,16 @@
                     background: linear-gradient(135deg, #0078D4, #00b4d8);
                     border-radius: 10px;
                     display: flex; align-items: center; justify-content: center;
-                    font-size: 1rem; color: #fff; flex-shrink: 0;
+                    font-size: 0.9rem; color: #fff; flex-shrink: 0;
                     box-shadow: 0 4px 12px rgba(0,120,212,0.4);">
-                    <i class="fas fa-hospital-alt"></i>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v4h4v2h-4v4h-2v-4H7v-2h4V7z"
+                              fill="currentColor"/>
+                    </svg>
                 </div>
                 <div class="sidebar-collapsible" style="transition-delay: 0.04s;">
-                    <div style="font-size: 1rem; font-weight: 700; color: #fff; line-height: 1.1;">HMS</div>
+                    <div style="font-size: 1rem; font-weight: 800; color: #fff; line-height: 1.1;
+                                font-family: 'Nunito', 'Source Sans Pro', sans-serif;">Healing</div>
                     <div style="font-size: 0.68rem; color: rgba(255,255,255,0.45); letter-spacing: 0.04em;">
                         Hospital Management
                     </div>
@@ -439,6 +443,34 @@
                             </a>
                         </li>
 
+                        @if (User.IsInRole("SuperAdmin") || User.IsInRole("HospitalAdmin"))
+                        {
+                            <li class="sidebar-collapsible" style="margin: 0;">
+                                <hr style="border:none; border-top:1px solid rgba(255,255,255,0.07); margin: 0.75rem 0 0.35rem;">
+                                <span style="font-size: 0.6rem; font-weight: 700; color: rgba(255,255,255,0.25);
+                                             text-transform: uppercase; letter-spacing: 0.13em;">Administration</span>
+                            </li>
+
+                            <li class="nav-item">
+                                <a asp-controller="UserManagement" asp-action="Index"
+                                   class="nav-link sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "UserManagement" && ViewContext.RouteData.Values["action"]?.ToString() != "AuditLog" ? "sidebar-active" : "")">
+                                    <span class="sidebar-icon" style="background: rgba(139,92,246,0.15); color: #a78bfa;">
+                                        <i class="fas fa-users-cog"></i>
+                                    </span>
+                                    <span class="sidebar-collapsible">User Management</span>
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a asp-controller="UserManagement" asp-action="AuditLog"
+                                   class="nav-link sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "AuditLog" ? "sidebar-active" : "")"
+                                   style="padding-left: 2.4rem;">
+                                    <i class="fas fa-history" style="width:28px; text-align:center; font-size:0.7rem; color:rgba(255,255,255,0.35); flex-shrink:0;"></i>
+                                    <span class="sidebar-collapsible">Audit Log</span>
+                                </a>
+                            </li>
+                        }
+
                     </ul>
                 </nav>
             </div>
@@ -460,8 +492,15 @@
 
         <!-- Footer -->
         <footer class="main-footer">
-            <strong>&copy; 2026 Hospital Management System.</strong>
-            All rights reserved.
+            <strong>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                     xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle; margin-right: 4px;">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v4h4v2h-4v4h-2v-4H7v-2h4V7z"
+                          fill="#0078D4"/>
+                </svg>
+                &copy; @DateTime.Now.Year Healing
+            </strong>
+            &mdash; Hospital Management System. All rights reserved.
         </footer>
 
         <aside class="control-sidebar control-sidebar-dark"></aside>

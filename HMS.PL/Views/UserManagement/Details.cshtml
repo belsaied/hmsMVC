@@ -1,0 +1,231 @@
+@using HMS.PL.ViewModels.UserManagementModule
+@model UserDetailsViewModel
+
+@{
+    ViewData["Title"] = $"User — {Model.FullName}";
+}
+
+@section Styles {
+<style>
+    :root {
+        --hms-blue:#1a3a5c; --hms-blue-mid:#2563a8; --hms-green:#10b981;
+        --hms-red:#ef4444;  --hms-card:#ffffff;     --hms-border:#e2e8f0;
+    }
+    .detail-header {
+        background:linear-gradient(135deg,var(--hms-blue) 0%,var(--hms-blue-mid) 100%);
+        border-radius:16px; padding:28px 32px; margin-bottom:24px;
+        color:white; box-shadow:0 8px 32px rgba(26,58,92,.18);
+    }
+    .info-card {
+        background:var(--hms-card); border-radius:14px;
+        border:1px solid var(--hms-border);
+        box-shadow:0 2px 12px rgba(0,0,0,.06);
+        padding:24px; margin-bottom:20px;
+    }
+    .info-card h6 {
+        color:#64748b; font-size:.75rem; text-transform:uppercase;
+        letter-spacing:.06em; margin-bottom:14px; font-weight:600;
+    }
+    .dl-row { display:flex; padding:8px 0; border-bottom:1px solid #f1f5f9; }
+    .dl-row:last-child { border:none; }
+    .dl-label { width:190px; font-weight:600; font-size:.85rem; color:#64748b; flex-shrink:0; }
+    .dl-value { font-size:.9rem; color:#1e293b; }
+    .action-bar {
+        background:var(--hms-card); border-radius:14px;
+        border:1px solid var(--hms-border); padding:20px 24px;
+        margin-bottom:20px; box-shadow:0 2px 12px rgba(0,0,0,.06);
+    }
+</style>
+}
+
+<div class="container-fluid px-4 py-3">
+
+    <div class="d-flex align-items-center gap-2 mb-3">
+        <a asp-action="Index" class="btn btn-sm btn-outline-secondary" style="border-radius:8px;">
+            <i class="fas fa-arrow-left me-1"></i>Back to List
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success rounded-3 mb-3">
+            <i class="fas fa-check-circle me-2"></i>@Html.Raw(TempData["Success"])
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger rounded-3 mb-3">
+            <i class="fas fa-exclamation-triangle me-2"></i>@TempData["Error"]
+        </div>
+    }
+
+    <div class="detail-header">
+        <div class="d-flex align-items-center gap-4">
+            <div style="width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.15);
+                        display:flex;align-items:center;justify-content:center;
+                        font-size:1.6rem;font-weight:700;">
+                @Model.FullName[0].ToString().ToUpper()
+            </div>
+            <div>
+                <h2 class="mb-1 fw-bold">@Model.FullName</h2>
+                <div style="opacity:.75; font-size:.9rem;">@Model.Email</div>
+                <div class="mt-2">
+                    @foreach (var role in Model.Roles)
+                    {
+                        <span style="background:rgba(255,255,255,.2);color:white;
+                                     padding:3px 10px;border-radius:20px;font-size:.72rem;
+                                     font-weight:600;margin-right:6px;">@role</span>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-7">
+            <div class="info-card">
+                <h6><i class="fas fa-user me-2"></i>Account Information</h6>
+                <div class="dl-row">
+                    <div class="dl-label">User ID</div>
+                    <div class="dl-value"><code class="small">@Model.Id</code></div>
+                </div>
+                <div class="dl-row">
+                    <div class="dl-label">Full Name</div>
+                    <div class="dl-value">@Model.FullName</div>
+                </div>
+                <div class="dl-row">
+                    <div class="dl-label">Email</div>
+                    <div class="dl-value">@Model.Email</div>
+                </div>
+                <div class="dl-row">
+                    <div class="dl-label">Phone</div>
+                    <div class="dl-value">@(string.IsNullOrEmpty(Model.PhoneNumber) ? "—" : Model.PhoneNumber)</div>
+                </div>
+                <div class="dl-row">
+                    <div class="dl-label">Roles</div>
+                    <div class="dl-value">@string.Join(", ", Model.Roles)</div>
+                </div>
+                <div class="dl-row">
+                    <div class="dl-label">Email Verified</div>
+                    <div class="dl-value">
+                        @if (Model.IsEmailVerified)
+                        {
+                            <span class="text-success fw-semibold"><i class="fas fa-check-circle me-1"></i>Yes</span>
+                        }
+                        else
+                        {
+                            <span class="text-warning fw-semibold"><i class="fas fa-clock me-1"></i>Pending</span>
+                        }
+                    </div>
+                </div>
+                <div class="dl-row">
+                    <div class="dl-label">Account Status</div>
+                    <div class="dl-value">
+                        @if (Model.IsLocked)
+                        {
+                            <span class="badge bg-danger">Locked until @Model.LockoutEnd?.ToString("dd MMM yyyy HH:mm")</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-success">Active</span>
+                        }
+                    </div>
+                </div>
+                <div class="dl-row">
+                    <div class="dl-label">Last Login</div>
+                    <div class="dl-value">@(Model.LastLoginAt?.ToString("dd MMM yyyy HH:mm") ?? "Never")</div>
+                </div>
+                <div class="dl-row">
+                    <div class="dl-label">Failed Attempts</div>
+                    <div class="dl-value">
+                        <span class="@(Model.FailedLoginAttempts > 0 ? "text-danger fw-bold" : "")">
+                            @Model.FailedLoginAttempts
+                        </span>
+                    </div>
+                </div>
+                @if (Model.DoctorId.HasValue)
+                {
+                    <div class="dl-row">
+                        <div class="dl-label">Linked Doctor</div>
+                        <div class="dl-value">
+                            <a asp-controller="Doctors" asp-action="Details"
+                               asp-route-id="@Model.DoctorId" class="text-primary">
+                                Doctor #@Model.DoctorId
+                            </a>
+                        </div>
+                    </div>
+                }
+                @if (Model.PatientId.HasValue)
+                {
+                    <div class="dl-row">
+                        <div class="dl-label">Linked Patient</div>
+                        <div class="dl-value">
+                            <a asp-controller="Patients" asp-action="Details"
+                               asp-route-id="@Model.PatientId" class="text-primary">
+                                Patient #@Model.PatientId
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="col-md-5">
+            <div class="action-bar">
+                <h6 class="text-muted fw-semibold mb-3" style="font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;">
+                    <i class="fas fa-tools me-2"></i>Admin Actions
+                </h6>
+                <div class="d-grid gap-2">
+                    <a asp-action="Edit" asp-route-id="@Model.Id"
+                       class="btn btn-outline-primary" style="border-radius:10px;">
+                        <i class="fas fa-pen me-2"></i>Edit Profile
+                    </a>
+
+                    @if (!Model.IsLocked)
+                    {
+                        <form asp-action="Lock" asp-route-id="@Model.Id" method="post"
+                              onsubmit="return confirm('Are you sure you want to LOCK this account?');">
+                            @Html.AntiForgeryToken()
+                            <button class="btn btn-danger w-100" style="border-radius:10px;">
+                                <i class="fas fa-lock me-2"></i>Lock Account
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <form asp-action="Unlock" asp-route-id="@Model.Id" method="post">
+                            @Html.AntiForgeryToken()
+                            <button class="btn btn-success w-100" style="border-radius:10px;">
+                                <i class="fas fa-unlock me-2"></i>Unlock Account
+                            </button>
+                        </form>
+                    }
+
+                    <button class="btn btn-outline-warning" style="border-radius:10px;"
+                            data-toggle="collapse" data-target="#resetSection">
+                        <i class="fas fa-key me-2"></i>Reset Password
+                    </button>
+                    <div class="collapse" id="resetSection">
+                        <div class="p-3 bg-light rounded-3 mt-1">
+                            <form asp-action="ForceResetPassword" asp-route-id="@Model.Id"
+                                  method="post">
+                                @Html.AntiForgeryToken()
+                                <div class="mb-2">
+                                    <input type="password" name="newPassword"
+                                           class="form-control form-control-sm"
+                                           placeholder="New password (min 8 chars)"
+                                           minlength="8" required />
+                                </div>
+                                <button class="btn btn-warning btn-sm w-100" type="submit"
+                                        onclick="return confirm('Reset this user\'s password?');">
+                                    Confirm Reset
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

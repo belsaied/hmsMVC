@@ -1,0 +1,85 @@
+@using HMS.PL.ViewModels.UserManagementModule
+@model EditUserViewModel
+
+@{
+    ViewData["Title"] = $"Edit — {Model.FirstName} {Model.LastName}";
+}
+
+@section Styles {
+<style>
+    :root { --hms-blue:#1a3a5c; --hms-blue-mid:#2563a8; --hms-card:#ffffff; --hms-border:#e2e8f0; }
+    .form-card {
+        background:var(--hms-card); border-radius:14px;
+        border:1px solid var(--hms-border); box-shadow:0 2px 12px rgba(0,0,0,.06);
+        padding:32px; margin-bottom:24px;
+    }
+    .section-header {
+        font-size:.75rem; font-weight:700; text-transform:uppercase;
+        letter-spacing:.08em; color:#64748b; margin-bottom:16px;
+        padding-bottom:8px; border-bottom:2px solid var(--hms-border);
+    }
+</style>
+}
+
+<div class="container px-4 py-3" style="max-width:600px;">
+    <div class="d-flex align-items-center gap-2 mb-3">
+        <a asp-action="Details" asp-route-id="@Model.Id"
+           class="btn btn-sm btn-outline-secondary" style="border-radius:8px;">
+            <i class="fas fa-arrow-left me-1"></i>Back to Details
+        </a>
+        <h4 class="mb-0 fw-bold ms-2">Edit User Profile</h4>
+    </div>
+
+    <div class="alert alert-info rounded-3 mb-4 small">
+        <i class="fas fa-info-circle me-2"></i>
+        <strong>Note:</strong> Email and Role cannot be changed here.
+        Email changes require identity verification. Role changes require creating a new account.
+    </div>
+
+    <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+        @Html.AntiForgeryToken()
+
+        <div class="form-card">
+            <div class="section-header"><i class="fas fa-user me-2"></i>Profile</div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="FirstName" class="form-label fw-semibold small"></label>
+                    <input asp-for="FirstName" class="form-control" />
+                    <span asp-validation-for="FirstName" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="LastName" class="form-label fw-semibold small"></label>
+                    <input asp-for="LastName" class="form-control" />
+                    <span asp-validation-for="LastName" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold small text-muted">Email (read-only)</label>
+                    <input value="@Model.Email" class="form-control bg-light" disabled />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold small text-muted">Role (read-only)</label>
+                    <input value="@Model.CurrentRole" class="form-control bg-light" disabled />
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="PhoneNumber" class="form-label fw-semibold small"></label>
+                    <input asp-for="PhoneNumber" class="form-control" placeholder="+20..." />
+                    <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex gap-3">
+            <button type="submit" class="btn btn-primary px-5" style="border-radius:10px;">
+                <i class="fas fa-save me-2"></i>Save Changes
+            </button>
+            <a asp-action="Details" asp-route-id="@Model.Id"
+               class="btn btn-outline-secondary px-4" style="border-radius:10px;">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+@{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

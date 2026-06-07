@@ -1,0 +1,236 @@
+@using HMS.PL.ViewModels.UserManagementModule
+@model CreateUserViewModel
+
+@{
+    ViewData["Title"] = "Create User";
+}
+
+@section Styles {
+<style>
+    :root {
+        --hms-blue:#1a3a5c; --hms-blue-mid:#2563a8;
+        --hms-card:#ffffff; --hms-border:#e2e8f0;
+    }
+    .form-card {
+        background:var(--hms-card); border-radius:14px;
+        border:1px solid var(--hms-border);
+        box-shadow:0 2px 12px rgba(0,0,0,.06);
+        padding:32px; margin-bottom:24px;
+    }
+    .section-header {
+        font-size:.75rem; font-weight:700; text-transform:uppercase;
+        letter-spacing:.08em; color:#64748b; margin-bottom:16px;
+        padding-bottom:8px; border-bottom:2px solid var(--hms-border);
+    }
+    .role-info-box {
+        border-radius:10px; padding:12px 16px; margin-bottom:16px;
+        border:1px solid; font-size:.85rem;
+    }
+</style>
+}
+
+<div class="container px-4 py-3" style="max-width:760px;">
+    <div class="d-flex align-items-center gap-2 mb-3">
+        <a asp-action="Index" class="btn btn-sm btn-outline-secondary" style="border-radius:8px;">
+            <i class="fas fa-arrow-left me-1"></i>Back to Users
+        </a>
+        <h4 class="mb-0 fw-bold ms-2">Create New User</h4>
+    </div>
+
+    @if (!ViewContext.ModelState.IsValid && ViewContext.ModelState.ErrorCount > 0)
+    {
+        <div class="alert alert-danger rounded-3 mb-4">
+            <strong>Please fix the following errors:</strong>
+            <ul class="mb-0 mt-2">
+                @foreach (var entry in ViewContext.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <li>@entry.ErrorMessage</li>
+                }
+            </ul>
+        </div>
+    }
+
+    <form asp-action="Create" method="post" id="createUserForm">
+        @Html.AntiForgeryToken()
+
+        <div class="form-card">
+            <div class="section-header"><i class="fas fa-user me-2"></i>Basic Information</div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="FirstName" class="form-label fw-semibold small"></label>
+                    <input asp-for="FirstName" class="form-control" placeholder="John" />
+                    <span asp-validation-for="FirstName" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="LastName" class="form-label fw-semibold small"></label>
+                    <input asp-for="LastName" class="form-control" placeholder="Doe" />
+                    <span asp-validation-for="LastName" class="text-danger small"></span>
+                </div>
+                <div class="col-md-8">
+                    <label asp-for="Email" class="form-label fw-semibold small"></label>
+                    <input asp-for="Email" class="form-control" placeholder="user@hospital.com" />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Role" class="form-label fw-semibold small"></label>
+                    <select asp-for="Role" class="form-select" id="roleSelect">
+                        <option value="">— Select Role —</option>
+                        @foreach (var item in (SelectList)ViewBag.RoleSelectList)
+                        {
+                            <option value="@item.Value" selected="@item.Selected">@item.Text</option>
+                        }
+                    </select>
+                    <span asp-validation-for="Role" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Password" class="form-label fw-semibold small"></label>
+                    <input asp-for="Password" type="password" class="form-control"
+                           placeholder="Min 8 characters" />
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="ConfirmPassword" class="form-label fw-semibold small"></label>
+                    <input asp-for="ConfirmPassword" type="password" class="form-control"
+                           placeholder="Repeat password" />
+                    <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                </div>
+            </div>
+        </div>
+
+        <div id="roleInfoBox" class="role-info-box" style="display:none;"></div>
+
+        <div class="form-card" id="doctorSection" style="display:none;">
+            <div class="section-header">
+                <i class="fas fa-user-md me-2"></i>Doctor Details
+            </div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="DoctorId" class="form-label fw-semibold small">
+                        Doctor ID <span class="text-danger">*</span>
+                    </label>
+                    <input asp-for="DoctorId" class="form-control"
+                           placeholder="Enter existing Doctor ID" />
+                    <div class="form-text">
+                        The doctor profile must already exist in the system.
+                        A welcome email will be sent automatically.
+                    </div>
+                    <span asp-validation-for="DoctorId" class="text-danger small"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-card" id="patientSection" style="display:none;">
+            <div class="section-header">
+                <i class="fas fa-user-injured me-2"></i>Patient Information
+            </div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="Phone" class="form-label fw-semibold small">
+                        Phone <span class="text-danger">*</span>
+                    </label>
+                    <input asp-for="Phone" class="form-control" placeholder="01xxxxxxxxx" />
+                    <span asp-validation-for="Phone" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="DateOfBirth" class="form-label fw-semibold small">
+                        Date of Birth <span class="text-danger">*</span>
+                    </label>
+                    <input asp-for="DateOfBirth" type="date" class="form-control" />
+                    <span asp-validation-for="DateOfBirth" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Gender" class="form-label fw-semibold small">
+                        Gender <span class="text-danger">*</span>
+                    </label>
+                    <select asp-for="Gender" class="form-select">
+                        <option value="">— Select —</option>
+                        <option value="1">Male</option>
+                        <option value="2">Female</option>
+                    </select>
+                    <span asp-validation-for="Gender" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="NationalId" class="form-label fw-semibold small">
+                        National ID <span class="text-danger">*</span>
+                    </label>
+                    <input asp-for="NationalId" class="form-control"
+                           placeholder="14-digit national ID" maxlength="14" />
+                    <span asp-validation-for="NationalId" class="text-danger small"></span>
+                </div>
+                <div class="col-12">
+                    <div class="section-header mt-1">Address</div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold small">Street</label>
+                    <input asp-for="Street" class="form-control" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold small">City</label>
+                    <input asp-for="City" class="form-control" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold small">Country</label>
+                    <input asp-for="Country" class="form-control" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold small">Postal Code</label>
+                    <input asp-for="PostalCode" class="form-control" />
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex gap-3">
+            <button type="submit" class="btn btn-primary px-5" style="border-radius:10px;">
+                <i class="fas fa-user-plus me-2"></i>Create User
+            </button>
+            <a asp-action="Index" class="btn btn-outline-secondary px-4" style="border-radius:10px;">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+<script>
+(function () {
+    const roleSelect     = document.getElementById('roleSelect');
+    const doctorSection  = document.getElementById('doctorSection');
+    const patientSection = document.getElementById('patientSection');
+    const infoBox        = document.getElementById('roleInfoBox');
+
+    const roleMessages = {
+        'SuperAdmin':    { cls:'border-danger bg-danger bg-opacity-10 text-danger',
+                           msg:'SuperAdmin has full system access. Only create for trusted system administrators.' },
+        'HospitalAdmin': { cls:'border-primary bg-primary bg-opacity-10 text-primary',
+                           msg:'HospitalAdmin can manage all hospital operations except creating other Admins.' },
+        'Doctor':        { cls:'border-success bg-success bg-opacity-10 text-success',
+                           msg:'Doctor must have an existing Doctor profile. Provide the Doctor ID below. A welcome email is sent.' },
+        'Nurse':         { cls:'border-info bg-info bg-opacity-10 text-info',
+                           msg:'Nurse account — standard staff registration.' },
+        'Receptionist':  { cls:'border-warning bg-warning bg-opacity-10 text-dark',
+                           msg:'Receptionist account — standard staff registration.' },
+        'Patient':       { cls:'border-secondary bg-secondary bg-opacity-10 text-secondary',
+                           msg:'Patient — a new Patient record will be created and linked automatically.' }
+    };
+
+    function updateForm() {
+        const role = roleSelect.value;
+        doctorSection.style.display  = role === 'Doctor'  ? '' : 'none';
+        patientSection.style.display = role === 'Patient' ? '' : 'none';
+
+        if (role && roleMessages[role]) {
+            const info = roleMessages[role];
+            infoBox.className = 'role-info-box ' + info.cls;
+            infoBox.innerHTML = info.msg;
+            infoBox.style.display = '';
+        } else {
+            infoBox.style.display = 'none';
+        }
+    }
+
+    roleSelect.addEventListener('change', updateForm);
+    updateForm();
+})();
+</script>
+@{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

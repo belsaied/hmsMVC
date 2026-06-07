@@ -1,0 +1,88 @@
+@using HMS.PL.ViewModels.UserManagementModule
+@model AuditLogPageViewModel
+
+@{
+    ViewData["Title"] = "Audit Log";
+}
+
+@section Styles {
+<style>
+    :root { --hms-blue:#1a3a5c; --hms-border:#e2e8f0; --hms-bg:#f0f4f8; }
+    .audit-table { border-radius:14px; overflow:hidden; box-shadow:0 2px 16px rgba(0,0,0,.07); border:1px solid var(--hms-border); }
+    .audit-table .table { margin:0; }
+    .audit-table thead th {
+        background:var(--hms-blue); color:white; font-weight:600;
+        font-size:.8rem; text-transform:uppercase; letter-spacing:.06em;
+        padding:14px 16px; border:none;
+    }
+    .audit-table tbody tr { transition:background .15s; border-bottom:1px solid var(--hms-border); }
+    .audit-table tbody tr:hover { background:#f8fafc; }
+    .audit-table tbody td { padding:14px 16px; vertical-align:middle; }
+</style>
+}
+
+<div class="container-fluid px-4 py-3">
+    <div class="d-flex align-items-center gap-2 mb-3">
+        <a asp-action="Index" class="btn btn-sm btn-outline-secondary" style="border-radius:8px;">
+            <i class="fas fa-arrow-left me-1"></i>Back to Users
+        </a>
+        <h4 class="mb-0 fw-bold ms-2">
+            <i class="fas fa-history me-2"></i>Audit Log
+        </h4>
+    </div>
+
+    <div class="audit-table">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>User</th>
+                    <th>Action</th>
+                    <th>Details</th>
+                    <th>IP Address</th>
+                    <th>Timestamp</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Entries.Any())
+                {
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            <i class="fas fa-clipboard-list display-6 d-block mb-2"></i>
+                            No audit entries found.
+                        </td>
+                    </tr>
+                }
+                @{ int i = 0; }
+                @foreach (var entry in Model.Entries)
+                {
+                    i++;
+                    var actionColor = entry.Action switch {
+                        "LOGIN_SUCCESS"       => "success",
+                        "LOGIN_FAILED"        => "danger",
+                        "USER_LOCKED"         => "danger",
+                        "USER_UNLOCKED"       => "warning",
+                        "USER_CREATED"        => "primary",
+                        "USER_UPDATED"        => "info",
+                        "PASSWORD_FORCE_RESET" => "warning",
+                        "LOGOUT"              => "secondary",
+                        _                     => "secondary"
+                    };
+                    <tr>
+                        <td class="text-muted small">@i</td>
+                        <td class="small">
+                            <div class="fw-semibold">@entry.UserEmail</div>
+                            <div class="text-muted" style="font-size:.72rem;">@entry.UserId</div>
+                        </td>
+                        <td>
+                            <span class="badge bg-@actionColor">@entry.Action</span>
+                        </td>
+                        <td class="small text-muted">@(entry.Details ?? "—")</td>
+                        <td class="small text-muted">@(entry.IpAddress ?? "—")</td>
+                        <td class="small text-muted">@entry.CreatedAt.ToString("dd MMM yyyy HH:mm")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

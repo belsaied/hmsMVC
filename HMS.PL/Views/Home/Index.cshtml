@@ -1,8 +1,422 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model HMS.PL.ViewModels.LandingModule.LandingPageViewModel
+@{
+    ViewData["Title"] = "Welcome";
+    Layout = "_LandingLayout";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<!-- TOP BAR -->
+<div class="hms-topbar">
+    <div class="hms-topbar-inner">
+        <div class="hms-brand-top">
+            <span class="hms-logo-icon-top">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v4h4v2h-4v4h-2v-4H7v-2h4V7z"
+                          fill="currentColor"/>
+                </svg>
+            </span>
+            <span class="hms-brand-name-top">Healing</span>
+        </div>
+        <div class="hms-search-top">
+            <i class="fas fa-search hms-search-icon"></i>
+            <input type="text" placeholder="Search about Specialty, doctor" class="hms-search-input" readonly
+                   onclick="document.getElementById('specialtiesSection').scrollIntoView({behavior:'smooth'})" />
+        </div>
+        <div class="hms-topbar-actions">
+            <button class="hms-icon-btn" title="Notifications" aria-label="Notifications">
+                <i class="fas fa-bell"></i>
+            </button>
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <a asp-controller="Dashboard" asp-action="Index" class="hms-icon-btn" title="Go to Dashboard">
+                    <i class="fas fa-user-circle"></i>
+                </a>
+            }
+            else
+            {
+                <a asp-controller="Auth" asp-action="Login" class="hms-icon-btn" title="Account">
+                    <i class="fas fa-user-circle"></i>
+                </a>
+            }
+        </div>
+    </div>
 </div>
+
+<!-- MAIN NAVBAR -->
+<nav class="hms-navbar">
+    <div class="hms-navbar-inner">
+        <a href="/" class="hms-brand-nav">
+            <span class="hms-logo-icon-nav">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v4h4v2h-4v4h-2v-4H7v-2h4V7z"
+                          fill="currentColor"/>
+                </svg>
+            </span>
+            <span>Healing</span>
+        </a>
+
+        <ul class="hms-nav-links">
+            <li><a href="#heroSection" class="hms-nav-link">Home</a></li>
+            <li><a href="#aboutSection" class="hms-nav-link">About us</a></li>
+            <li><a href="#specialtiesSection" class="hms-nav-link">Specialties</a></li>
+            <li><a href="#doctorsSection" class="hms-nav-link">Appointment</a></li>
+            <li><a href="#contactSection" class="hms-nav-link">Contact</a></li>
+        </ul>
+
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <a asp-controller="Dashboard" asp-action="Index" class="hms-btn-login">Dashboard</a>
+        }
+        else
+        {
+            <a asp-controller="Auth" asp-action="Login" class="hms-btn-login">Login</a>
+        }
+
+        <button class="hms-hamburger" id="mobileMenuBtn" aria-label="Toggle menu">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+
+    <div class="hms-mobile-menu" id="mobileMenu">
+        <a href="#heroSection" class="hms-mobile-link">Home</a>
+        <a href="#aboutSection" class="hms-mobile-link">About us</a>
+        <a href="#specialtiesSection" class="hms-mobile-link">Specialties</a>
+        <a href="#doctorsSection" class="hms-mobile-link">Appointment</a>
+        <a href="#contactSection" class="hms-mobile-link">Contact</a>
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <a asp-controller="Dashboard" asp-action="Index" class="hms-mobile-link hms-mobile-cta">Dashboard</a>
+        }
+        else
+        {
+            <a asp-controller="Auth" asp-action="Login" class="hms-mobile-link hms-mobile-cta">Login</a>
+        }
+    </div>
+</nav>
+
+<!-- HERO SECTION -->
+<section class="hms-hero" id="heroSection">
+    <div class="hms-hero-overlay"></div>
+    <div class="hms-hero-content">
+        <h1 class="hms-hero-title">Welcome to Healing</h1>
+        <p class="hms-hero-subtitle">
+            Discover comprehensive healthcare powered by advanced technology
+            and @(Model.TotalDoctors > 0 ? $"{Model.TotalDoctors}+" : "50+") specialist doctors.
+        </p>
+        <a asp-controller="Auth" asp-action="Register" class="hms-btn-register">Register Now</a>
+    </div>
+</section>
+
+<!-- STATS STRIP -->
+<section class="hms-stats">
+    <div class="hms-stats-inner">
+        <div class="hms-stat-item">
+            <span class="hms-stat-number">@(Model.TotalDoctors > 0 ? $"{Model.TotalDoctors}+" : "50+")</span>
+            <span class="hms-stat-label">Specialist Doctors</span>
+        </div>
+        <div class="hms-stat-divider"></div>
+        <div class="hms-stat-item">
+            <span class="hms-stat-number">@(Model.TotalDepartments > 0 ? $"{Model.TotalDepartments}+" : "10+")</span>
+            <span class="hms-stat-label">Departments</span>
+        </div>
+        <div class="hms-stat-divider"></div>
+        <div class="hms-stat-item">
+            <span class="hms-stat-number">24/7</span>
+            <span class="hms-stat-label">Emergency Care</span>
+        </div>
+        <div class="hms-stat-divider"></div>
+        <div class="hms-stat-item">
+            <span class="hms-stat-number">100%</span>
+            <span class="hms-stat-label">Digital Records</span>
+        </div>
+    </div>
+</section>
+
+<!-- ABOUT SECTION -->
+<section class="hms-about" id="aboutSection">
+    <div class="hms-container">
+        <div class="hms-section-header">
+            <span class="hms-section-tag">Who We Are</span>
+            <h2 class="hms-section-title">About Healing</h2>
+            <p class="hms-section-desc">
+                Healing is a state-of-the-art hospital management platform that bridges the gap
+                between patients and world-class medical professionals. Our integrated system
+                covers everything from appointment scheduling to billing, all in one place.
+            </p>
+        </div>
+        <div class="hms-about-cards">
+            <div class="hms-about-card">
+                <div class="hms-about-icon" style="background: rgba(0,120,212,0.08); color: #0078D4;">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <h3>Easy Appointments</h3>
+                <p>Book appointments with your preferred specialist in seconds with real-time availability.</p>
+            </div>
+            <div class="hms-about-card">
+                <div class="hms-about-icon" style="background: rgba(16,185,129,0.08); color: #10b981;">
+                    <i class="fas fa-notes-medical"></i>
+                </div>
+                <h3>Digital Records</h3>
+                <p>Your complete medical history — lab results, prescriptions, and vitals — always at hand.</p>
+            </div>
+            <div class="hms-about-card">
+                <div class="hms-about-icon" style="background: rgba(245,158,11,0.08); color: #d97706;">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3>Secure & Private</h3>
+                <p>Enterprise-grade security with role-based access ensures your data stays yours.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SPECIALTIES SECTION -->
+<section class="hms-specialties" id="specialtiesSection">
+    <div class="hms-container">
+        <div class="hms-section-header">
+            <span class="hms-section-tag">What We Offer</span>
+            <h2 class="hms-section-title">Our Specialties</h2>
+            <p class="hms-section-desc">
+                Explore our wide range of medical departments, each led by dedicated specialists.
+            </p>
+        </div>
+
+        @if (Model.Departments.Any())
+        {
+            <div class="hms-specialties-grid">
+                @{
+                    string[] deptIcons = {
+                        "fas fa-heartbeat", "fas fa-brain", "fas fa-bone",
+                        "fas fa-eye", "fas fa-tooth", "fas fa-lungs",
+                        "fas fa-baby", "fas fa-allergies", "fas fa-stethoscope",
+                        "fas fa-user-md", "fas fa-dna", "fas fa-capsules"
+                    };
+                    string[] deptColors = {
+                        "#ef4444", "#8b5cf6", "#f59e0b",
+                        "#06b6d4", "#10b981", "#3b82f6",
+                        "#f43f5e", "#84cc16", "#0078D4",
+                        "#a855f7", "#14b8a6", "#fb923c"
+                    };
+                    int dIdx = 0;
+                }
+                @foreach (var dept in Model.Departments)
+                {
+                    var icon = deptIcons[dIdx % deptIcons.Length];
+                    var color = deptColors[dIdx % deptColors.Length];
+                    dIdx++;
+                    <div class="hms-specialty-card">
+                        <div class="hms-specialty-icon" style="color: @color; background: @(color)18;">
+                            <i class="@icon"></i>
+                        </div>
+                        <h3 class="hms-specialty-name">@dept.Name</h3>
+                        @if (!string.IsNullOrWhiteSpace(dept.Description))
+                        {
+                            <p class="hms-specialty-desc">@dept.Description</p>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(dept.HeadDoctorName))
+                        {
+                            <span class="hms-specialty-head">
+                                <i class="fas fa-user-md"></i> Dr. @dept.HeadDoctorName
+                            </span>
+                        }
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="hms-specialties-grid">
+                @{
+                    var fallbackDepts = new[] {
+                        ("Cardiology", "fas fa-heartbeat", "#ef4444", "Heart & cardiovascular care"),
+                        ("Neurology", "fas fa-brain", "#8b5cf6", "Brain & nervous system"),
+                        ("Orthopedics", "fas fa-bone", "#f59e0b", "Bones, joints & muscles"),
+                        ("Ophthalmology", "fas fa-eye", "#06b6d4", "Eye care & vision"),
+                        ("Pediatrics", "fas fa-baby", "#f43f5e", "Child health & development"),
+                        ("Pulmonology", "fas fa-lungs", "#3b82f6", "Lung & respiratory care"),
+                    };
+                }
+                @foreach (var (name, icon, color, desc) in fallbackDepts)
+                {
+                    <div class="hms-specialty-card">
+                        <div class="hms-specialty-icon" style="color: @color; background: @(color)18;">
+                            <i class="@icon"></i>
+                        </div>
+                        <h3 class="hms-specialty-name">@name</h3>
+                        <p class="hms-specialty-desc">@desc</p>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</section>
+
+<!-- FEATURED DOCTORS SECTION -->
+<section class="hms-doctors" id="doctorsSection">
+    <div class="hms-container">
+        <div class="hms-section-header">
+            <span class="hms-section-tag">Our Team</span>
+            <h2 class="hms-section-title">Meet Our Doctors</h2>
+            <p class="hms-section-desc">
+                Our specialists bring years of experience and genuine care to every consultation.
+            </p>
+        </div>
+
+        @if (Model.FeaturedDoctors.Any())
+        {
+            <div class="hms-doctors-grid">
+                @foreach (var doc in Model.FeaturedDoctors)
+                {
+                    <div class="hms-doctor-card">
+                        <div class="hms-doctor-avatar">
+                            @if (!string.IsNullOrWhiteSpace(doc.PictureUrl))
+                            {
+                                <img src="@doc.PictureUrl" alt="Dr. @doc.FullName" />
+                            }
+                            else
+                            {
+                                <div class="hms-doctor-initials">
+                                    @(doc.FirstName.Length > 0 ? doc.FirstName[0].ToString().ToUpper() : "")@(doc.LastName.Length > 0 ? doc.LastName[0].ToString().ToUpper() : "")
+                                </div>
+                            }
+                        </div>
+                        <div class="hms-doctor-info">
+                            <h3 class="hms-doctor-name">Dr. @doc.FullName</h3>
+                            <span class="hms-doctor-spec">@doc.Specialization</span>
+                            <span class="hms-doctor-dept">@doc.DepartmentName</span>
+                            @if (doc.YearsOfExperience > 0)
+                            {
+                                <span class="hms-doctor-exp">
+                                    <i class="fas fa-award"></i> @doc.YearsOfExperience yrs experience
+                                </span>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="hms-no-data">
+                <i class="fas fa-user-md hms-no-data-icon"></i>
+                <p>Our medical team profiles are being updated. Please check back soon.</p>
+            </div>
+        }
+
+        <div class="hms-section-cta">
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <a asp-controller="Appointments" asp-action="Index" class="hms-btn-primary">
+                    Book an Appointment
+                </a>
+            }
+            else
+            {
+                <a asp-controller="Auth" asp-action="Register" class="hms-btn-primary">
+                    Register &amp; Book
+                </a>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="hms-footer" id="contactSection">
+    <div class="hms-footer-top">
+        <div class="hms-container">
+            <div class="hms-footer-grid">
+
+                <div class="hms-footer-col hms-footer-brand-col">
+                    <div class="hms-footer-brand">
+                        <span class="hms-logo-icon-footer">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v4h4v2h-4v4h-2v-4H7v-2h4V7z"
+                                      fill="currentColor"/>
+                            </svg>
+                        </span>
+                        <span class="hms-footer-brand-name">Healing</span>
+                    </div>
+                    <p class="hms-footer-tagline">
+                        Advanced healthcare management powered by technology — for patients, by professionals.
+                    </p>
+                </div>
+
+                <div class="hms-footer-col">
+                    <h4 class="hms-footer-heading">Quick Links</h4>
+                    <ul class="hms-footer-links">
+                        <li><a href="#heroSection">Home</a></li>
+                        <li><a href="#aboutSection">About Us</a></li>
+                        <li><a href="#specialtiesSection">Specialties</a></li>
+                        <li><a href="#doctorsSection">Our Doctors</a></li>
+                    </ul>
+                </div>
+
+                <div class="hms-footer-col">
+                    <h4 class="hms-footer-heading">Patients</h4>
+                    <ul class="hms-footer-links">
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li><a asp-controller="Appointments" asp-action="Index">Book Appointment</a></li>
+                            <li><a asp-controller="Dashboard" asp-action="Index">My Dashboard</a></li>
+                        }
+                        else
+                        {
+                            <li><a asp-controller="Auth" asp-action="Register">Register</a></li>
+                            <li><a asp-controller="Auth" asp-action="Login">Login</a></li>
+                        }
+                    </ul>
+                </div>
+
+                <div class="hms-footer-col">
+                    <h4 class="hms-footer-heading">Contact</h4>
+                    <ul class="hms-footer-contact">
+                        <li><i class="fas fa-map-marker-alt"></i> 123 Medical Centre, Cairo, Egypt</li>
+                        <li><i class="fas fa-phone"></i> +20 100 000 0000</li>
+                        <li><i class="fas fa-envelope"></i> info&#64;healing-hms.com</li>
+                        <li><i class="fas fa-clock"></i> 24 / 7 Emergency Services</li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="hms-footer-bottom">
+        <div class="hms-container">
+            <span>&copy; @DateTime.Now.Year Healing — Hospital Management System. All rights reserved.</span>
+        </div>
+    </div>
+</footer>
+
+@section Scripts {
+<script>
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileMenu    = document.getElementById('mobileMenu');
+    if (mobileMenuBtn && mobileMenu) {
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('open');
+        });
+        mobileMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => mobileMenu.classList.remove('open'));
+        });
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                e.preventDefault();
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+
+    const navbar = document.querySelector('.hms-navbar');
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 80) {
+            navbar.classList.add('scrolled');
+        } else {
+            navbar.classList.remove('scrolled');
+        }
+    });
+</script>
+}

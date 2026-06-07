@@ -1,0 +1,342 @@
+@using HMS.PL.ViewModels.UserManagementModule
+@model UserIndexPageViewModel
+
+@{
+    ViewData["Title"] = "User Management";
+}
+
+@section Styles {
+<style>
+    :root {
+        --hms-blue: #1a3a5c;
+        --hms-blue-mid: #2563a8;
+        --hms-accent: #0ea5e9;
+        --hms-green: #10b981;
+        --hms-red: #ef4444;
+        --hms-orange: #f59e0b;
+        --hms-gray: #64748b;
+        --hms-bg: #f0f4f8;
+        --hms-card: #ffffff;
+        --hms-border: #e2e8f0;
+        --hms-text: #1e293b;
+    }
+
+    .um-header {
+        background: linear-gradient(135deg, var(--hms-blue) 0%, var(--hms-blue-mid) 100%);
+        color: white;
+        padding: 28px 32px;
+        border-radius: 16px;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 8px 32px rgba(26,58,92,.18);
+        position: relative;
+        overflow: hidden;
+    }
+    .um-header::before {
+        content:''; position:absolute; top:-40px; right:-40px;
+        width:160px; height:160px; background:rgba(255,255,255,.07); border-radius:50%;
+    }
+    .um-header-title { font-size:1.75rem; font-weight:700; margin:0; }
+    .um-header-sub   { font-size:.875rem; opacity:.75; margin-top:4px; }
+
+    .search-card {
+        background:var(--hms-card); border-radius:14px;
+        padding:20px 24px; margin-bottom:20px;
+        box-shadow:0 2px 12px rgba(0,0,0,.06);
+        border:1px solid var(--hms-border);
+    }
+
+    .um-table-card {
+        background:var(--hms-card); border-radius:14px;
+        overflow:hidden; box-shadow:0 2px 16px rgba(0,0,0,.07);
+        border:1px solid var(--hms-border);
+    }
+    .um-table-card .table { margin:0; }
+    .um-table-card thead th {
+        background:var(--hms-blue); color:white;
+        font-weight:600; font-size:.8rem;
+        text-transform:uppercase; letter-spacing:.06em;
+        padding:14px 16px; border:none;
+    }
+    .um-table-card tbody tr {
+        transition:background .15s;
+        border-bottom:1px solid var(--hms-border);
+    }
+    .um-table-card tbody tr:hover { background:#f8fafc; }
+    .um-table-card tbody td { padding:14px 16px; vertical-align:middle; }
+
+    .role-badge {
+        display:inline-block; padding:4px 12px; border-radius:20px;
+        font-size:.72rem; font-weight:600; text-transform:uppercase; letter-spacing:.04em;
+    }
+    .role-SuperAdmin    { background:#fef3c7; color:#92400e; }
+    .role-HospitalAdmin { background:#dbeafe; color:#1e40af; }
+    .role-Doctor        { background:#dcfce7; color:#14532d; }
+    .role-Nurse         { background:#fce7f3; color:#831843; }
+    .role-Receptionist  { background:#e0e7ff; color:#3730a3; }
+    .role-Patient       { background:#f0fdf4; color:#166534; }
+
+    .status-badge {
+        display:inline-flex; align-items:center; gap:5px;
+        padding:4px 10px; border-radius:20px; font-size:.72rem; font-weight:600;
+    }
+    .status-active   { background:#dcfce7; color:#166534; }
+    .status-locked   { background:#fee2e2; color:#991b1b; }
+    .status-unverified { background:#fef3c7; color:#92400e; }
+
+    .btn-action {
+        padding:5px 12px; border-radius:8px; font-size:.8rem;
+        font-weight:500; border:none; cursor:pointer;
+        transition:all .15s;
+    }
+    .btn-view   { background:#e0f2fe; color:#0369a1; }
+    .btn-view:hover   { background:#bae6fd; }
+    .btn-edit   { background:#f0fdf4; color:#166534; }
+    .btn-edit:hover   { background:#bbf7d0; }
+    .btn-lock   { background:#fee2e2; color:#991b1b; }
+    .btn-lock:hover   { background:#fecaca; }
+
+    .pagination-area { display:flex; align-items:center; justify-content:center; gap:8px; padding:20px; }
+    .page-btn {
+        width:36px; height:36px; border-radius:8px; display:flex;
+        align-items:center; justify-content:center; font-size:.85rem;
+        font-weight:600; border:1px solid var(--hms-border);
+        background:white; color:var(--hms-text); text-decoration:none;
+        transition:all .15s;
+    }
+    .page-btn:hover  { background:var(--hms-accent); color:white; border-color:var(--hms-accent); }
+    .page-btn.active { background:var(--hms-blue);  color:white; border-color:var(--hms-blue); }
+    .page-btn.disabled { opacity:.4; pointer-events:none; }
+</style>
+}
+
+<div class="container-fluid px-4 py-3">
+
+    <div class="um-header">
+        <div>
+            <h1 class="um-header-title">
+                <i class="fas fa-users me-3" style="opacity:.6"></i>User Management
+            </h1>
+            <div class="um-header-sub">
+                @Model.TotalCount total users &nbsp;·&nbsp; Page @Model.PageIndex of @Model.TotalPages
+            </div>
+        </div>
+        <a asp-action="Create" class="btn btn-light btn-sm px-4 fw-semibold"
+           style="border-radius:10px;">
+            <i class="fas fa-user-plus me-2"></i>New User
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show rounded-3 mb-3" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@Html.Raw(TempData["Success"])
+            <button type="button" class="btn-close" data-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show rounded-3 mb-3" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>@TempData["Error"]
+            <button type="button" class="btn-close" data-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="search-card">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label fw-semibold small text-muted">Search Users</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="fas fa-search text-muted"></i>
+                    </span>
+                    <input type="text" name="search" value="@Model.SearchQuery"
+                           class="form-control border-start-0 ps-0"
+                           placeholder="Name or email..." />
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-semibold small text-muted">Role</label>
+                <select name="role" class="form-select">
+                    @Html.Raw(string.Join("", ((SelectList)ViewBag.RoleSelectList).Select(item =>
+                        $"<option value=\"{item.Value}\" {(item.Selected ? "selected" : "")}>{item.Text}</option>")))
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label fw-semibold small text-muted">Status</label>
+                <select name="locked" class="form-select">
+                    <option value="">All</option>
+                    <option value="false" selected="@(Model.LockedFilter == false)">Active</option>
+                    <option value="true"  selected="@(Model.LockedFilter == true)">Locked</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-primary flex-fill" style="border-radius:10px;">
+                    <i class="fas fa-filter me-1"></i>Filter
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary" style="border-radius:10px;" title="Clear">
+                    <i class="fas fa-times"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <div class="um-table-card">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>User</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Last Login</th>
+                    <th>Linked Entity</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Users.Any())
+                {
+                    <tr>
+                        <td colspan="8" class="text-center py-5 text-muted">
+                            <i class="fas fa-user-slash display-6 d-block mb-2"></i>
+                            No users found matching your filters.
+                        </td>
+                    </tr>
+                }
+                @{int rowNum = (Model.PageIndex - 1) * Model.PageSize;}
+                @foreach (var user in Model.Users)
+                {
+                    rowNum++;
+                    var statusClass = user.IsLocked          ? "status-locked"
+                                    : !user.IsEmailVerified  ? "status-unverified"
+                                    :                          "status-active";
+                    var statusText  = user.IsLocked          ? "Locked"
+                                    : !user.IsEmailVerified  ? "Unverified"
+                                    :                          "Active";
+                    var statusIcon  = user.IsLocked ? "fas fa-lock"
+                                    : !user.IsEmailVerified ? "fas fa-envelope"
+                                    : "fas fa-check-circle";
+                    <tr>
+                        <td class="text-muted small fw-semibold">@rowNum</td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div style="width:36px;height:36px;border-radius:50%;
+                                            background:linear-gradient(135deg,var(--hms-blue),var(--hms-blue-mid));
+                                            color:white;display:flex;align-items:center;
+                                            justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0;">
+                                    @(user.FullName.Length > 0 ? user.FullName[0].ToString().ToUpper() : "?")
+                                </div>
+                                <div>
+                                    <div class="fw-semibold" style="font-size:.9rem;">@user.FullName</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="small text-muted">@user.Email</td>
+                        <td>
+                            <span class="role-badge role-@user.Role">@user.Role</span>
+                        </td>
+                        <td>
+                            <span class="status-badge @statusClass">
+                                <i class="@statusIcon"></i>@statusText
+                            </span>
+                        </td>
+                        <td class="small text-muted">
+                            @(user.LastLoginAt.HasValue
+                                ? user.LastLoginAt.Value.ToString("dd MMM yyyy HH:mm")
+                                : "Never")
+                        </td>
+                        <td class="small">
+                            @if (user.DoctorId.HasValue)
+                            {
+                                <a asp-controller="Doctors" asp-action="Details"
+                                   asp-route-id="@user.DoctorId"
+                                   class="text-primary text-decoration-none">
+                                    <i class="fas fa-user-md me-1"></i>Doctor #@user.DoctorId
+                                </a>
+                            }
+                            else if (user.PatientId.HasValue)
+                            {
+                                <a asp-controller="Patients" asp-action="Details"
+                                   asp-route-id="@user.PatientId"
+                                   class="text-primary text-decoration-none">
+                                    <i class="fas fa-user-injured me-1"></i>Patient #@user.PatientId
+                                </a>
+                            }
+                            else
+                            {
+                                <span class="text-muted">—</span>
+                            }
+                        </td>
+                        <td class="text-center">
+                            <div class="d-flex gap-1 justify-content-center flex-wrap">
+                                <a asp-action="Details" asp-route-id="@user.Id"
+                                   class="btn-action btn-view" title="View Details">
+                                    <i class="fas fa-eye me-1"></i>View
+                                </a>
+                                <a asp-action="Edit" asp-route-id="@user.Id"
+                                   class="btn-action btn-edit" title="Edit">
+                                    <i class="fas fa-pen me-1"></i>Edit
+                                </a>
+                                @if (!user.IsLocked)
+                                {
+                                    <form asp-action="Lock" asp-route-id="@user.Id"
+                                          method="post" style="display:inline;"
+                                          onsubmit="return confirm('Lock this user account?');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn-action btn-lock">
+                                            <i class="fas fa-lock me-1"></i>Lock
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <form asp-action="Unlock" asp-route-id="@user.Id"
+                                          method="post" style="display:inline;">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn-action btn-edit">
+                                            <i class="fas fa-unlock me-1"></i>Unlock
+                                        </button>
+                                    </form>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        @if (Model.TotalPages > 1)
+        {
+            <div class="pagination-area border-top">
+                <a class="page-btn @(Model.PageIndex == 1 ? "disabled" : "")"
+                   asp-action="Index"
+                   asp-route-search="@Model.SearchQuery"
+                   asp-route-role="@Model.RoleFilter"
+                   asp-route-pageIndex="@(Model.PageIndex - 1)">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+                @for (int p = Math.Max(1, Model.PageIndex - 2);
+                          p <= Math.Min(Model.TotalPages, Model.PageIndex + 2); p++)
+                {
+                    <a class="page-btn @(p == Model.PageIndex ? "active" : "")"
+                       asp-action="Index"
+                       asp-route-search="@Model.SearchQuery"
+                       asp-route-role="@Model.RoleFilter"
+                       asp-route-pageIndex="@p">@p</a>
+                }
+                <a class="page-btn @(Model.PageIndex >= Model.TotalPages ? "disabled" : "")"
+                   asp-action="Index"
+                   asp-route-search="@Model.SearchQuery"
+                   asp-route-role="@Model.RoleFilter"
+                   asp-route-pageIndex="@(Model.PageIndex + 1)">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </div>
+        }
+    </div>
+
+</div>
