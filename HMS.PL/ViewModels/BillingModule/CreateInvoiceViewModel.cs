@@ -36,5 +36,7 @@ namespace HMS.PL.ViewModels.BillingModule
 
         [Range(0.0001, double.MaxValue)]
         public decimal UnitPrice { get; set; }
+
+        public bool IsAutoAdded { get; set; }
     }
 }

@@ -1,27 +1,136 @@
 @{
-    ViewData["Title"] = "Pay by Card";
+    ViewData["Title"] = "Secure Card Payment";
     string clientSecret = ViewBag.ClientSecret;
     decimal amount = ViewBag.Amount;
     string invoiceNumber = ViewBag.InvoiceNumber;
     Guid invoiceId = ViewBag.InvoiceId;
+    string stripePublicKey = ViewBag.StripePublicKey;
 }
 
 @section Styles {
 <style>
-    :root { --hms-blue: #1a3a5c; --hms-blue-mid: #2563a8; --hms-border: #e2e8f0; --hms-muted: #64748b; }
-    .form-card { background:#fff; border-radius:14px; box-shadow:0 2px 12px rgba(0,0,0,.06); border:1px solid var(--hms-border); overflow:hidden; }
-    .form-card-header { padding:16px 22px; border-bottom:1px solid var(--hms-border); font-weight:700; font-size:.9rem; background:#f8fafc; }
-    .form-card-body { padding:22px; }
-    #payment-element { margin: 20px 0; }
-    #submit { width:100%; padding:12px; font-size:1rem; font-weight:700; border-radius:10px; border:none; background:#2563a8; color:#fff; }
-    #submit:hover { background:#1a3a5c; }
-    #payment-message { color:#ef4444; margin-top:12px; text-align:center; font-size:.875rem; }
+    :root {
+        --stripe-purple: #6772e5;
+        --hms-blue: #1a3a5c;
+        --hms-blue-mid: #2563a8;
+        --hms-border: #e2e8f0;
+        --hms-muted: #64748b;
+        --hms-green: #10b981;
+        --hms-red: #ef4444;
+        --hms-bg: #f8fafc;
+    }
+
+    body { background: var(--hms-bg); }
+
+    .pay-wrapper {
+        max-width: 520px;
+        margin: 40px auto;
+    }
+
+    .pay-card {
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 4px 32px rgba(26,58,92,.1);
+        border: 1px solid var(--hms-border);
+        overflow: hidden;
+    }
+
+    .pay-header {
+        background: linear-gradient(135deg, #1a3a5c, #2563a8);
+        color: #fff;
+        padding: 28px 32px 24px;
+    }
+
+    .pay-header .amount-label { font-size: .85rem; opacity: .75; margin-bottom: 4px; }
+    .pay-header .amount-value { font-size: 2.4rem; font-weight: 800; letter-spacing: -1px; }
+    .pay-header .invoice-ref  { font-size: .8rem; opacity: .65; margin-top: 6px; }
+
+    .pay-body { padding: 28px 32px; }
+
+    #payment-element {
+        margin-bottom: 24px;
+    }
+
+    .pay-btn {
+        width: 100%;
+        padding: 14px;
+        font-size: 1rem;
+        font-weight: 700;
+        border-radius: 12px;
+        border: none;
+        background: linear-gradient(135deg, #1e40af, #2563a8);
+        color: #fff;
+        cursor: pointer;
+        transition: opacity .2s, transform .1s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+    .pay-btn:hover:not(:disabled) { opacity: .9; }
+    .pay-btn:active:not(:disabled) { transform: scale(.99); }
+    .pay-btn:disabled { opacity: .6; cursor: not-allowed; }
+
+    .pay-message {
+        margin-top: 16px;
+        padding: 12px 16px;
+        border-radius: 10px;
+        font-size: .875rem;
+        font-weight: 500;
+        text-align: center;
+        display: none;
+    }
+    .pay-message.error   { background: #fef2f2; color: var(--hms-red); border: 1px solid #fecaca; }
+    .pay-message.success { background: #f0fdf4; color: var(--hms-green); border: 1px solid #bbf7d0; }
+
+    .pay-footer {
+        padding: 16px 32px;
+        border-top: 1px solid var(--hms-border);
+        background: var(--hms-bg);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .secure-badge {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: .75rem;
+        color: var(--hms-muted);
+        font-weight: 600;
+    }
+    .secure-badge i { color: var(--hms-green); }
+
+    .stripe-badge { font-size: .75rem; color: var(--hms-muted); font-weight: 600; }
+    .stripe-badge span { color: var(--stripe-purple); font-weight: 800; }
+
+    .cancel-link {
+        display: block;
+        text-align: center;
+        margin-top: 16px;
+        font-size: .8rem;
+        color: var(--hms-muted);
+        text-decoration: none;
+    }
+    .cancel-link:hover { color: var(--hms-red); }
+
+    .spinner-ring {
+        width: 18px; height: 18px;
+        border: 2px solid rgba(255,255,255,.4);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: spin .7s linear infinite;
+        display: none;
+    }
+    @@keyframes spin { to { transform: rotate(360deg); } }
 </style>
 }
 
 @section PageHeader {
     <div class="row mb-2">
-        <div class="col-sm-6"><h1 class="m-0">Pay by Card</h1></div>
+        <div class="col-sm-6"><h1 class="m-0">Secure Payment</h1></div>
         <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
                 <li class="breadcrumb-item"><a href="/">Home</a></li>
@@ -32,20 +141,39 @@
     </div>
 }
 
-<div class="row justify-content-center">
-    <div class="col-md-6 col-lg-5">
-        <div class="form-card">
-            <div class="form-card-header">
-                <i class="fab fa-stripe-s mr-2" style="color:#6772e5"></i> Card Payment &mdash; @invoiceNumber
+<div class="pay-wrapper">
+    <div class="pay-card">
+
+        <div class="pay-header">
+            <div class="amount-label">Amount Due</div>
+            <div class="amount-value">@amount.ToString("C")</div>
+            <div class="invoice-ref">
+                <i class="fas fa-file-invoice mr-1"></i> Invoice @invoiceNumber
             </div>
-            <div class="form-card-body">
-                <p class="text-muted mb-3">Amount due: <strong>@amount.ToString("C")</strong></p>
-                <div id="payment-element"></div>
-                <button id="submit" class="mt-3">
-                    <span id="button-text">Pay @amount.ToString("C")</span>
-                    <span id="spinner" class="d-none spinner-border spinner-border-sm ml-2"></span>
-                </button>
-                <p id="payment-message" class="d-none"></p>
+        </div>
+
+        <div class="pay-body">
+            <div id="payment-element"></div>
+
+            <button id="submitBtn" class="pay-btn">
+                <div class="spinner-ring" id="spinner"></div>
+                <i class="fas fa-lock" id="lockIcon"></i>
+                <span id="btnText">Pay @amount.ToString("C") Securely</span>
+            </button>
+
+            <div class="pay-message" id="payMessage"></div>
+
+            <a href="/Invoices/Details/@invoiceId" class="cancel-link">
+                <i class="fas fa-arrow-left mr-1"></i> Go back to invoice
+            </a>
+        </div>
+
+        <div class="pay-footer">
+            <div class="secure-badge">
+                <i class="fas fa-shield-alt"></i> 256-bit SSL Encrypted
+            </div>
+            <div class="stripe-badge">
+                Powered by <span>Stripe</span>
             </div>
         </div>
     </div>
@@ -54,29 +182,62 @@
 @section Scripts {
 <script src="https://js.stripe.com/v3/"></script>
 <script>
-    const stripe = Stripe('@ViewBag.StripePublicKey');
-    const elements = stripe.elements({ clientSecret: '@clientSecret' });
-    const paymentElement = elements.create('payment');
-    paymentElement.mount('#payment-element');
+    (function () {
+        const PUBLIC_KEY = '@stripePublicKey';
+        const CLIENT_SECRET = '@clientSecret';
+        const RETURN_URL = window.location.origin + '/Invoices/Details/@invoiceId';
 
-    document.getElementById('submit').addEventListener('click', async () => {
-        document.getElementById('spinner').classList.remove('d-none');
-        document.getElementById('button-text').textContent = 'Processing\u2026';
+        if (!PUBLIC_KEY || PUBLIC_KEY === '') {
+            showMessage('error', 'Payment system is not configured. Please contact support.');
+            document.getElementById('submitBtn').disabled = true;
+            return;
+        }
 
-        const { error } = await stripe.confirmPayment({
-            elements,
-            confirmParams: {
-                return_url: window.location.origin + '/Invoices/Details/@invoiceId'
+        const stripe   = Stripe(PUBLIC_KEY);
+        const elements = stripe.elements({ clientSecret: CLIENT_SECRET, appearance: { theme: 'stripe' } });
+        const payEl    = elements.create('payment');
+        payEl.mount('#payment-element');
+
+        const btn      = document.getElementById('submitBtn');
+        const spinner  = document.getElementById('spinner');
+        const lockIcon = document.getElementById('lockIcon');
+        const btnText  = document.getElementById('btnText');
+
+        btn.addEventListener('click', async () => {
+            setLoading(true);
+            clearMessage();
+
+            const { error } = await stripe.confirmPayment({
+                elements,
+                confirmParams: { return_url: RETURN_URL }
+            });
+
+            if (error) {
+                showMessage('error', error.message || 'An unexpected error occurred.');
             }
+
+            setLoading(false);
         });
 
-        if (error) {
-            const msg = document.getElementById('payment-message');
-            msg.textContent = error.message;
-            msg.classList.remove('d-none');
-            document.getElementById('spinner').classList.add('d-none');
-            document.getElementById('button-text').textContent = 'Retry Payment';
+        function setLoading(on) {
+            btn.disabled = on;
+            spinner.style.display  = on ? 'block' : 'none';
+            lockIcon.style.display = on ? 'none'  : 'inline';
+            btnText.textContent    = on ? 'Processing payment\u2026' : 'Pay @amount.ToString("C") Securely';
         }
-    });
+
+        function showMessage(type, text) {
+            const el = document.getElementById('payMessage');
+            el.className = 'pay-message ' + type;
+            el.textContent = text;
+            el.style.display = 'block';
+        }
+
+        function clearMessage() {
+            const el = document.getElementById('payMessage');
+            el.style.display = 'none';
+            el.textContent = '';
+        }
+    })();
 </script>
 }

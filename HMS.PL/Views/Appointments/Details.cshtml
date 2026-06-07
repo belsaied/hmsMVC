@@ -338,13 +338,13 @@
                     }
                     @if (canComplete)
                     {
-                        <button type="button" class="action-btn btn-complete" data-toggle="modal" data-target="#completeModal">
+                        <button type="button" class="action-btn btn-complete" data-bs-toggle="modal" data-bs-target="#completeModal">
                             <i class="fas fa-flag-checkered"></i> Mark as Completed
                         </button>
                     }
                     @if (canCancel)
                     {
-                        <button type="button" class="action-btn btn-cancel" data-toggle="modal" data-target="#cancelModal">
+                        <button type="button" class="action-btn btn-cancel" data-bs-toggle="modal" data-bs-target="#cancelModal">
                             <i class="fas fa-times-circle"></i> Cancel Appointment
                         </button>
                     }
@@ -407,7 +407,7 @@
         <div class="modal-content" style="border-radius:16px;border:none">
             <div class="modal-header" style="background:linear-gradient(135deg,#5b21b6,#7c3aed);color:white;border-radius:16px 16px 0 0;border:none">
                 <h5 class="modal-title"><i class="fas fa-flag-checkered mr-2"></i> Complete Appointment</h5>
-                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+                <button type="button" class="close text-white" data-bs-dismiss="modal"><span>&times;</span></button>
             </div>
             <form asp-action="Complete" asp-route-id="@Model.Id" method="post">
                 @Html.AntiForgeryToken()
@@ -422,7 +422,7 @@
                     <button type="submit" class="btn btn-primary" style="border-radius:9px;font-weight:600;background:#7c3aed;border:none">
                         <i class="fas fa-check mr-1"></i> Mark Completed
                     </button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal" style="border-radius:9px">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius:9px">Close</button>
                 </div>
             </form>
         </div>
@@ -435,7 +435,7 @@
         <div class="modal-content" style="border-radius:16px;border:none">
             <div class="modal-header" style="background:linear-gradient(135deg,#991b1b,#dc2626);color:white;border-radius:16px 16px 0 0;border:none">
                 <h5 class="modal-title"><i class="fas fa-ban mr-2"></i> Cancel Appointment</h5>
-                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+                <button type="button" class="close text-white" data-bs-dismiss="modal"><span>&times;</span></button>
             </div>
             <form asp-action="Cancel" asp-route-id="@Model.Id" method="post">
                 @Html.AntiForgeryToken()
@@ -450,7 +450,7 @@
                     <button type="submit" class="btn btn-danger" style="border-radius:9px;font-weight:600">
                         <i class="fas fa-ban mr-1"></i> Cancel Appointment
                     </button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal" style="border-radius:9px">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius:9px">Close</button>
                 </div>
             </form>
         </div>

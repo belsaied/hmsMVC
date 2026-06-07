@@ -58,11 +58,20 @@ namespace HMS.PL.Controllers
             }
         }
 
-        public async Task<IActionResult> Details(Guid id)
+        public async Task<IActionResult> Details(Guid id, string? redirect_status)
         {
             try
             {
                 var invoice = await _services.InvoiceService.GetInvoiceByIdAsync(id);
+
+                if (!string.IsNullOrEmpty(redirect_status))
+                {
+                    if (redirect_status == "succeeded")
+                        TempData["Success"] = "Card payment successful! Your invoice has been updated.";
+                    else if (redirect_status == "failed")
+                        TempData["Error"] = "Payment failed. Please try again or use a different card.";
+                }
+
                 return View(invoice);
             }
             catch (NotFoundException)
@@ -72,14 +81,96 @@ namespace HMS.PL.Controllers
             }
         }
 
-        public IActionResult Create(int? patientId, int? appointmentId)
+        public async Task<IActionResult> Create(int? patientId, int? appointmentId)
         {
             PopulateLineItemTypeDropdown();
-            return View(new CreateInvoiceViewModel
+
+            var vm = new CreateInvoiceViewModel
             {
                 PatientId = patientId ?? 0,
                 AppointmentId = appointmentId
-            });
+            };
+
+            if (patientId.HasValue)
+            {
+                var autoItems = new List<LineItemEntryViewModel>();
+
+                // 1. Consultation fee from appointment
+                if (appointmentId.HasValue)
+                {
+                    try
+                    {
+                        var appt = await _services.AppointmentService.GetAppointmentByIdAsync(appointmentId.Value);
+                        if (appt != null)
+                        {
+                            decimal consultationFee = 0m;
+                            try
+                            {
+                                var doctor = await _services.DoctorService.GetDoctorByIdAsync(appt.DoctorId);
+                                consultationFee = doctor.ConsultationFee;
+                            }
+                            catch { }
+
+                            autoItems.Add(new LineItemEntryViewModel
+                            {
+                                Description = $"Consultation — Dr. {appt.DoctorName} ({appt.AppointmentDate:dd MMM yyyy})",
+                                LineItemType = LineItemType.Consultation,
+                                ReferenceId = appointmentId.Value.ToString(),
+                                Quantity = 1,
+                                UnitPrice = consultationFee,
+                                IsAutoAdded = true
+                            });
+                        }
+                    }
+                    catch { }
+                }
+
+                // 2. Completed lab orders not yet billed
+                try
+                {
+                    var labOrders = await _services.LabOrderService.GetPatientLabOrdersAsync(patientId.Value);
+                    foreach (var lo in labOrders.Where(l => l.Status == "Completed"))
+                    {
+                        autoItems.Add(new LineItemEntryViewModel
+                        {
+                            Description = $"Lab: {lo.TestName}",
+                            LineItemType = LineItemType.LabTest,
+                            ReferenceId = lo.Id.ToString(),
+                            Quantity = 1,
+                            UnitPrice = 0m,
+                            IsAutoAdded = true
+                        });
+                    }
+                }
+                catch { }
+
+                // 3. Active admission / bed charges
+                try
+                {
+                    var admissions = await _services.AdmissionService.GetPatientAdmissionHistoryAsync(patientId.Value);
+                    var activeAdmission = admissions.FirstOrDefault(a => a.Status == "Active");
+                    if (activeAdmission != null)
+                    {
+                        var days = (DateTimeOffset.UtcNow - new DateTimeOffset(activeAdmission.AdmissionDate, TimeSpan.Zero)).Days;
+                        if (days < 1) days = 1;
+
+                        autoItems.Add(new LineItemEntryViewModel
+                        {
+                            Description = $"Admission — Ward {activeAdmission.WardName}, Bed {activeAdmission.BedNumber} ({days} day(s))",
+                            LineItemType = LineItemType.Other,
+                            ReferenceId = activeAdmission.Id.ToString(),
+                            Quantity = days,
+                            UnitPrice = 0m,
+                            IsAutoAdded = true
+                        });
+                    }
+                }
+                catch { }
+
+                vm.LineItems = autoItems;
+            }
+
+            return View(vm);
         }
 
         [HttpPost]

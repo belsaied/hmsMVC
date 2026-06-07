@@ -8,7 +8,7 @@
             <ol class="breadcrumb float-sm-right">
                 <li class="breadcrumb-item"><a href="/">Home</a></li>
                 <li class="breadcrumb-item"><a asp-controller="Invoices" asp-action="Index">Invoices</a></li>
-                <li class="breadcrumb-item active">Record Cash</li>
+                <li class="breadcrumb-item active">Cash Payment</li>
             </ol>
         </div>
     </div>
@@ -16,51 +16,92 @@
 
 @section Styles {
 <style>
-    :root { --hms-blue: #1a3a5c; --hms-border: #e2e8f0; --hms-text: #1e293b; --hms-muted: #64748b; }
-    .form-card { background:#fff; border-radius:14px; box-shadow:0 2px 12px rgba(0,0,0,.06); border:1px solid var(--hms-border); overflow:hidden; }
-    .form-card-header { padding:16px 22px; border-bottom:1px solid var(--hms-border); font-weight:700; font-size:.9rem; background:#f8fafc; }
-    .form-card-body { padding:22px; }
-    .form-control { border-radius:10px; border:1.5px solid var(--hms-border); padding:10px 14px; font-size:.9rem; }
-    .form-control:focus { border-color:#2563a8; box-shadow:0 0 0 3px rgba(37,99,168,.12); }
-    .form-label { font-size:.82rem; font-weight:600; color:var(--hms-text); margin-bottom:4px; }
-    .input-group-text { border-radius:10px 0 0 10px; border-color:var(--hms-border); }
+    :root { --hms-blue:#1a3a5c; --hms-border:#e2e8f0; --hms-text:#1e293b; --hms-muted:#64748b; }
+
+    .pay-wrapper { max-width: 460px; margin: 0 auto; }
+
+    .pay-card {
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 4px 24px rgba(26,58,92,.09);
+        border: 1px solid var(--hms-border);
+        overflow: hidden;
+    }
+
+    .pay-header {
+        background: linear-gradient(135deg, #78350f, #d97706);
+        color: #fff;
+        padding: 24px 28px 20px;
+    }
+    .pay-header .amount-label { font-size:.82rem; opacity:.8; }
+    .pay-header .amount-value { font-size:2.2rem; font-weight:800; letter-spacing:-1px; }
+    .pay-header .inv-ref      { font-size:.78rem; opacity:.7; margin-top:4px; }
+
+    .pay-body { padding: 26px 28px; }
+
+    .form-label { font-size:.82rem; font-weight:600; color:var(--hms-text); margin-bottom:4px; display:block; }
+    .form-control { border-radius:10px; border:1.5px solid var(--hms-border); padding:11px 14px; font-size:1rem; transition:border .2s; }
+    .form-control:focus { border-color:#d97706; box-shadow:0 0 0 3px rgba(217,119,6,.12); outline:none; }
+    .input-group-text { background:#fef3c7; border-color:var(--hms-border); border-radius:10px 0 0 10px !important; color:#92400e; font-weight:700; }
+    .input-group .form-control { border-radius:0 10px 10px 0 !important; }
+
+    .submit-btn {
+        width:100%; padding:13px; font-size:.95rem; font-weight:700;
+        border-radius:11px; border:none;
+        background: linear-gradient(135deg, #92400e, #d97706);
+        color:#fff; cursor:pointer; transition:opacity .2s;
+    }
+    .submit-btn:hover { opacity:.9; }
+
+    .pay-footer { padding:14px 28px; border-top:1px solid var(--hms-border); background:#fefce8; }
+    .info-note  { font-size:.78rem; color:#92400e; display:flex; align-items:center; gap:6px; }
 </style>
 }
 
-<div class="row justify-content-center">
-    <div class="col-md-5">
-        <div class="form-card">
-            <div class="form-card-header">
-                <i class="fas fa-money-bill-wave mr-2 text-warning"></i> Record Cash Payment
-            </div>
-            <div class="form-card-body">
-                <p class="text-muted mb-1">Invoice: <strong>@Model.InvoiceNumber</strong></p>
-                <p class="mb-3">Outstanding: <strong class="text-danger">@Model.OutstandingBalance.ToString("C")</strong></p>
+<div class="pay-wrapper">
+    <div class="pay-card">
+        <div class="pay-header">
+            <div class="amount-label">Outstanding Balance</div>
+            <div class="amount-value">@Model.OutstandingBalance.ToString("C")</div>
+            <div class="inv-ref"><i class="fas fa-file-invoice mr-1"></i> @Model.InvoiceNumber</div>
+        </div>
 
-                <form asp-action="RecordCash" method="post">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" asp-for="InvoiceId" />
-                    <input type="hidden" asp-for="InvoiceNumber" />
-                    <input type="hidden" asp-for="OutstandingBalance" />
+        <div class="pay-body">
+            <form asp-action="RecordCash" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="InvoiceId" />
+                <input type="hidden" asp-for="InvoiceNumber" />
+                <input type="hidden" asp-for="OutstandingBalance" />
 
-                    <div class="form-group">
-                        <label asp-for="Amount" class="form-label">Amount Received ($)</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend"><span class="input-group-text">$</span></div>
-                            <input asp-for="Amount" type="number" step="0.01" min="0.01"
-                                   max="@Model.OutstandingBalance" class="form-control" required />
+                <div class="form-group mb-4">
+                    <label asp-for="Amount" class="form-label">Cash Amount Received</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fas fa-dollar-sign"></i></span>
                         </div>
-                        <span asp-validation-for="Amount" class="text-danger small"></span>
+                        <input asp-for="Amount" type="number" step="0.01" min="0.01"
+                               max="@Model.OutstandingBalance" class="form-control"
+                               placeholder="0.00" required />
                     </div>
+                    <span asp-validation-for="Amount" class="text-danger small"></span>
+                </div>
 
-                    <div class="d-flex gap-2" style="gap:8px">
-                        <button type="submit" class="btn btn-warning text-dark font-weight-bold" style="border-radius:9px;padding:10px 20px">
-                            <i class="fas fa-check mr-1"></i> Record Payment
-                        </button>
-                        <a asp-controller="Invoices" asp-action="Details" asp-route-id="@Model.InvoiceId"
-                           class="btn btn-outline-secondary" style="border-radius:9px;font-weight:600">Cancel</a>
-                    </div>
-                </form>
+                <button type="submit" class="submit-btn"
+                        onclick="return confirm('Record cash payment of the entered amount?')">
+                    <i class="fas fa-check mr-2"></i> Confirm Cash Payment
+                </button>
+
+                <a asp-controller="Invoices" asp-action="Details" asp-route-id="@Model.InvoiceId"
+                   class="btn btn-outline-secondary btn-block mt-2" style="border-radius:11px;font-weight:600">
+                    Cancel
+                </a>
+            </form>
+        </div>
+
+        <div class="pay-footer">
+            <div class="info-note">
+                <i class="fas fa-info-circle"></i>
+                Cash payments are recorded immediately and are non-refundable via card.
             </div>
         </div>
     </div>

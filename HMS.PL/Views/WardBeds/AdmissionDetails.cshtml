@@ -20,6 +20,7 @@
             --hms-muted: #64748b;
         }
 
+
         .adm-header {
             background: linear-gradient(135deg, var(--hms-blue), var(--hms-blue-mid));
             color: white;
@@ -444,13 +445,13 @@
         $('#transferModal').on('show.bs.modal', function () {
             var sel = $(this).find('select[name="ToBedId"]');
             if (sel.find('option').length > 1) return;
-            $.getJSON('@Url.Action("AvailableBeds", "Wards")', function (beds) {
+            $.ajax({ url: '@Url.Action("AvailableBeds", "Wards")', dataType: 'json', headers: { 'X-Requested-With': 'XMLHttpRequest' } }).done(function (beds) {
                 var html = '<option value="">— Select Available Bed —</option>';
                 beds.forEach(function(b) {
                     html += '<option value="' + b.bedId + '">' + b.wardName + ' / Room ' + b.roomNumber + ' / Bed ' + b.bedNumber + ' (' + b.bedType + ')</option>';
                 });
                 sel.html(html);
-            });
+            }).fail(function () { console.error('Failed to load available beds.'); });
         });
     </script>
 }

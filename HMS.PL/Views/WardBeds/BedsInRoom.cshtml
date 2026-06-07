@@ -1,0 +1,173 @@
+﻿@using HMS.BLL.Shared.Dtos.WardBedModule.BedDtos
+@model IEnumerable<BedResultDto>
+
+@{
+    ViewData["Title"] = "Beds in Room";
+    var list = Model?.ToList() ?? [];
+    var roomNumber = list.FirstOrDefault()?.RoomNumber ?? "";
+    var wardName = list.FirstOrDefault()?.WardName ?? "";
+}
+
+@section Styles {
+    <style>
+        :root {
+            --hms-blue: #1a3a5c;
+            --hms-blue-mid: #2563a8;
+            --hms-border: #e2e8f0;
+            --hms-text: #1e293b;
+            --hms-muted: #64748b;
+        }
+
+        .header-card {
+            background: linear-gradient(135deg, var(--hms-blue), var(--hms-blue-mid));
+            color: white;
+            border-radius: 16px;
+            padding: 24px 32px;
+            margin-bottom: 24px;
+        }
+
+        .bed-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 14px;
+        }
+
+        .bed-card {
+            background: white;
+            border: 1.5px solid var(--hms-border);
+            border-radius: 14px;
+            padding: 20px 16px;
+            text-align: center;
+            transition: all .15s;
+            position: relative;
+        }
+
+        .bed-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,.1);
+        }
+
+        .bed-available {
+            background: #f0fdf4;
+            border-color: #bbf7d0;
+        }
+
+        .bed-occupied {
+            background: #fef2f2;
+            border-color: #fecaca;
+        }
+
+        .bed-maintenance {
+            background: #fef9c3;
+            border-color: #fde68a;
+        }
+
+        .bed-reserved {
+            background: #eff6ff;
+            border-color: #bfdbfe;
+        }
+
+        .bed-icon {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .bed-number {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--hms-text);
+        }
+
+        .bed-type {
+            font-size: .75rem;
+            color: var(--hms-muted);
+            margin-top: 2px;
+        }
+
+        .status-chip {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 8px;
+            font-size: .68rem;
+            font-weight: 600;
+            margin-top: 6px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--hms-muted);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            opacity: .2;
+            display: block;
+            margin-bottom: 12px;
+        }
+    </style>
+}
+
+@section PageHeader {
+    <div class="row mb-2">
+        <div class="col-sm-6"><h1 class="m-0">Beds in Room</h1></div>
+        <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a asp-action="Index">Wards</a></li>
+                <li class="breadcrumb-item active">Beds in Room @roomNumber</li>
+            </ol>
+        </div>
+    </div>
+}
+
+<div class="header-card">
+    <div>
+        <h2 style="font-size:1.5rem;font-weight:700;margin:0">
+            <i class="fas fa-bed mr-2"></i> Room @roomNumber — Beds
+        </h2>
+        <p style="font-size:.875rem;opacity:.75;margin-top:4px">
+            @wardName · @list.Count bed(s)
+        </p>
+    </div>
+</div>
+
+@if (!list.Any())
+{
+    <div class="empty-state">
+        <i class="fas fa-bed"></i>
+        <p style="font-size:1rem;font-weight:600;color:var(--hms-text)">No beds</p>
+        <p>This room has no beds yet.</p>
+    </div>
+}
+else
+{
+    <div class="bed-grid">
+        @foreach (var b in list)
+        {
+            var cls = b.Status switch { "Occupied" => "bed-occupied", "Available" => "bed-available", "Maintenance" => "bed-maintenance", "Reserved" => "bed-reserved", _ => "" };
+            var icon = b.Status switch { "Occupied" => "fa-user-injured", "Available" => "fa-check-circle", "Maintenance" => "fa-tools", "Reserved" => "fa-clock", _ => "fa-bed" };
+            var iconColor = b.Status switch { "Occupied" => "#dc2626", "Available" => "#10b981", "Maintenance" => "#d97706", "Reserved" => "#2563a8", _ => "#64748b" };
+            var chipBg = b.Status switch { "Occupied" => "#fee2e2", "Available" => "#d1fae5", "Maintenance" => "#fef3c7", "Reserved" => "#dbeafe", _ => "#f1f5f9" };
+            var chipFg = b.Status switch { "Occupied" => "#991b1b", "Available" => "#065f46", "Maintenance" => "#92400e", "Reserved" => "#1e40af", _ => "#64748b" };
+
+            <div class="bed-card @cls" title="@b.Notes">
+                <i class="fas @icon bed-icon" style="color:@iconColor"></i>
+                <div class="bed-number">@b.BedNumber</div>
+                <div class="bed-type">@b.BedType</div>
+                <span class="status-chip" style="background:@chipBg;color:@chipFg">@b.Status</span>
+                @if (!string.IsNullOrEmpty(b.Notes))
+                {
+                    <div style="font-size:.68rem;color:var(--hms-muted);margin-top:6px;border-top:1px solid #f1f5f9;padding-top:6px">@b.Notes</div>
+                }
+            </div>
+        }
+    </div>
+}
+
+<div class="mt-3">
+    <a asp-action="Index" class="btn btn-secondary" style="border-radius:9px;font-weight:600">
+        <i class="fas fa-arrow-left mr-1"></i> Back to Wards
+    </a>
+</div>

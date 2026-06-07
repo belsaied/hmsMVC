@@ -34,6 +34,19 @@ namespace Services.Implementations.BillingModule
 
             var invoiceRepo = _unitOfWork.GetRepository<Invoice, Guid>();
 
+            if (request.AppointmentId.HasValue)
+            {
+                var existingSpec = new InvoicesByPatientSpecification(request.PatientId);
+                var allPatientInvoices = await invoiceRepo.GetAllAsync(existingSpec);
+                var duplicate = allPatientInvoices.Any(i =>
+                    i.AppointmentId == request.AppointmentId &&
+                    i.Status != InvoiceStatus.Cancelled);
+
+                if (duplicate)
+                    throw new BusinessRuleException(
+                        $"An active invoice already exists for appointment {request.AppointmentId}.");
+            }
+
             var invoice = new Invoice
             {
                 PatientId = request.PatientId,
