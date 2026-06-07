@@ -203,7 +203,26 @@ namespace HMS.PL.Controllers
             catch (NotFoundException) { TempData["Error"] = "Appointment not found."; }
             catch (Exception ex) { TempData["Error"] = ex.Message; }
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        // ── NO SHOW ──────────────────────────────────────────────────────────────
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> NoShow(int id)
+        {
+            try
+            {
+                var dto = new UpdateAppointmentStatusDto { NewStatus = AppointmentStatus.NoShow };
+                await _services.AppointmentService.UpdateAppointmentStatusAsync(id, dto);
+                TempData["Success"] = "Appointment marked as No-Show.";
+            }
+            catch (BusinessRuleException ex) { TempData["Error"] = ex.Message; }
+            catch (NotFoundException) { TempData["Error"] = "Appointment not found."; }
+            catch (Exception ex) { TempData["Error"] = ex.Message; }
+
+            return RedirectToAction(nameof(Details), new { id });
         }
 
         // ── UPDATE STATUS ────────────────────────────────────────────────────────

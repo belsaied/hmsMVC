@@ -448,6 +448,7 @@ namespace HMS.BLL.Services.Implementations.AppointmentModule
                 (AppointmentStatus.Confirmed, AppointmentStatus.Cancelled) => true,
                 (AppointmentStatus.Confirmed, AppointmentStatus.Completed) => true,
                 (AppointmentStatus.Confirmed, AppointmentStatus.NoShow) => true,
+                (AppointmentStatus.NoShow, AppointmentStatus.Confirmed) => true,
                 _ => false
             };
             if (!valid)

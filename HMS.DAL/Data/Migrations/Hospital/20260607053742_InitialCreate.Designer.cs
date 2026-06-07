@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HMS.DAL.Data.Migrations.Hospital
 {
     [DbContext(typeof(HospitalDbContext))]
-    [Migration("20260604225603_InitialCreate")]
+    [Migration("20260607053742_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />

@@ -245,7 +245,6 @@
         });
 
         dateStep.style.display = '';
-        submitSection.style.display = '';
     });
 
     async function loadSlots(doctorId, date) {
@@ -255,6 +254,7 @@
         document.getElementById('slots-loading').style.display = '';
         startTimeHidden.value = '';
         submitBtn.disabled = true;
+        submitSection.style.display = '';
 
         const res = await fetch('/Appointments/GetAvailableSlots?doctorId=' + doctorId + '&date=' + date);
         document.getElementById('slots-loading').style.display = 'none';

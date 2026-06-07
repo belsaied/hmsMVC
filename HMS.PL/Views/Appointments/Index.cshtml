@@ -505,7 +505,7 @@
         <div class="modal-content" style="border-radius:16px;border:none">
             <div class="modal-header" style="background:linear-gradient(135deg,#991b1b,#dc2626);color:white;border-radius:16px 16px 0 0;border:none">
                 <h5 class="modal-title"><i class="fas fa-ban mr-2"></i> Cancel Appointment</h5>
-                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+                <button type="button" class="close text-white" data-bs-dismiss="modal"><span>&times;</span></button>
             </div>
             <form id="cancelForm" method="post" asp-action="Cancel">
                 @Html.AntiForgeryToken()
@@ -522,7 +522,7 @@
                     <button type="submit" class="btn btn-danger" style="border-radius:9px;font-weight:600">
                         <i class="fas fa-ban mr-1"></i> Cancel Appointment
                     </button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal" style="border-radius:9px">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius:9px">Close</button>
                 </div>
             </form>
         </div>
@@ -535,9 +535,10 @@
             $('.select2').select2({ theme: 'classic', width: '100%' });
         });
         function showCancelModal(id, conf) {
-            $('#cancelApptId').val(id);
-            $('#cancelConfNum').text(conf);
-            $('#cancelModal').modal('show');
+            document.getElementById('cancelApptId').value = id;
+            document.getElementById('cancelConfNum').textContent = conf;
+            var modal = new bootstrap.Modal(document.getElementById('cancelModal'));
+            modal.show();
         }
     </script>
 }

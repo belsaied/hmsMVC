@@ -43,6 +43,24 @@ namespace HMS.PL.Controllers
             }
         }
 
+        // ── DELETE WARD ──────────────────────────────────────────────────────────
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id)
+        {
+            try
+            {
+                await _services.WardService.DeleteWardAsync(id);
+                TempData["Success"] = "Ward deleted successfully.";
+            }
+            catch (NotFoundException) { TempData["Error"] = "Ward not found."; }
+            catch (BusinessRuleException ex) { TempData["Error"] = ex.Message; }
+            catch (Exception ex) { TempData["Error"] = ex.Message; }
+
+            return RedirectToAction(nameof(Index));
+        }
+
         // ── CREATE WARD ──────────────────────────────────────────────────────────
 
         public IActionResult Create()
@@ -187,12 +205,54 @@ namespace HMS.PL.Controllers
         {
             var beds = await _services.BedService.GetAvailableBedsAsync(wardType, bedType);
 
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                return Json(beds);
+
             ViewBag.WardType = wardType;
             ViewBag.BedType = bedType;
             ViewBag.WardTypeList = BuildEnumSelectList<WardType>(wardType);
             ViewBag.BedTypeList = BuildEnumSelectList<BedType>(bedType);
 
             return View(beds);
+        }
+
+        // ── ROOMS IN WARD ────────────────────────────────────────────────────────
+
+        public async Task<IActionResult> Rooms(int wardId)
+        {
+            try
+            {
+                var ward = await _services.WardService.GetWardByIdAsync(wardId);
+                var rooms = await _services.WardService.GetRoomsInWardAsync(wardId);
+
+                ViewBag.WardId = wardId;
+                ViewBag.WardName = ward.Name;
+                ViewBag.WardType = ward.WardType;
+                ViewBag.TotalRooms = rooms.Count();
+
+                return View(rooms);
+            }
+            catch (NotFoundException)
+            {
+                TempData["Error"] = "Ward not found.";
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        // ── BEDS IN ROOM ─────────────────────────────────────────────────────────
+
+        public async Task<IActionResult> BedsInRoom(int roomId)
+        {
+            try
+            {
+                var beds = await _services.BedService.GetBedsInRoomAsync(roomId);
+                return View(beds);
+            }
+            catch (NotFoundException)
+            {
+                TempData["Error"] = "Room not found.";
+                return RedirectToAction(nameof(Index));
+            }
         }
 
         // ── ADMISSIONS INDEX ─────────────────────────────────────────────────────

@@ -313,9 +313,52 @@
                     <div class="info-section-title"><i class="fas fa-ban mr-1" style="color:#dc2626"></i> Cancellation Reason</div>
                     <div class="cancel-reason-box">@Model.CancellationReason</div>
                 }
-            </div>
         </div>
     </div>
+</div>
+
+<!-- Change Status Modal -->
+<div class="modal fade" id="changeStatusModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:16px;border:none">
+            <div class="modal-header" style="background:linear-gradient(135deg,#1a3a5c,#2563a8);color:white;border-radius:16px 16px 0 0;border:none">
+                <h5 class="modal-title"><i class="fas fa-sync-alt mr-2"></i> Change Appointment Status</h5>
+                <button type="button" class="close text-white" data-bs-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <form asp-action="UpdateStatus" asp-route-id="@Model.Id" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body p-4">
+                    <div class="form-group mb-3">
+                        <label class="form-label" style="font-size:.82rem;font-weight:600">New Status <span style="color:#ef4444">*</span></label>
+                        <select name="NewStatus" id="newStatusSelect" class="form-control" style="border-radius:10px">
+                            <option value="Scheduled">Scheduled</option>
+                            <option value="Confirmed">Confirmed</option>
+                            <option value="Cancelled">Cancelled</option>
+                            <option value="Completed">Completed</option>
+                            <option value="NoShow">No-Show</option>
+                        </select>
+                    </div>
+                    <div class="form-group mb-3" id="cancelReasonGroup" style="display:none">
+                        <label class="form-label" style="font-size:.82rem;font-weight:600">Cancellation Reason <span style="color:#ef4444">*</span></label>
+                        <textarea name="CancellationReason" class="form-control" rows="3" style="border-radius:10px"
+                                  placeholder="Reason for cancellation..."></textarea>
+                    </div>
+                    <div class="form-group mb-0">
+                        <label class="form-label" style="font-size:.82rem;font-weight:600">Notes (optional)</label>
+                        <textarea name="Notes" class="form-control" rows="3" style="border-radius:10px"
+                                  placeholder="Any notes about this status change..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border:none;padding:16px 24px">
+                    <button type="submit" class="btn btn-primary" style="border-radius:9px;font-weight:600;background:#2563a8;border:none">
+                        <i class="fas fa-check mr-1"></i> Update Status
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius:9px">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
     <!-- Right: Actions & Timeline -->
     <div class="col-md-4">
@@ -338,19 +381,39 @@
                     }
                     @if (canComplete)
                     {
-                        <button type="button" class="action-btn btn-complete" data-bs-toggle="modal" data-bs-target="#completeModal">
+                        <button type="button" class="action-btn btn-complete" onclick="openCompleteModal()">
                             <i class="fas fa-flag-checkered"></i> Mark as Completed
                         </button>
                     }
                     @if (canCancel)
                     {
-                        <button type="button" class="action-btn btn-cancel" data-bs-toggle="modal" data-bs-target="#cancelModal">
+                        <button type="button" class="action-btn btn-cancel" onclick="openCancelModal()">
                             <i class="fas fa-times-circle"></i> Cancel Appointment
                         </button>
+                    }
+                    @if (Model.Status == "Confirmed")
+                    {
+                        <form asp-action="NoShow" asp-route-id="@Model.Id" method="post">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="action-btn btn-cancel"
+                                    onclick="return confirm('Mark this appointment as No-Show?')">
+                                <i class="fas fa-user-times"></i> Mark No-Show
+                            </button>
+                        </form>
                     }
                 </div>
             </div>
         }
+
+        <!-- Change Status -->
+        <div class="side-card">
+            <div class="side-card-header"><i class="fas fa-edit mr-1"></i> Change Status</div>
+            <div class="side-card-body">
+                <button type="button" class="action-btn btn-confirm" onclick="openChangeStatusModal()">
+                    <i class="fas fa-sync-alt"></i> Change Status
+                </button>
+            </div>
+        </div>
 
         <!-- Timeline -->
         <div class="side-card">
@@ -400,6 +463,32 @@
         </a>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        function openCompleteModal() {
+            var el = document.getElementById('completeModal');
+            if (el) { new bootstrap.Modal(el).show(); }
+        }
+        function openCancelModal() {
+            var el = document.getElementById('cancelModal');
+            if (el) { new bootstrap.Modal(el).show(); }
+        }
+        function openChangeStatusModal() {
+            var el = document.getElementById('changeStatusModal');
+            if (el) { new bootstrap.Modal(el).show(); }
+        }
+        document.addEventListener('DOMContentLoaded', function () {
+            var sel = document.getElementById('newStatusSelect');
+            if (sel) {
+                sel.addEventListener('change', function () {
+                    var grp = document.getElementById('cancelReasonGroup');
+                    if (grp) { grp.style.display = this.value === 'Cancelled' ? '' : 'none'; }
+                });
+            }
+        });
+    </script>
+}
 
 <!-- Complete Modal -->
 <div class="modal fade" id="completeModal" tabindex="-1">
