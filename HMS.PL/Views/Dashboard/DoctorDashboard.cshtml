@@ -1,0 +1,273 @@
+@using HMS.PL.ViewModels.DashboardModule
+@model DoctorDashboardViewModel
+
+@{
+    ViewData["Title"] = "My Dashboard — " + Model.DoctorName;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/apexcharts/dist/apexcharts.css" />
+    <style>
+        :root {
+            --hms-navy:   #1E3A5F;
+            --hms-blue:   #0078D4;
+            --hms-blue-l: #4da3e8;
+            --hms-green:  #10b981;
+            --hms-amber:  #f59e0b;
+            --hms-red:    #ef4444;
+            --hms-purple: #8b5cf6;
+            --hms-surface: #ffffff;
+            --hms-bg:     #f0f4f8;
+            --hms-border: #e2e8f0;
+            --hms-text:   #1e293b;
+            --hms-muted:  #64748b;
+            --radius:     14px;
+            --shadow-sm:  0 2px 8px rgba(0,0,0,.07);
+            --shadow-md:  0 6px 20px rgba(0,0,0,.11);
+        }
+
+        .kpi-card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 1.25rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,.07);
+            border: 1px solid #e2e8f0;
+            position: relative;
+            overflow: hidden;
+            transition: transform .2s, box-shadow .2s;
+        }
+        .kpi-card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,.11); }
+        .kpi-icon { width: 48px; height: 48px; border-radius: 10px; display: flex;
+                    align-items: center; justify-content: center; font-size: 1.2rem; margin-bottom: .9rem; }
+        .kpi-value { font-size: 2rem; font-weight: 800; color: #1e293b; line-height: 1; margin-bottom: .2rem; }
+        .kpi-label { font-size: .72rem; color: #64748b; text-transform: uppercase;
+                     letter-spacing: .06em; margin-bottom: .6rem; font-weight: 600; }
+        .kpi-link { font-size: .75rem; color: #0078D4; text-decoration: none; font-weight: 600; }
+        .kpi-link:hover { text-decoration: underline; }
+
+        .section-card { background: #fff; border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,.07);
+                        border: 1px solid #e2e8f0; overflow: hidden; }
+        .card-header-custom { padding: 1rem 1.5rem; border-bottom: 1px solid #e2e8f0;
+                              display: flex; align-items: center; justify-content: space-between; }
+        .card-header-custom h6 { font-size: .875rem; font-weight: 700; color: #1e293b; margin: 0;
+                                 display: flex; align-items: center; }
+        .see-all-link { font-size: .78rem; color: #0078D4; text-decoration: none; font-weight: 600; }
+        .see-all-link:hover { text-decoration: underline; }
+
+        .patient-quick-link { display: flex; align-items: center; gap: .75rem; padding: .75rem 1rem;
+                              border-radius: 10px; text-decoration: none; color: #1e293b;
+                              transition: background .12s; border: 1px solid transparent; }
+        .patient-quick-link:hover { background: #f0f4ff; border-color: #bfdbfe; }
+        .pql-avatar { width: 36px; height: 36px; border-radius: 50%; background: #eff6ff;
+                      color: #1d4ed8; display: flex; align-items: center; justify-content: center;
+                      font-weight: 700; font-size: .9rem; flex-shrink: 0; }
+        .pql-name { font-size: .85rem; font-weight: 600; }
+        .pql-sub  { font-size: .72rem; color: #64748b; }
+    </style>
+}
+
+@if (TempData["DashError"] != null)
+{
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i> @TempData["DashError"]
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
+
+<div class="dash-header mb-4" style="background:linear-gradient(135deg,#1a3a5c,#2563a8);border-radius:14px;padding:2rem 2.5rem;position:relative;overflow:hidden;color:#fff;">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            @if (!string.IsNullOrEmpty(Model.DoctorPictureUrl))
+            {
+                <img src="@Model.DoctorPictureUrl" alt="@Model.DoctorName"
+                     style="width:72px;height:72px;border-radius:50%;
+                            border:3px solid rgba(255,255,255,.3);object-fit:cover" />
+            }
+            else
+            {
+                <div style="width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,.15);
+                            display:flex;align-items:center;justify-content:center;
+                            color:#fff;font-size:2rem">
+                    <i class="fas fa-user-md"></i>
+                </div>
+            }
+        </div>
+        <div class="col">
+            <h2 class="mb-0" style="color:#fff;font-size:1.5rem;font-weight:700">
+                Dr. @Model.DoctorName
+            </h2>
+            <p style="color:rgba(255,255,255,.7);margin:0;font-size:.88rem">
+                @Model.Specialty &nbsp;&middot;&nbsp; @Model.DepartmentName &nbsp;&middot;&nbsp;
+                @DateTime.Now.ToString("dddd, MMMM dd")
+            </p>
+        </div>
+        <div class="col-auto d-none d-md-block">
+            <a asp-controller="Appointments" asp-action="Index"
+               class="btn btn-sm" style="background:rgba(255,255,255,.15);
+               color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:8px">
+                <i class="fas fa-calendar-alt me-1"></i> All Appointments
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="kpi-card" style="border-top:3px solid var(--hms-blue)">
+            <div class="kpi-icon" style="background:rgba(0,120,212,.1);color:var(--hms-blue)">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="kpi-value" id="kpiPatients">@Model.TodayPatientCount</div>
+            <div class="kpi-label">Today's Patients</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="kpi-card" style="border-top:3px solid var(--hms-green)">
+            <div class="kpi-icon" style="background:rgba(16,185,129,.1);color:var(--hms-green)">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="kpi-value" id="kpiDoctors">@Model.ConfirmedTodayCount</div>
+            <div class="kpi-label">Confirmed</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="kpi-card" style="border-top:3px solid var(--hms-purple)">
+            <div class="kpi-icon" style="background:rgba(139,92,246,.1);color:var(--hms-purple)">
+                <i class="fas fa-clipboard-check"></i>
+            </div>
+            <div class="kpi-value" id="kpiAppointments">@Model.CompletedTodayCount</div>
+            <div class="kpi-label">Completed Today</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="kpi-card" style="border-top:3px solid var(--hms-amber)">
+            <div class="kpi-icon" style="background:rgba(245,158,11,.1);color:var(--hms-amber)">
+                <i class="fas fa-file-medical"></i>
+            </div>
+            <div class="kpi-value">@Model.MedicalRecordsWritten</div>
+            <div class="kpi-label">Records Written (All Time)</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-12 col-lg-8">
+        <div class="section-card">
+            <div class="card-header-custom">
+                <h6><i class="fas fa-clock me-2" style="color:var(--hms-blue)"></i>Today's Schedule</h6>
+            </div>
+            @if (!Model.TodayAppointments.Any())
+            {
+                <div class="p-4 text-center text-muted">
+                    <i class="fas fa-calendar-times fa-2x mb-2"></i>
+                    <br />No appointments scheduled for today.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0" style="font-size:.85rem">
+                        <thead style="background:#f8fafc;font-size:.75rem;color:var(--hms-muted);text-transform:uppercase">
+                            <tr>
+                                <th class="ps-4">Time</th>
+                                <th>Patient</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var appt in Model.TodayAppointments.OrderBy(a => a.StartTime))
+                            {
+                                var statusBg = appt.Status switch {
+                                    "Confirmed"  => "#d1fae5",
+                                    "Completed"  => "#e0f2fe",
+                                    "Cancelled"  => "#fee2e2",
+                                    "NoShow"     => "#fef3c7",
+                                    _            => "#f1f5f9"
+                                };
+                                var statusColor = appt.Status switch {
+                                    "Confirmed"  => "#065f46",
+                                    "Completed"  => "#0369a1",
+                                    "Cancelled"  => "#991b1b",
+                                    "NoShow"     => "#92400e",
+                                    _            => "#334155"
+                                };
+                                <tr>
+                                    <td class="ps-4 fw-600" style="font-variant-numeric:tabular-nums">
+                                        @appt.StartTime.ToString()
+                                    </td>
+                                    <td>@appt.PatientName</td>
+                                    <td>@appt.Type</td>
+                                    <td>
+                                        <span class="badge rounded-pill"
+                                              style="background:@statusBg;color:@statusColor;font-size:.72rem">
+                                            @appt.Status
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a asp-controller="Appointments" asp-action="Details"
+                                           asp-route-id="@appt.Id"
+                                           style="font-size:.78rem;color:var(--hms-blue);text-decoration:none">
+                                            View &rarr;
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="col-12 col-lg-4">
+        <div class="section-card">
+            <div class="card-header-custom">
+                <h6><i class="fas fa-user-injured me-2" style="color:var(--hms-green)"></i>My Patients</h6>
+                <a asp-controller="Appointments" asp-action="Index"
+                   asp-route-doctorId="@Model.DoctorId" class="see-all-link">View all &rarr;</a>
+            </div>
+            <div class="p-2">
+                @foreach (var patient in Model.RecentPatients)
+                {
+                    var lastAppt = patient.Appointments.OrderByDescending(a => a.AppointmentDate).FirstOrDefault();
+                    <a asp-controller="Patients" asp-action="Details"
+                       asp-route-id="@patient.PatientId"
+                       class="patient-quick-link">
+                        <div class="pql-avatar">
+                            @patient.PatientName.Substring(0, 1).ToUpper()
+                        </div>
+                        <div>
+                            <div class="pql-name">@patient.PatientName</div>
+                            <div class="pql-sub">Last seen @lastAppt?.AppointmentDate.ToString("MMM dd")</div>
+                        </div>
+                        <i class="fas fa-chevron-right ms-auto" style="color:var(--hms-muted);font-size:.75rem"></i>
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function animateCounter(el, target) {
+            if (!el || target === 0) { if(el) el.textContent = target; return; }
+            var dur = 900, start = performance.now();
+            function step(now) {
+                var p = Math.min((now - start) / dur, 1);
+                var ease = 1 - Math.pow(1 - p, 3);
+                el.textContent = Math.round(target * ease).toLocaleString();
+                if (p < 1) requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            animateCounter(document.getElementById('kpiPatients'), @Model.TodayPatientCount);
+            animateCounter(document.getElementById('kpiDoctors'), @Model.ConfirmedTodayCount);
+            animateCounter(document.getElementById('kpiAppointments'), @Model.CompletedTodayCount);
+        });
+    </script>
+}

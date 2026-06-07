@@ -7,11 +7,6 @@ using HMS.BLL.Services.Specifications.BillingModule;
 
 namespace HMS.BLL.Services.Implementations.BillingModule
 {
-    public class BillingBackgroundJobs
-    {
-
-    }
-
     public sealed class MarkOverdueInvoicesJob(
     IUnitOfWork _unitOfWork,
     ILogger<MarkOverdueInvoicesJob> _logger)

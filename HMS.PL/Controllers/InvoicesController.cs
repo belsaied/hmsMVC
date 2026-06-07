@@ -47,7 +47,9 @@ namespace HMS.PL.Controllers
                 };
 
                 ViewBag.StatusList = new SelectList(
-                    Enum.GetNames(typeof(InvoiceStatus)), status?.ToString());
+                    Enum.GetValues<InvoiceStatus>()
+                        .Select(s => new { Value = s.ToString(), Text = s.ToString() }),
+                    "Value", "Text", status?.ToString());
 
                 return View(vm);
             }

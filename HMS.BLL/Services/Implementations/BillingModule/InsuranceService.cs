@@ -98,8 +98,9 @@ namespace HMS.BLL.Services.Implementations.BillingModule
                         };
                         await _unitOfWork.GetRepository<Payment, Guid>().AddAsync(insurancePayment);
 
-                        // Update invoice PaidAmount
                         claim.Invoice.PaidAmount += approved;
+                        claim.Invoice.RecalculateFinancials();
+
                         if (claim.Invoice.PaidAmount >= claim.Invoice.TotalAmount)
                         {
                             claim.Invoice.Status = InvoiceStatus.Paid;

@@ -1,587 +1,712 @@
-﻿@{
-    ViewData["Title"] = "Dashboard";
-    var patientCount = ViewBag.PatientCount ?? 0;
-    var doctorCount = ViewBag.DoctorCount ?? 0;
-    var appointmentCount = ViewBag.AppointmentCount ?? 0;
+﻿@using HMS.PL.ViewModels.DashboardModule
+@model AdminDashboardViewModel
+
+@{
+    ViewData["Title"] = "Admin Dashboard";
 }
 
 @section Styles {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/apexcharts/dist/apexcharts.css" />
     <style>
-        :root {
-            --primary: #1E3A5F;
-            --accent: #0078D4;
-            --accent-light: #4da3e8;
-            --success: #27ae60;
-            --warning: #f39c12;
-            --danger: #e74c3c;
-            --info: #0078D4;
-            --surface: #ffffff;
-            --surface-alt: #f8fafc;
-            --border: #e2e8f0;
-            --text-primary: #1a202c;
-            --text-muted: #718096;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
-            --shadow-md: 0 4px 12px rgba(0,0,0,.1);
-            --shadow-lg: 0 10px 30px rgba(0,0,0,.12);
-            --radius: 12px;
-            --radius-sm: 8px;
-        }
-
-        .dash-header {
-            background: linear-gradient(135deg, #1E3A5F 0%, #0d2644 60%, #071829 100%);
-            padding: 2rem 2.5rem;
-            border-radius: var(--radius);
-            margin-bottom: 2rem;
-            position: relative;
-            overflow: hidden;
-            color: #fff;
-        }
-
-        .dash-header::before {
-            content: '';
-            position: absolute;
-            top: -60px; right: -60px;
-            width: 250px; height: 250px;
-            background: radial-gradient(circle, rgba(0,120,212,.3) 0%, transparent 70%);
-            border-radius: 50%;
-        }
-
-        .dash-header::after {
-            content: '';
-            position: absolute;
-            bottom: -80px; left: 30%;
-            width: 320px; height: 320px;
-            background: radial-gradient(circle, rgba(77,163,232,.15) 0%, transparent 70%);
-            border-radius: 50%;
-        }
-
-        .dash-header h1 {
-            font-size: 1.75rem;
-            font-weight: 700;
-            margin-bottom: .25rem;
-            position: relative;
-            z-index: 1;
-        }
-
-        .dash-header p {
-            color: rgba(255,255,255,.65);
-            font-size: .9rem;
-            position: relative;
-            z-index: 1;
-            margin: 0;
-        }
-
-        .dash-header .header-actions {
-            position: relative;
-            z-index: 1;
-        }
-
         .kpi-card {
-            background: var(--surface);
-            border-radius: var(--radius);
-            padding: 1.5rem;
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border);
-            transition: transform .2s ease, box-shadow .2s ease;
+            background: #fff;
+            border-radius: 16px;
+            padding: 1.25rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            border: 1px solid #e8eef4;
             position: relative;
             overflow: hidden;
-            height: 100%;
+            transition: transform 0.22s cubic-bezier(.34,1.56,.64,1), box-shadow 0.22s;
         }
-
         .kpi-card:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-md);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 28px rgba(0,0,0,0.1);
         }
-
-        .kpi-card .kpi-icon {
-            width: 52px; height: 52px;
-            border-radius: var(--radius-sm);
+        .kpi-icon {
+            width: 44px; height: 44px;
+            border-radius: 11px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 1.35rem;
-            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            margin-bottom: 0.85rem;
         }
-
-        .kpi-card .kpi-value {
+        .kpi-value {
             font-size: 2rem;
-            font-weight: 700;
-            color: var(--text-primary);
+            font-weight: 800;
+            color: #1e293b;
             line-height: 1;
-            margin-bottom: .25rem;
+            margin-bottom: 0.2rem;
         }
-
-        .kpi-card .kpi-label {
-            font-size: .8rem;
-            color: var(--text-muted);
-            font-weight: 500;
+        .kpi-label {
+            font-size: 0.7rem;
+            color: #64748b;
             text-transform: uppercase;
-            letter-spacing: .05em;
-            margin-bottom: .75rem;
+            letter-spacing: 0.07em;
+            margin-bottom: 0.65rem;
+            font-weight: 600;
         }
-
-        .kpi-card .kpi-trend {
-            font-size: .78rem;
-            display: flex; align-items: center; gap: .35rem;
+        .kpi-link {
+            font-size: 0.75rem;
+            color: #0078D4;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
         }
-
-        .kpi-card .kpi-strip {
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 3px;
-            border-radius: var(--radius) var(--radius) 0 0;
-        }
-
-        .kpi-blue .kpi-icon { background: rgba(0,120,212,.1); color: var(--accent); }
-        .kpi-blue .kpi-strip { background: linear-gradient(90deg, #0078D4, #4da3e8); }
-        .kpi-green .kpi-icon { background: rgba(39,174,96,.1); color: var(--success); }
-        .kpi-green .kpi-strip { background: linear-gradient(90deg, #27ae60, #55d98d); }
-        .kpi-orange .kpi-icon { background: rgba(243,156,18,.1); color: var(--warning); }
-        .kpi-orange .kpi-strip { background: linear-gradient(90deg, #f39c12, #f5c35c); }
-        .kpi-red .kpi-icon { background: rgba(231,76,60,.1); color: var(--danger); }
-        .kpi-red .kpi-strip { background: linear-gradient(90deg, #e74c3c, #f08080); }
-
-        .trend-up { color: var(--success); }
-        .trend-down { color: var(--danger); }
-        .trend-neutral { color: var(--text-muted); }
+        .kpi-link:hover { text-decoration: underline; }
 
         .section-card {
-            background: var(--surface);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border);
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            border: 1px solid #e8eef4;
             overflow: hidden;
         }
-
-        .section-card .card-header-custom {
-            padding: 1.25rem 1.5rem;
-            border-bottom: 1px solid var(--border);
-            display: flex; align-items: center; justify-content: space-between;
-        }
-
-        .section-card .card-header-custom h6 {
-            font-size: .9rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin: 0;
-            display: flex; align-items: center; gap: .5rem;
-        }
-
-        .section-card .card-header-custom h6 i {
-            color: var(--accent);
-        }
-
-        .activity-item {
-            display: flex;
-            align-items: flex-start;
-            padding: .85rem 1.5rem;
-            border-bottom: 1px solid var(--border);
-            gap: 1rem;
-            transition: background .15s;
-        }
-
-        .activity-item:last-child { border-bottom: none; }
-        .activity-item:hover { background: var(--surface-alt); }
-
-        .activity-icon {
-            width: 36px; height: 36px;
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: .8rem;
-            flex-shrink: 0;
-        }
-
-        .activity-body { flex: 1; min-width: 0; }
-        .activity-body strong { font-size: .85rem; color: var(--text-primary); display: block; }
-        .activity-body span { font-size: .78rem; color: var(--text-muted); }
-
-        .quick-action {
+        .card-header-custom {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #f0f4f8;
             display: flex;
             align-items: center;
-            padding: .9rem 1.25rem;
-            border-radius: var(--radius-sm);
-            text-decoration: none;
-            color: var(--text-primary);
-            gap: .85rem;
-            transition: background .15s, transform .1s;
-            border: 1px solid var(--border);
-            background: var(--surface);
-        }
-
-        .quick-action:hover {
-            background: var(--surface-alt);
-            border-color: var(--accent);
-            color: var(--accent);
-            transform: translateX(3px);
-            text-decoration: none;
-        }
-
-        .quick-action i { font-size: 1.1rem; width: 20px; text-align: center; }
-        .quick-action span { font-size: .85rem; font-weight: 500; }
-
-        .occupancy-bar-wrap {
-            padding: .85rem 1.5rem;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .occupancy-bar-wrap:last-child { border-bottom: none; }
-
-        .occupancy-bar-label {
-            display: flex;
             justify-content: space-between;
-            font-size: .8rem;
-            margin-bottom: .4rem;
-            color: var(--text-primary);
-            font-weight: 500;
+            background: #fafbfd;
+        }
+        .card-header-custom h6 {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+        .see-all-link {
+            font-size: 0.78rem;
+            color: #0078D4;
+            text-decoration: none;
+            font-weight: 600;
         }
 
-        .occupancy-bar-track {
-            height: 8px;
-            background: var(--border);
-            border-radius: 99px;
-            overflow: hidden;
-        }
+        .ward-bar-row { padding: .85rem 1.5rem; border-bottom: 1px solid #e2e8f0; }
+        .ward-bar-row:last-child { border-bottom: none; }
+        .ward-bar-label { display: flex; justify-content: space-between; font-size: .82rem;
+                          font-weight: 600; color: #1e293b; margin-bottom: .4rem; }
+        .ward-bar-track { height: 10px; background: #e2e8f0; border-radius: 99px; overflow: hidden; }
+        .ward-bar-fill { height: 100%; border-radius: 99px; }
+        .ward-bar-legend { display: flex; gap: 1rem; font-size: .72rem; }
 
-        .occupancy-bar-fill {
-            height: 100%;
-            border-radius: 99px;
-            transition: width .6s ease;
-        }
+        .overdue-row { display: flex; align-items: center; gap: .75rem;
+                       padding: .75rem 1.25rem; border-bottom: 1px solid #f1f5f9; }
+        .overdue-row:last-child { border-bottom: none; }
+        .overdue-patient { flex: 1; font-size: .83rem; font-weight: 600; color: #1e293b; }
+        .overdue-amount { font-size: .83rem; color: #ef4444; font-weight: 700; }
+        .overdue-view { font-size: .75rem; color: #0078D4; text-decoration: none; font-weight: 600; }
 
-        .status-dot {
-            width: 8px; height: 8px;
+        .revenue-badge { border: 2px solid; border-radius: 12px; padding: .75rem .5rem; }
+        .revenue-label { font-size: .7rem; color: #64748b; text-transform: uppercase;
+                         letter-spacing: .05em; margin-bottom: .2rem; }
+        .revenue-val { font-size: 1.3rem; font-weight: 800; }
+
+        .appt-legend { display: flex; flex-direction: column; gap: .4rem; }
+        .appt-legend-item { display: flex; align-items: center; gap: .5rem; font-size: .78rem; color: #334155; }
+        .appt-legend-item span { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+        .search-card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            border: 1px solid #e8eef4;
+            margin-bottom: 1.75rem;
+            position: relative;
+        }
+        .search-input-wrap {
+            display: flex;
+            align-items: center;
+            padding: 0.6rem 1.25rem;
+            gap: 0.75rem;
+        }
+        .search-input-wrap .form-control {
+            border: none;
+            box-shadow: none;
+            font-size: 0.92rem;
+            padding: 0.4rem 0;
+            flex: 1;
+            background: transparent;
+        }
+        .search-input-wrap .form-control:focus {
+            outline: none;
+            box-shadow: none;
+        }
+        .search-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border-radius: 0 0 16px 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            border: 1px solid #e8eef4;
+            border-top: none;
+            z-index: 1000;
+            max-height: 360px;
+            overflow-y: auto;
+            display: none;
+        }
+        .search-dropdown.show { display: block; }
+        .search-result-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.65rem 1.25rem;
+            text-decoration: none;
+            color: #1e293b;
+            transition: background 0.12s;
+            cursor: pointer;
+        }
+        .search-result-item:hover { background: #f0f4f8; }
+        .search-result-item:last-child { border-radius: 0 0 16px 16px; }
+        .search-type-badge {
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            padding: 0.15rem 0.5rem;
+            border-radius: 5px;
+            flex-shrink: 0;
+        }
+        .search-result-label { flex: 1; font-size: 0.84rem; font-weight: 600; }
+        .search-result-sub { font-size: 0.73rem; color: #64748b; white-space: nowrap; }
+        .search-empty { padding: 1.5rem; text-align: center; color: #94a3b8; font-size: 0.85rem; }
+        .search-spinner {
+            width: 22px; height: 22px;
+            border: 2px solid #e2e8f0;
+            border-top-color: #0078D4;
             border-radius: 50%;
-            display: inline-block;
-            margin-right: .4rem;
+            animation: spin 0.6s linear infinite;
+            margin: 1rem auto;
         }
-
-        .stat-mini {
-            text-align: center;
-            padding: 1rem;
-            border-right: 1px solid var(--border);
-        }
-
-        .stat-mini:last-child { border-right: none; }
-        .stat-mini .val { font-size: 1.4rem; font-weight: 700; color: var(--text-primary); }
-        .stat-mini .lbl { font-size: .7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; }
-
-        @@media (max-width: 768px) {
-            .dash-header { padding: 1.5rem; }
-            .kpi-card .kpi-value { font-size: 1.6rem; }
-        }
+        @@keyframes spin { to { transform: rotate(360deg); } }
     </style>
 }
 
-@section PageHeader {
-    <div class="row mb-3 align-items-center">
-        <div class="col">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb mb-1" style="font-size:.8rem">
-                    <li class="breadcrumb-item active">Dashboard</li>
-                </ol>
-            </nav>
-            <h4 class="mb-0 fw-bold" style="color:#1E3A5F">HMS Dashboard</h4>
-        </div>
-        <div class="col-auto">
-            <span class="badge" style="background:#e8f4fd;color:#0078D4;font-size:.8rem;padding:.4rem .8rem;border-radius:6px">
-                <i class="fas fa-circle" style="font-size:.5rem;vertical-align:middle;margin-right:.3rem;color:#27ae60"></i>
-                System Online
-            </span>
-        </div>
+@if (TempData["DashError"] != null)
+{
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i> @TempData["DashError"]
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
     </div>
 }
 
-<!-- Hero Header -->
-<div class="dash-header mb-4">
-    <div class="row align-items-center">
+<!-- Hero Banner -->
+<div style="
+    background: linear-gradient(135deg, #0f1f38 0%, #1a3a5f 55%, #0d2a4a 100%);
+    border-radius: 18px;
+    padding: 2rem 2.5rem;
+    margin-bottom: 1.75rem;
+    position: relative;
+    overflow: hidden;
+    color: #fff;
+    box-shadow: 0 8px 32px rgba(15,31,56,0.35);">
+
+    <div style="position:absolute;right:-40px;top:-40px;width:200px;height:200px;
+                background:rgba(0,120,212,0.12);border-radius:50%;pointer-events:none;"></div>
+    <div style="position:absolute;right:60px;bottom:-60px;width:140px;height:140px;
+                background:rgba(0,180,216,0.08);border-radius:50%;pointer-events:none;"></div>
+
+    <div class="row align-items-center" style="position:relative;z-index:1;">
         <div class="col">
-            <h1>Good day, Administrator 👋</h1>
-            <p>@DateTime.Now.ToString("dddd, MMMM dd yyyy") &nbsp;|&nbsp; Here's what's happening at HMS today.</p>
+            <div style="font-size:0.75rem;color:rgba(255,255,255,0.5);
+                        text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.25rem;">
+                <i class="fas fa-circle" style="font-size:0.5rem;color:#10b981;margin-right:0.4rem;
+                           animation:pulse 2s infinite;"></i>
+                Live Dashboard
+            </div>
+            <h1 style="font-size:1.7rem;font-weight:800;margin-bottom:0.3rem;line-height:1.2;">
+                Good @(DateTime.Now.Hour < 12 ? "morning" : DateTime.Now.Hour < 18 ? "afternoon" : "evening"),
+                <span style="color:#4da3e8;">Administrator</span>
+            </h1>
+            <p style="color:rgba(255,255,255,0.55);font-size:0.88rem;margin:0;">
+                @DateTime.Now.ToString("dddd, MMMM dd yyyy")
+                &nbsp;&middot;&nbsp; Here's the hospital at a glance.
+            </p>
         </div>
-        <div class="col-auto header-actions d-none d-md-block">
-            <a asp-controller="Patients" asp-action="Create" class="btn btn-sm me-2"
-               style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:.5rem 1rem">
-                <i class="fas fa-plus me-1"></i> New Patient
+        <div class="col-auto d-none d-md-flex" style="gap:0.5rem;">
+            <a asp-controller="Patients" asp-action="Create"
+               style="background:rgba(255,255,255,0.12);color:#fff;
+                      border:1px solid rgba(255,255,255,0.2);border-radius:10px;
+                      padding:0.45rem 1rem;font-size:0.82rem;font-weight:600;
+                      text-decoration:none;display:flex;align-items:center;gap:0.4rem;
+                      transition:background 0.2s;">
+                <i class="fas fa-user-plus"></i> New Patient
             </a>
-            <a asp-controller="Doctors" asp-action="Create" class="btn btn-sm"
-               style="background:rgba(0,120,212,.8);color:#fff;border:none;border-radius:8px;padding:.5rem 1rem">
-                <i class="fas fa-user-md me-1"></i> New Doctor
+            <a asp-controller="Doctors" asp-action="Create"
+               style="background:rgba(0,120,212,0.8);color:#fff;
+                      border:none;border-radius:10px;
+                      padding:0.45rem 1rem;font-size:0.82rem;font-weight:600;
+                      text-decoration:none;display:flex;align-items:center;gap:0.4rem;
+                      transition:background 0.2s;">
+                <i class="fas fa-user-md"></i> New Doctor
+            </a>
+            <a asp-controller="Dashboard" asp-action="DoctorDashboard"
+               style="background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.8);
+                      border:1px solid rgba(255,255,255,0.15);border-radius:10px;
+                      padding:0.45rem 1rem;font-size:0.82rem;font-weight:500;
+                      text-decoration:none;display:flex;align-items:center;gap:0.4rem;">
+                <i class="fas fa-stethoscope"></i> Doctor View
             </a>
         </div>
     </div>
+</div>
+
+<!-- Quick Search -->
+<div class="search-card">
+    <div class="search-input-wrap">
+        <i class="fas fa-search" style="color:#94a3b8; font-size:0.9rem;"></i>
+        <input id="quickSearchInput" type="text" class="form-control" placeholder="Search patients, doctors, admissions, wards&hellip;" autocomplete="off">
+        <kbd style="background:#f1f5f9;color:#94a3b8;border:1px solid #e2e8f0;font-size:0.7rem;padding:0.15rem 0.5rem;border-radius:5px;">Ctrl+K</kbd>
+    </div>
+    <div id="quickSearchResults" class="search-dropdown"></div>
 </div>
 
 <!-- KPI Row -->
 <div class="row g-3 mb-4">
-    <div class="col-6 col-lg-3">
-        <div class="kpi-card kpi-blue">
-            <div class="kpi-strip"></div>
-            <div class="kpi-icon"><i class="fas fa-user-injured"></i></div>
-            <div class="kpi-value" id="kpiPatients">—</div>
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="kpi-card" style="border-top: 3px solid #0078D4;">
+            <div class="kpi-icon" style="background: rgba(0,120,212,0.1); color: #0078D4;">
+                <i class="fas fa-user-injured"></i>
+            </div>
+            <div class="kpi-value" id="kpiPatients">@Model.TotalPatients</div>
             <div class="kpi-label">Total Patients</div>
-            <div class="kpi-trend trend-neutral">
-                <i class="fas fa-users"></i> Registered in system
-            </div>
+            <a asp-controller="Patients" asp-action="Index" class="kpi-link">
+                View all <i class="fas fa-chevron-right" style="font-size:0.6rem;"></i>
+            </a>
         </div>
     </div>
-    <div class="col-6 col-lg-3">
-        <div class="kpi-card kpi-green">
-            <div class="kpi-strip"></div>
-            <div class="kpi-icon"><i class="fas fa-user-md"></i></div>
-            <div class="kpi-value" id="kpiDoctors">—</div>
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="kpi-card" style="border-top: 3px solid #10b981;">
+            <div class="kpi-icon" style="background: rgba(16,185,129,0.1); color: #10b981;">
+                <i class="fas fa-user-md"></i>
+            </div>
+            <div class="kpi-value" id="kpiDoctors">@Model.ActiveDoctors</div>
             <div class="kpi-label">Active Doctors</div>
-            <div class="kpi-trend trend-neutral">
-                <i class="fas fa-stethoscope"></i> Across all departments
-            </div>
+            <a asp-controller="Doctors" asp-action="Index" class="kpi-link">
+                View all <i class="fas fa-chevron-right" style="font-size:0.6rem;"></i>
+            </a>
         </div>
     </div>
-    <div class="col-6 col-lg-3">
-        <div class="kpi-card kpi-orange">
-            <div class="kpi-strip"></div>
-            <div class="kpi-icon"><i class="fas fa-calendar-check"></i></div>
-            <div class="kpi-value" id="kpiAppointments">—</div>
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="kpi-card" style="border-top: 3px solid #f59e0b;">
+            <div class="kpi-icon" style="background: rgba(245,158,11,0.1); color: #f59e0b;">
+                <i class="fas fa-calendar-check"></i>
+            </div>
+            <div class="kpi-value" id="kpiAppts">@Model.TodaysAppointments</div>
             <div class="kpi-label">Today's Appointments</div>
-            <div class="kpi-trend trend-neutral">
-                <i class="fas fa-clock"></i> Scheduled &amp; Confirmed
+            <a asp-controller="Appointments" asp-action="Index" class="kpi-link">
+                View all <i class="fas fa-chevron-right" style="font-size:0.6rem;"></i>
+            </a>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="kpi-card" style="border-top: 3px solid #ef4444;">
+            <div class="kpi-icon" style="background: rgba(239,68,68,0.1); color: #ef4444;">
+                <i class="fas fa-procedures"></i>
+            </div>
+            <div class="kpi-value" id="kpiAdmissions">@Model.ActiveAdmissions</div>
+            <div class="kpi-label">Active Admissions</div>
+            <a asp-controller="Admissions" asp-action="Index" class="kpi-link">
+                View all <i class="fas fa-chevron-right" style="font-size:0.6rem;"></i>
+            </a>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="kpi-card" style="border-top: 3px solid #8b5cf6;">
+            <div class="kpi-icon" style="background: rgba(139,92,246,0.1); color: #8b5cf6;">
+                <i class="fas fa-bed"></i>
+            </div>
+            <div class="kpi-value" id="kpiBeds">@Model.AvailableBeds</div>
+            <div class="kpi-label">Available Beds</div>
+            <small style="font-size:0.72rem;color:#94a3b8;">of @Model.TotalBeds total</small>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="kpi-card" style="border-top: 3px solid #0ea5e9;">
+            <div class="kpi-icon" style="background: rgba(14,165,233,0.1); color: #0ea5e9;">
+                <i class="fas fa-building"></i>
+            </div>
+            <div class="kpi-value" id="kpiDepts">@Model.TotalDepartments</div>
+            <div class="kpi-label">Departments</div>
+            <a asp-controller="Departments" asp-action="Index" class="kpi-link">
+                View all <i class="fas fa-chevron-right" style="font-size:0.6rem;"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Revenue + Overdue -->
+<div class="row g-3 mb-3">
+    <div class="col-12 col-lg-8">
+        <div class="section-card h-100">
+            <div class="card-header-custom">
+                <h6><i class="fas fa-chart-pie me-2" style="color:var(--hms-blue)"></i>Revenue Overview — Last 30 Days</h6>
+                <a asp-controller="Reports" asp-action="Revenue" class="see-all-link">Full report &rarr;</a>
+            </div>
+            <div class="p-3">
+                <div class="row g-2 mb-3">
+                    <div class="col-4 text-center">
+                        <div class="revenue-badge" style="border-color:var(--hms-green)">
+                            <div class="revenue-label">Total Revenue</div>
+                            <div class="revenue-val" style="color:var(--hms-green)">
+                                $@Model.TotalRevenue.ToString("N0")
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4 text-center">
+                        <div class="revenue-badge" style="border-color:var(--hms-blue)">
+                            <div class="revenue-label">Total Invoiced</div>
+                            <div class="revenue-val" style="color:var(--hms-blue)">
+                                $@Model.TotalInvoiced.ToString("N0")
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4 text-center">
+                        <div class="revenue-badge" style="border-color:var(--hms-amber)">
+                            <div class="revenue-label">Outstanding</div>
+                            <div class="revenue-val" style="color:var(--hms-amber)">
+                                $@Model.TotalOutstanding.ToString("N0")
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="revenueDonut" style="min-height:220px"></div>
             </div>
         </div>
     </div>
-    <div class="col-6 col-lg-3">
-        <div class="kpi-card kpi-red">
-            <div class="kpi-strip"></div>
-            <div class="kpi-icon"><i class="fas fa-bed"></i></div>
-            <div class="kpi-value" id="kpiBeds">—</div>
-            <div class="kpi-label">Available Beds</div>
-            <div class="kpi-trend trend-neutral">
-                <i class="fas fa-hospital"></i> Across all wards
+    <div class="col-12 col-lg-4">
+        <div class="section-card h-100">
+            <div class="card-header-custom">
+                <h6><i class="fas fa-exclamation-triangle me-2" style="color:var(--hms-red)"></i>
+                    Overdue Invoices
+                    @if(Model.OverdueCount > 0)
+                    {
+                        <span class="badge rounded-pill ms-1"
+                              style="background:var(--hms-red);font-size:.65rem">
+                            @Model.OverdueCount
+                        </span>
+                    }
+                </h6>
+                <a asp-controller="Reports" asp-action="Outstanding" class="see-all-link">View all &rarr;</a>
+            </div>
+            <div>
+                @if (!Model.OverdueInvoices.Any())
+                {
+                    <div class="p-4 text-center text-muted" style="font-size:.85rem">
+                        <i class="fas fa-check-circle fa-2x mb-2" style="color:var(--hms-green)"></i>
+                        <br />No overdue invoices.
+                    </div>
+                }
+                else
+                {
+                    @foreach (var inv in Model.OverdueInvoices)
+                    {
+                        <div class="overdue-row">
+                            <div class="overdue-patient">@inv.PatientName</div>
+                            <div class="overdue-amount">$@inv.TotalAmount.ToString("N0")</div>
+                            <a asp-controller="Invoices" asp-action="Details" asp-route-id="@inv.Id"
+                               class="overdue-view">View</a>
+                        </div>
+                    }
+                }
             </div>
         </div>
     </div>
 </div>
 
-<!-- Main Content -->
-<div class="row g-3">
-    <!-- Quick Actions -->
-    <div class="col-12 col-lg-3">
-        <div class="section-card mb-3">
-            <div class="card-header-custom">
-                <h6><i class="fas fa-bolt"></i> Quick Actions</h6>
-            </div>
-            <div class="p-3" style="display:flex;flex-direction:column;gap:.5rem">
-                <a asp-controller="Patients" asp-action="Create" class="quick-action">
-                    <i class="fas fa-user-plus" style="color:#0078D4"></i>
-                    <span>Register Patient</span>
-                </a>
-                <a asp-controller="Doctors" asp-action="Create" class="quick-action">
-                    <i class="fas fa-user-md" style="color:#27ae60"></i>
-                    <span>Add Doctor</span>
-                </a>
-                <a asp-controller="Appointments" asp-action="Index" class="quick-action">
-                    <i class="fas fa-calendar-plus" style="color:#f39c12"></i>
-                    <span>View Appointments</span>
-                </a>
-                <a asp-controller="Wards" asp-action="Index" class="quick-action">
-                    <i class="fas fa-bed" style="color:#e74c3c"></i>
-                    <span>Ward &amp; Beds</span>
-                </a>
-                <a asp-controller="Invoices" asp-action="Index" class="quick-action">
-                    <i class="fas fa-file-invoice-dollar" style="color:#8e44ad"></i>
-                    <span>Invoices</span>
-                </a>
-                <a asp-controller="Departments" asp-action="Index" class="quick-action">
-                    <i class="fas fa-building" style="color:#0078D4"></i>
-                    <span>Departments</span>
-                </a>
-            </div>
-        </div>
-
-        <!-- System Status -->
+<!-- Ward Occupancy + Appointment Breakdown -->
+<div class="row g-3 mb-3">
+    <div class="col-12 col-lg-8">
         <div class="section-card">
             <div class="card-header-custom">
-                <h6><i class="fas fa-signal"></i> System Status</h6>
-            </div>
-            <div class="p-3" style="display:flex;flex-direction:column;gap:.6rem">
-                <div class="d-flex justify-content-between align-items-center" style="font-size:.82rem">
-                    <span><span class="status-dot" style="background:#27ae60"></span> Database</span>
-                    <span class="badge" style="background:#eafaf1;color:#27ae60;font-size:.7rem">Online</span>
-                </div>
-                <div class="d-flex justify-content-between align-items-center" style="font-size:.82rem">
-                    <span><span class="status-dot" style="background:#27ae60"></span> API Services</span>
-                    <span class="badge" style="background:#eafaf1;color:#27ae60;font-size:.7rem">Online</span>
-                </div>
-                <div class="d-flex justify-content-between align-items-center" style="font-size:.82rem">
-                    <span><span class="status-dot" style="background:#27ae60"></span> Background Jobs</span>
-                    <span class="badge" style="background:#eafaf1;color:#27ae60;font-size:.7rem">Running</span>
-                </div>
-                <div class="d-flex justify-content-between align-items-center" style="font-size:.82rem">
-                    <span><span class="status-dot" style="background:#f39c12"></span> Email Notifications</span>
-                    <span class="badge" style="background:#fef9e7;color:#f39c12;font-size:.7rem">Configured</span>
-                </div>
-                <div class="d-flex justify-content-between align-items-center" style="font-size:.82rem">
-                    <span><span class="status-dot" style="background:#27ae60"></span> SignalR Hubs</span>
-                    <span class="badge" style="background:#eafaf1;color:#27ae60;font-size:.7rem">Active</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Center: Ward Occupancy + Recent Activity -->
-    <div class="col-12 col-lg-6">
-        <!-- Ward Occupancy Bars -->
-        <div class="section-card mb-3">
-            <div class="card-header-custom">
-                <h6><i class="fas fa-hospital"></i> Ward Occupancy Overview</h6>
-                <a asp-controller="Wards" asp-action="Index" style="font-size:.78rem;color:var(--accent);text-decoration:none">View all →</a>
-            </div>
-            <div id="wardOccupancyContainer">
-                <div class="text-center py-4 text-muted" style="font-size:.85rem">
-                    <i class="fas fa-spinner fa-spin me-2"></i> Loading ward data...
-                </div>
-            </div>
-        </div>
-
-        <!-- Module Stats -->
-        <div class="section-card">
-            <div class="card-header-custom">
-                <h6><i class="fas fa-chart-bar"></i> Module Overview</h6>
-            </div>
-            <div class="row g-0">
-                <div class="col stat-mini">
-                    <div class="val" id="modDepts">—</div>
-                    <div class="lbl">Departments</div>
-                </div>
-                <div class="col stat-mini">
-                    <div class="val" id="modWards">—</div>
-                    <div class="lbl">Wards</div>
-                </div>
-                <div class="col stat-mini">
-                    <div class="val" id="modInvoices">—</div>
-                    <div class="lbl">Invoices</div>
-                </div>
-                <div class="col stat-mini">
-                    <div class="val" id="modBeds">—</div>
-                    <div class="lbl">Total Beds</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Right: Navigation Links -->
-    <div class="col-12 col-lg-3">
-        <div class="section-card mb-3">
-            <div class="card-header-custom">
-                <h6><i class="fas fa-th-large"></i> All Modules</h6>
-            </div>
-            <div class="p-3" style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
-                <a asp-controller="Patients" asp-action="Index"
-                   class="text-center p-3 text-decoration-none"
-                   style="background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;transition:border-color .15s;color:#1a202c"
-                   onmouseover="this.style.borderColor='#0078D4'" onmouseout="this.style.borderColor='#e2e8f0'">
-                    <i class="fas fa-user-injured d-block mb-2" style="color:#0078D4;font-size:1.3rem"></i>
-                    <span style="font-size:.75rem;font-weight:600">Patients</span>
-                </a>
-                <a asp-controller="Doctors" asp-action="Index"
-                   class="text-center p-3 text-decoration-none"
-                   style="background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;transition:border-color .15s;color:#1a202c"
-                   onmouseover="this.style.borderColor='#27ae60'" onmouseout="this.style.borderColor='#e2e8f0'">
-                    <i class="fas fa-user-md d-block mb-2" style="color:#27ae60;font-size:1.3rem"></i>
-                    <span style="font-size:.75rem;font-weight:600">Doctors</span>
-                </a>
-                <a asp-controller="Departments" asp-action="Index"
-                   class="text-center p-3 text-decoration-none"
-                   style="background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;transition:border-color .15s;color:#1a202c"
-                   onmouseover="this.style.borderColor='#0078D4'" onmouseout="this.style.borderColor='#e2e8f0'">
-                    <i class="fas fa-building d-block mb-2" style="color:#0078D4;font-size:1.3rem"></i>
-                    <span style="font-size:.75rem;font-weight:600">Departments</span>
-                </a>
-                <a asp-controller="Appointments" asp-action="Index"
-                   class="text-center p-3 text-decoration-none"
-                   style="background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;transition:border-color .15s;color:#1a202c"
-                   onmouseover="this.style.borderColor='#f39c12'" onmouseout="this.style.borderColor='#e2e8f0'">
-                    <i class="fas fa-calendar-check d-block mb-2" style="color:#f39c12;font-size:1.3rem"></i>
-                    <span style="font-size:.75rem;font-weight:600">Appointments</span>
-                </a>
-                <a asp-controller="Wards" asp-action="Index"
-                   class="text-center p-3 text-decoration-none"
-                   style="background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;transition:border-color .15s;color:#1a202c"
-                   onmouseover="this.style.borderColor='#e74c3c'" onmouseout="this.style.borderColor='#e2e8f0'">
-                    <i class="fas fa-bed d-block mb-2" style="color:#e74c3c;font-size:1.3rem"></i>
-                    <span style="font-size:.75rem;font-weight:600">Wards &amp; Beds</span>
-                </a>
-                <a asp-controller="Invoices" asp-action="Index"
-                   class="text-center p-3 text-decoration-none"
-                   style="background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;transition:border-color .15s;color:#1a202c"
-                   onmouseover="this.style.borderColor='#8e44ad'" onmouseout="this.style.borderColor='#e2e8f0'">
-                    <i class="fas fa-file-invoice-dollar d-block mb-2" style="color:#8e44ad;font-size:1.3rem"></i>
-                    <span style="font-size:.75rem;font-weight:600">Billing</span>
-                </a>
-            </div>
-        </div>
-
-        <!-- Hangfire Link -->
-        <div class="section-card">
-            <div class="card-header-custom">
-                <h6><i class="fas fa-tasks"></i> Background Jobs</h6>
+                <h6><i class="fas fa-hospital me-2" style="color:var(--hms-blue)"></i>Ward Occupancy — Live</h6>
+                <a asp-controller="Wards" asp-action="Index" class="see-all-link">Manage wards &rarr;</a>
             </div>
             <div class="p-3">
-                <p style="font-size:.82rem;color:#718096;margin-bottom:.75rem">
-                    Monitor and manage recurring tasks like overdue invoice marking, appointment reminders, and prescription expiry warnings.
-                </p>
-                <a href="/hangfire" target="_blank"
-                   class="btn btn-sm w-100"
-                   style="background:#1E3A5F;color:#fff;border-radius:8px;font-size:.8rem;padding:.5rem">
-                    <i class="fas fa-external-link-alt me-1"></i> Open Hangfire Dashboard
-                </a>
+                @foreach (var ward in Model.WardOccupancy)
+                {
+                    var pct = ward.TotalBeds == 0 ? 0
+                              : (int)Math.Round((double)ward.OccupiedBeds / ward.TotalBeds * 100);
+                    var barColor = pct > 85 ? "#ef4444" : pct > 60 ? "#f59e0b" : "#10b981";
+                    <div class="ward-bar-row">
+                        <div class="ward-bar-label">
+                            <span>
+                                @ward.WardName
+                                <small class="text-muted ms-1">(Floor @(ward.Floor?.ToString() ?? "&mdash;"))</small>
+                            </span>
+                            <span>
+                                <strong>@ward.OccupiedBeds</strong>/@ward.TotalBeds beds
+                                &nbsp;
+                                <strong style="color:@barColor">@pct%</strong>
+                            </span>
+                        </div>
+                        <div class="ward-bar-track">
+                            <div class="ward-bar-fill"
+                                 style="width:@pct%;background:@barColor;transition:width .7s ease"></div>
+                        </div>
+                        <div class="ward-bar-legend mt-1">
+                            <span style="color:#10b981">&#10003; @ward.AvailableBeds avail</span>
+                            <span style="color:#f59e0b">&#8856; @ward.ReservedBeds reserved</span>
+                            <span style="color:#94a3b8">&#9881; @ward.MaintenanceBeds maint</span>
+                        </div>
+                    </div>
+                }
             </div>
         </div>
+    </div>
+    <div class="col-12 col-lg-4">
+        <div class="section-card">
+            <div class="card-header-custom">
+                <h6><i class="fas fa-calendar-day me-2" style="color:var(--hms-amber)"></i>Today's Appointment Breakdown</h6>
+            </div>
+            <div class="p-3">
+                <div id="apptBreakdownDonut" style="min-height:180px"></div>
+                <div class="appt-legend mt-2">
+                    <div class="appt-legend-item"><span style="background:#10b981"></span>Confirmed (@Model.ConfirmedCount)</div>
+                    <div class="appt-legend-item"><span style="background:#0078D4"></span>Scheduled (@Model.ScheduledCount)</div>
+                    <div class="appt-legend-item"><span style="background:#4da3e8"></span>Completed (@Model.CompletedCount)</div>
+                    <div class="appt-legend-item"><span style="background:#ef4444"></span>Cancelled (@Model.CancelledCount)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Active Admissions Table -->
+<div class="section-card mb-3">
+    <div class="card-header-custom">
+        <h6><i class="fas fa-procedures me-2" style="color:var(--hms-red)"></i>Active Admissions (latest 5)</h6>
+        <a asp-controller="Admissions" asp-action="Index" class="see-all-link">View all active &rarr;</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0" style="font-size:.85rem">
+            <thead style="background:#f8fafc;color:var(--hms-muted);font-size:.75rem;text-transform:uppercase">
+                <tr>
+                    <th class="ps-4">Patient</th>
+                    <th>Ward</th>
+                    <th>Bed</th>
+                    <th>Doctor</th>
+                    <th>Admitted</th>
+                    <th>Expected Discharge</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var adm in Model.RecentAdmissions)
+                {
+                    <tr>
+                        <td class="ps-4 fw-600">@adm.PatientName</td>
+                        <td>@adm.WardName</td>
+                        <td><code>@adm.BedNumber</code></td>
+                        <td>@adm.DoctorName</td>
+                        <td>@adm.AdmissionDate.ToString("MMM dd")</td>
+                        <td>
+                            @(adm.ExpectedDischargeDate.HasValue
+                                ? adm.ExpectedDischargeDate.Value.ToString("MMM dd")
+                                : "&mdash;")
+                        </td>
+                        <td>
+                            <a asp-controller="Admissions" asp-action="Details"
+                               asp-route-id="@adm.Id"
+                               class="btn btn-xs" style="font-size:.73rem;padding:.2rem .6rem;
+                               background:#eff6ff;color:#1d4ed8;border-radius:6px">
+                                Details
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
     </div>
 </div>
 
 @section Scripts {
     <script>
-        // Animate counters
-        function animateCounter(el, target) {
-            if (!el || target === null) return;
-            const duration = 900;
-            const start = performance.now();
-            const from = 0;
+        // ── ApexCharts: Revenue Donut ───────────────────────────────────────
+        var revenueLabels = [@Html.Raw(string.Join(",", Model.RevenueByService.Select(r => $"\"{r.Label}\"")))];
+        var revenueValues = [@string.Join(",", Model.RevenueByService.Select(r => r.TotalRevenue.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)))];
+
+        var revenueChart = new ApexCharts(document.getElementById('revenueDonut'), {
+            series: revenueValues,
+            labels: revenueLabels,
+            chart: { type: 'donut', height: 220, toolbar: { show: false } },
+            colors: ['#0078D4','#10b981','#f59e0b','#ef4444','#8b5cf6'],
+            legend: { position: 'bottom', fontSize: '12px' },
+            dataLabels: { enabled: true, formatter: function(val) { return val.toFixed(1) + '%'; } },
+            plotOptions: { pie: { donut: { size: '60%' } } },
+            tooltip: { y: { formatter: function(val) { return '$' + val.toLocaleString(); } } }
+        });
+        revenueChart.render();
+
+        // ── ApexCharts: Appointment Breakdown ───────────────────────────────
+        var apptChart = new ApexCharts(document.getElementById('apptBreakdownDonut'), {
+            series: [@Model.ConfirmedCount, @Model.ScheduledCount, @Model.CompletedCount, @Model.CancelledCount],
+            labels: ['Confirmed','Scheduled','Completed','Cancelled'],
+            chart: { type: 'donut', height: 180, toolbar: { show: false } },
+            colors: ['#10b981','#0078D4','#4da3e8','#ef4444'],
+            legend: { show: false },
+            plotOptions: { pie: { donut: { size: '55%' } } }
+        });
+        apptChart.render();
+
+        // ── Counter animation ───────────────────────────────────────────────
+        function animateCounter(id, target) {
+            var el = document.getElementById(id);
+            if (!el) return;
+            if (target === 0) { el.textContent = 0; return; }
+            var dur = 900, start = performance.now();
             function step(now) {
-                const p = Math.min((now - start) / duration, 1);
-                const ease = 1 - Math.pow(1 - p, 3);
-                el.textContent = Math.round(from + (target - from) * ease);
+                var p = Math.min((now - start) / dur, 1);
+                var ease = 1 - Math.pow(1 - p, 3);
+                el.textContent = Math.round(target * ease).toLocaleString();
                 if (p < 1) requestAnimationFrame(step);
             }
             requestAnimationFrame(step);
         }
 
-        // Dashboard data from server
-        document.addEventListener('DOMContentLoaded', function () {
-            setTimeout(() => {
-                animateCounter(document.getElementById('kpiPatients'), @patientCount);
-                animateCounter(document.getElementById('kpiDoctors'), @doctorCount);
-                animateCounter(document.getElementById('kpiAppointments'), @appointmentCount);
-            }, 300);
-
-            // Ward occupancy placeholder
-            const wardContainer = document.getElementById('wardOccupancyContainer');
-            const wards = [
-                { name: 'General Medicine', occupied: 1, total: 6, color: '#0078D4' },
-                { name: 'ICU', occupied: 1, total: 6, color: '#e74c3c' },
-                { name: 'Pediatrics', occupied: 0, total: 6, color: '#27ae60' }
-            ];
-
-            wardContainer.innerHTML = wards.map(w => {
-                const pct = Math.round((w.occupied / w.total) * 100);
-                const barColor = pct > 80 ? '#e74c3c' : pct > 50 ? '#f39c12' : w.color;
-                return `
-                    <div class="occupancy-bar-wrap">
-                        <div class="occupancy-bar-label">
-                            <span>${w.name}</span>
-                            <span style="color:var(--text-muted)">${w.occupied}/${w.total} beds &nbsp;<strong style="color:var(--text-primary)">${pct}%</strong></span>
-                        </div>
-                        <div class="occupancy-bar-track">
-                            <div class="occupancy-bar-fill" style="width:${pct}%;background:${barColor}"></div>
-                        </div>
-                    </div>`;
-            }).join('');
+        document.addEventListener("DOMContentLoaded", function() {
+            animateCounter("kpiPatients",   @Model.TotalPatients);
+            animateCounter("kpiDoctors",    @Model.ActiveDoctors);
+            animateCounter("kpiAppts",      @Model.TodaysAppointments);
+            animateCounter("kpiAdmissions", @Model.ActiveAdmissions);
+            animateCounter("kpiBeds",       @Model.AvailableBeds);
+            animateCounter("kpiDepts",      @Model.TotalDepartments);
         });
+
+        // ── SignalR: Ward/Bed Live Updates ──────────────────────────────────
+        var wardConnection = new signalR.HubConnectionBuilder()
+            .withUrl("/hubs/beds")
+            .withAutomaticReconnect()
+            .build();
+
+        wardConnection.on("BedOccupied", function () {
+            refreshBedStats();
+            showToast("A bed has been occupied.", "info");
+        });
+
+        wardConnection.on("BedReleased", function () {
+            refreshBedStats();
+            showToast("A bed has been released.", "success");
+        });
+
+        wardConnection.on("BedStatusChanged", function () {
+            refreshBedStats();
+        });
+
+        wardConnection.start()
+            .then(function () {
+                wardConnection.invoke("JoinDashboard");
+                setSignalRStatus(true);
+                var pulse = document.getElementById("sidebarBedPulse");
+                if (pulse) pulse.style.display = "inline-block";
+            })
+            .catch(function (err) {
+                setSignalRStatus(false);
+                console.warn("WardHub connection failed:", err);
+            });
+
+        wardConnection.onreconnected(function () {
+            wardConnection.invoke("JoinDashboard");
+            setSignalRStatus(true);
+        });
+
+        wardConnection.onclose(function () {
+            setSignalRStatus(false);
+            var pulse = document.getElementById("sidebarBedPulse");
+            if (pulse) pulse.style.display = "none";
+        });
+
+        function refreshBedStats() {
+            fetch("/Dashboard/GetBedSummary")
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    animateCounter("kpiBeds", data.availableBeds);
+                });
+        }
+
+        function setSignalRStatus(online) {
+            var dot   = document.getElementById("signalrDot");
+            var label = document.getElementById("signalrLabel");
+            if (!dot || !label) return;
+            if (online) {
+                dot.style.background = "#10b981";
+                label.textContent = "Live";
+            } else {
+                dot.style.background = "#ef4444";
+                label.textContent = "Offline";
+            }
+        }
+
+        function showToast(msg, type) {
+            if (typeof toastr !== "undefined") {
+                toastr[type || "info"](msg);
+            }
+        }
+
+        // ── Quick Search ───────────────────────────────────────────
+        (function() {
+            var input = document.getElementById('quickSearchInput');
+            var results = document.getElementById('quickSearchResults');
+            var timer;
+            if (!input) return;
+
+            input.addEventListener('input', function() {
+                clearTimeout(timer);
+                var q = this.value.trim();
+                if (q.length < 2) {
+                    results.classList.remove('show');
+                    return;
+                }
+                timer = setTimeout(function() {
+                    results.innerHTML = '<div class="search-spinner"></div>';
+                    results.classList.add('show');
+                    fetch('/Dashboard/QuickSearch?q=' + encodeURIComponent(q))
+                        .then(function(r) { return r.json(); })
+                        .then(function(data) {
+                            if (data.length === 0) {
+                                results.innerHTML = '<div class="search-empty">No results found</div>';
+                                return;
+                            }
+                            var html = '';
+                            data.forEach(function(item) {
+                                html += '<a href="' + item.url + '" class="search-result-item">';
+                                html += '<span class="search-type-badge" style="background:' + item.color + '22;color:' + item.color + ';">' + item.type + '</span>';
+                                html += '<span class="search-result-label">' + item.label + '</span>';
+                                html += '<span class="search-result-sub">' + (item.subtitle || '') + '</span>';
+                                html += '<i class="fas fa-chevron-right" style="font-size:0.6rem;color:#cbd5e1;"></i>';
+                                html += '</a>';
+                            });
+                            results.innerHTML = html;
+                        })
+                        .catch(function() {
+                            results.innerHTML = '<div class="search-empty">Search failed</div>';
+                        });
+                }, 300);
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.search-card')) {
+                    results.classList.remove('show');
+                }
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                    e.preventDefault();
+                    input.focus();
+                }
+                if (e.key === 'Escape') {
+                    results.classList.remove('show');
+                    input.blur();
+                }
+            });
+        })();
     </script>
 }

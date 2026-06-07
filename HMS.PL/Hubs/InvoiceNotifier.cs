@@ -1,11 +1,22 @@
 ﻿using HMS.BLL.ServicesAbstraction.Contracts.BillingService;
+using Microsoft.AspNetCore.SignalR;
 
 namespace HMS.PL.Hubs
 {
-    public class InvoiceNotifier : IInvoiceNotifier
+    public class InvoiceNotifier(IHubContext<NotificationHub> _hubContext) : IInvoiceNotifier
     {
-        public Task NotifyInvoiceDueSoonAsync(int patientId, Guid invoiceId,
-        string invoiceNumber, decimal outstandingBalance, DateOnly dueDate)
-       => Task.CompletedTask;
+        public async Task NotifyInvoiceDueSoonAsync(int patientId, Guid invoiceId,
+            string invoiceNumber, decimal outstandingBalance, DateOnly dueDate)
+        {
+            await _hubContext.Clients
+                .Group($"patient-{patientId}")
+                .SendAsync("InvoiceDueSoon", new
+                {
+                    invoiceId,
+                    invoiceNumber,
+                    outstandingBalance,
+                    dueDate = dueDate.ToString("yyyy-MM-dd")
+                });
+        }
     }
 }

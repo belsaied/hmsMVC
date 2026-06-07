@@ -40,6 +40,22 @@ namespace Services.Implementations.BillingModule
             if (invoice.OutstandingBalance <= 0)
                 throw new BusinessRuleException($"Invoice '{invoiceId}' has no outstanding balance.");
 
+            var pendingSpec = new PaymentsByInvoiceSpecification(invoiceId);
+            var existing = (await _unitOfWork.GetRepository<Payment, Guid>().GetAllAsync(pendingSpec))
+                .FirstOrDefault(p => p.Status == PaymentStatus.Pending
+                                 && !string.IsNullOrEmpty(p.StripePaymentIntentId));
+
+            if (existing is not null)
+            {
+                return new PaymentIntentResultDto
+                {
+                    InvoiceId = invoiceId,
+                    StripePaymentIntentId = existing.StripePaymentIntentId!,
+                    ClientSecret = existing.StripeClientSecret!,
+                    Amount = invoice.OutstandingBalance
+                };
+            }
+
             // Stripe requires amounts in the smallest currency unit (cents for USD)
             var amountInCents = (long)(invoice.OutstandingBalance * 100);
 
@@ -300,6 +316,8 @@ namespace Services.Implementations.BillingModule
 
         private static void ReevaluateInvoiceStatus(HMS.DAL.Models.BillingModule.Invoice invoice)
         {
+            invoice.RecalculateFinancials();
+
             if (invoice.PaidAmount >= invoice.TotalAmount)
             {
                 invoice.Status = InvoiceStatus.Paid;
@@ -312,7 +330,6 @@ namespace Services.Implementations.BillingModule
             }
             else
             {
-                // Full refund — revert to Issued if it was Paid
                 if (invoice.Status == InvoiceStatus.Paid)
                     invoice.Status = InvoiceStatus.Issued;
                 invoice.PaidAt = null;

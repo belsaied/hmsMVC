@@ -83,7 +83,10 @@ namespace Services.Implementations.BillingModule
                           ?? throw new InvoiceNotFoundException(id);
 
             var patient = await _unitOfWork.GetRepository<Patient, int>().GetByIdAsync(invoice.PatientId);
-            return await BuildDetailDtoAsync(invoice, patient?.FirstName + " " + patient?.LastName ?? string.Empty);
+            var patientName = patient is not null
+                ? $"{patient.FirstName} {patient.LastName}"
+                : string.Empty;
+            return await BuildDetailDtoAsync(invoice, patientName);
         }
 
         public async Task<IEnumerable<InvoiceSummaryResultDto>> GetInvoicesByPatientAsync(int patientId)
@@ -169,6 +172,10 @@ namespace Services.Implementations.BillingModule
             if (invoice.Status != InvoiceStatus.Draft)
                 throw new InvalidInvoiceStatusTransitionException(invoice.Status.ToString(),
                     InvoiceStatus.Issued.ToString());
+
+            if (invoice.LineItems.Any(li => li.UnitPrice <= 0))
+                throw new BusinessRuleException(
+                    "All line items must have a unit price greater than zero before issuing.");
 
             invoice.DiscountAmount = request.DiscountAmount;
             invoice.DiscountPercent = request.DiscountPercent;
