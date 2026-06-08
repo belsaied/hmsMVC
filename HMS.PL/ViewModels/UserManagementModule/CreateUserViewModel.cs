@@ -18,6 +18,8 @@ namespace HMS.PL.ViewModels.UserManagementModule
         public string Email { get; set; } = string.Empty;
 
         [Required, MinLength(8), MaxLength(100)]
+        [RegularExpression(@"^(?=.*\d).{8,}$",
+            ErrorMessage = "Password must be at least 8 characters and contain at least one digit.")]
         [DataType(DataType.Password)]
         [Display(Name = "Password")]
         public string Password { get; set; } = string.Empty;

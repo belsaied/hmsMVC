@@ -37,6 +37,9 @@ namespace HMS.PL.Controllers
             string? search, string? role, bool? locked, int pageIndex = 1)
         {
             const int pageSize = 15;
+            var allowedRoles = new[] { "SuperAdmin", "HospitalAdmin", "Doctor", "Nurse", "Receptionist", "Patient" };
+            if (!string.IsNullOrEmpty(role) && !allowedRoles.Contains(role))
+                role = null;
 
             var query = _userManager.Users.AsQueryable();
 
@@ -51,13 +54,7 @@ namespace HMS.PL.Controllers
                     ? query.Where(u => u.LockoutEnd != null && u.LockoutEnd > DateTime.UtcNow)
                     : query.Where(u => u.LockoutEnd == null || u.LockoutEnd <= DateTime.UtcNow);
 
-            var totalCount = await query.CountAsync();
-
-            var users = await query
-                .OrderByDescending(u => u.LastLoginAt)
-                .Skip((pageIndex - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
+            var users = await query.OrderByDescending(u => u.LastLoginAt).ToListAsync();
 
             var vmList = new List<UserListViewModel>();
             foreach (var u in users)
@@ -83,9 +80,15 @@ namespace HMS.PL.Controllers
                 });
             }
 
+            int totalCount = vmList.Count;
+            var paged = vmList
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
             var vm = new UserIndexPageViewModel
             {
-                Users = vmList,
+                Users = paged,
                 SearchQuery = search,
                 RoleFilter = role,
                 LockedFilter = locked,
@@ -204,6 +207,13 @@ namespace HMS.PL.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (user.Id == currentUserId)
+            {
+                TempData["Error"] = "You cannot edit your own account.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
             var roles = await _userManager.GetRolesAsync(user);
             var targetRole = roles.FirstOrDefault() ?? string.Empty;
 
@@ -277,6 +287,13 @@ namespace HMS.PL.Controllers
             var user = await _userManager.FindByIdAsync(id);
             if (user is null) { TempData["Error"] = "User not found."; return RedirectToAction(nameof(Index)); }
 
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (user.Id == currentUserId)
+            {
+                TempData["Error"] = "You cannot lock your own account.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
             var roles = await _userManager.GetRolesAsync(user);
             var targetRole = roles.FirstOrDefault() ?? string.Empty;
 
@@ -306,6 +323,13 @@ namespace HMS.PL.Controllers
             var user = await _userManager.FindByIdAsync(id);
             if (user is null) { TempData["Error"] = "User not found."; return RedirectToAction(nameof(Index)); }
 
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (user.Id == currentUserId)
+            {
+                TempData["Error"] = "You cannot unlock your own account.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
             var roles = await _userManager.GetRolesAsync(user);
             var targetRole = roles.FirstOrDefault() ?? string.Empty;
 
@@ -331,15 +355,22 @@ namespace HMS.PL.Controllers
         }
 
         [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> ForceResetPassword(string id, string newPassword)
+        public async Task<IActionResult> ForceResetPassword(ForceResetPasswordViewModel vm)
         {
-            if (string.IsNullOrWhiteSpace(newPassword) || newPassword.Length < 8)
+            if (!ModelState.IsValid)
             {
                 TempData["Error"] = "Password must be at least 8 characters.";
-                return RedirectToAction(nameof(Details), new { id });
+                return RedirectToAction(nameof(Details), new { id = vm.Id });
             }
 
-            var user = await _userManager.FindByIdAsync(id);
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (vm.Id == currentUserId)
+            {
+                TempData["Error"] = "You cannot reset your own password.";
+                return RedirectToAction(nameof(Details), new { id = vm.Id });
+            }
+
+            var user = await _userManager.FindByIdAsync(vm.Id);
             if (user is null) { TempData["Error"] = "User not found."; return RedirectToAction(nameof(Index)); }
 
             var roles = await _userManager.GetRolesAsync(user);
@@ -349,16 +380,16 @@ namespace HMS.PL.Controllers
                 (targetRole == "SuperAdmin" || targetRole == "HospitalAdmin"))
             {
                 TempData["Error"] = "You cannot reset the password for this user.";
-                return RedirectToAction(nameof(Details), new { id });
+                return RedirectToAction(nameof(Details), new { id = vm.Id });
             }
 
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-            var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
+            var result = await _userManager.ResetPasswordAsync(user, token, vm.NewPassword);
 
             if (!result.Succeeded)
             {
                 TempData["Error"] = string.Join(" | ", result.Errors.Select(e => e.Description));
-                return RedirectToAction(nameof(Details), new { id });
+                return RedirectToAction(nameof(Details), new { id = vm.Id });
             }
 
             await _services.AuditService.LogAsync(
@@ -368,7 +399,7 @@ namespace HMS.PL.Controllers
                 HttpContext.Connection.RemoteIpAddress?.ToString());
 
             TempData["Success"] = $"Password for {user.Email} has been reset.";
-            return RedirectToAction(nameof(Details), new { id });
+            return RedirectToAction(nameof(Details), new { id = vm.Id });
         }
 
         public async Task<IActionResult> AuditLog(
@@ -391,21 +422,21 @@ namespace HMS.PL.Controllers
                 .Take(pageSize)
                 .ToListAsync();
 
-            var vmEntries = new List<AuditLogEntryViewModel>();
-            foreach (var e in entries)
+            var userIds = entries.Select(e => e.UserId).Distinct().ToList();
+            var users = await _userManager.Users
+                .Where(u => userIds.Contains(u.Id))
+                .ToDictionaryAsync(u => u.Id, u => u.Email ?? u.Id);
+
+            var vmEntries = entries.Select(e => new AuditLogEntryViewModel
             {
-                var appUser = await _userManager.FindByIdAsync(e.UserId);
-                vmEntries.Add(new AuditLogEntryViewModel
-                {
-                    Id = e.Id,
-                    UserId = e.UserId,
-                    UserEmail = appUser?.Email ?? e.UserId,
-                    Action = e.Action,
-                    Details = e.Details,
-                    IpAddress = e.IpAddress,
-                    CreatedAt = e.CreatedAt
-                });
-            }
+                Id = e.Id,
+                UserId = e.UserId,
+                UserEmail = users.GetValueOrDefault(e.UserId, e.UserId),
+                Action = e.Action,
+                Details = e.Details,
+                IpAddress = e.IpAddress,
+                CreatedAt = e.CreatedAt
+            }).ToList();
 
             var vm = new AuditLogPageViewModel
             {
@@ -413,6 +444,7 @@ namespace HMS.PL.Controllers
                 UserIdFilter = userId,
                 ActionFilter = action,
                 PageIndex = pageIndex,
+                PageSize = pageSize,
                 TotalCount = totalCount,
                 TotalPages = (int)Math.Ceiling((double)totalCount / pageSize)
             };

@@ -7,6 +7,7 @@ using HMS.DAL.Models.PatientModule;
 using HMS.DAL.Models.WardBedModule;
 using Microsoft.EntityFrameworkCore;
 using HMS.DAL.Data.DbContexts;
+using Microsoft.Data.SqlClient;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -20,7 +21,16 @@ public class DataSeeding(HospitalDbContext _dbContext)
         {
             var pendingMigrations = await _dbContext.Database.GetPendingMigrationsAsync();
             if (pendingMigrations.Any())
-                await _dbContext.Database.MigrateAsync();
+            {
+                try
+                {
+                    await _dbContext.Database.MigrateAsync();
+                }
+                catch (SqlException ex) when (ex.Number == 2714)
+                {
+                    Console.WriteLine($"Migration skipped — tables already exist: {ex.Message}");
+                }
+            }
 
             var basePath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "HMS.DAL", "Data", "DataSeed");
             var jsonOptions = new JsonSerializerOptions

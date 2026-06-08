@@ -17,6 +17,7 @@ namespace HMS.PL.ViewModels.UserManagementModule
         public string? UserIdFilter { get; set; }
         public string? ActionFilter { get; set; }
         public int PageIndex { get; set; } = 1;
+        public int PageSize { get; set; } = 30;
         public int TotalCount { get; set; }
         public int TotalPages { get; set; }
     }

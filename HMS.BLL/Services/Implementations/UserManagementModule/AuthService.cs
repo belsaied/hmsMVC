@@ -4,6 +4,7 @@ using HMS.DAL.Models.Enums.PatientEnums;
 using HMS.DAL.Models.IdentityModule;
 using HMS.DAL.Models.PatientModule;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using HMS.BLL.Services.Exceptions;
@@ -231,7 +232,8 @@ namespace HMS.BLL.Services.Implementations.UserManagementModule
         public async Task<AuthResultDto> RefreshTokenAsync(string refreshToken)
         {
             var hash = HashToken(refreshToken);
-            var user = _userManager.Users.FirstOrDefault(u => u.RefreshTokenHash == hash)
+            var user = await _userManager.Users
+                           .FirstOrDefaultAsync(u => u.RefreshTokenHash == hash)
                        ?? throw new UnauthorizedException("Invalid refresh token.");
 
             if (user.RefreshTokenExpiry < DateTime.UtcNow)
@@ -270,8 +272,8 @@ namespace HMS.BLL.Services.Implementations.UserManagementModule
         public async Task VerifyEmailAsync(string token)
         {
             var hash = HashToken(token);
-            var user = _userManager.Users
-                           .FirstOrDefault(u => u.EmailVerificationTokenHash == hash)
+            var user = await _userManager.Users
+                           .FirstOrDefaultAsync(u => u.EmailVerificationTokenHash == hash)
                        ?? throw new UnauthorizedException("Invalid or expired verification token.");
 
             if (user.EmailVerificationExpiry < DateTime.UtcNow)

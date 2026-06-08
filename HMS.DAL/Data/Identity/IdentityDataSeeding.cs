@@ -1,5 +1,6 @@
 ﻿using HMS.DAL.Models.IdentityModule;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace HMS.DAL.Data.Identity
@@ -14,7 +15,16 @@ namespace HMS.DAL.Data.Identity
             // Apply any pending migrations for the Identity DB
             var pending = await _identityContext.Database.GetPendingMigrationsAsync();
             if (pending.Any())
-                await _identityContext.Database.MigrateAsync();
+            {
+                try
+                {
+                    await _identityContext.Database.MigrateAsync();
+                }
+                catch (SqlException ex) when (ex.Number == 2714)
+                {
+                    Console.WriteLine($"Identity migration skipped — tables already exist: {ex.Message}");
+                }
+            }
 
             // Seed the 6 roles
             string[] roles = ["SuperAdmin", "HospitalAdmin", "Doctor", "Nurse", "Patient", "Receptionist"];

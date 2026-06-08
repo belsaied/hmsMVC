@@ -1,0 +1,88 @@
+@model HMS.PL.ViewModels.AuthModule.RegisterViewModel
+@{
+    ViewData["Title"] = "Register";
+    Layout = "_LandingLayout";
+}
+
+<div class="hms-auth-wrapper">
+    <div class="hms-auth-bg-shape hms-auth-bg-shape--1"></div>
+    <div class="hms-auth-bg-shape hms-auth-bg-shape--2"></div>
+    <div class="hms-auth-bg-shape hms-auth-bg-shape--3"></div>
+
+    <div class="hms-auth-card hms-auth-card--wide">
+        <div class="hms-auth-brand">
+            <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" width="48" height="48">
+                <path d="M5 34 L24 34 L28 40 L38 18 L44 40 L48 34 L85 34" stroke="#1D4ED8" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
+                <path d="M50 86 C8 52 14 22 38 24 C49 24 50 35 50 35 C50 35 53 24 62 25 C85 25 91 55 50 86Z" stroke="#123A7A" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+                <path d="M50 86 C8 52 14 22 38 24 C49 24 50 35 50 35 C50 35 53 24 62 25 C85 25 91 55 50 86Z" stroke="#123A7A" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="0.3" stroke-dasharray="3 5"/>
+            </svg>
+            <div class="hms-auth-brand-text">
+                <span class="hms-auth-brand-title">HEALING</span>
+                <span class="hms-auth-brand-sub">HOSPITAL MANAGEMENT SYSTEM</span>
+            </div>
+        </div>
+
+        <div class="hms-auth-header">
+            <h1 class="hms-auth-title">Create Account</h1>
+            <p class="hms-auth-subtitle">Join Healing — your health, our priority</p>
+        </div>
+
+        <form asp-controller="Auth" asp-action="Register" method="post" class="hms-auth-form" novalidate>
+            <div asp-validation-summary="ModelOnly" class="hms-auth-error" role="alert"></div>
+
+            <div class="hms-form-row">
+                <div class="hms-input-group">
+                    <span class="hms-input-icon"><i class="far fa-user"></i></span>
+                    <input asp-for="FirstName" class="hms-form-input" placeholder="First name" autocomplete="given-name" />
+                    <span asp-validation-for="FirstName" class="hms-field-error"></span>
+                </div>
+
+                <div class="hms-input-group">
+                    <span class="hms-input-icon"><i class="far fa-user"></i></span>
+                    <input asp-for="LastName" class="hms-form-input" placeholder="Last name" autocomplete="family-name" />
+                    <span asp-validation-for="LastName" class="hms-field-error"></span>
+                </div>
+            </div>
+
+            <div class="hms-input-group">
+                <span class="hms-input-icon"><i class="far fa-envelope"></i></span>
+                <input asp-for="Email" class="hms-form-input" placeholder="Email address" autocomplete="email" />
+                <span asp-validation-for="Email" class="hms-field-error"></span>
+            </div>
+
+            <div class="hms-form-row">
+                <div class="hms-input-group">
+                    <span class="hms-input-icon"><i class="fas fa-lock"></i></span>
+                    <input asp-for="Password" class="hms-form-input" placeholder="Password (min. 8 chars)" autocomplete="new-password" />
+                    <span asp-validation-for="Password" class="hms-field-error"></span>
+                </div>
+
+                <div class="hms-input-group">
+                    <span class="hms-input-icon"><i class="fas fa-check-circle"></i></span>
+                    <input asp-for="ConfirmPassword" class="hms-form-input" placeholder="Confirm password" autocomplete="new-password" />
+                    <span asp-validation-for="ConfirmPassword" class="hms-field-error"></span>
+                </div>
+            </div>
+
+            <button type="submit" class="hms-auth-btn">
+                <i class="fas fa-user-plus"></i>
+                <span>Create Account</span>
+            </button>
+        </form>
+
+        <p class="hms-auth-footer-text">
+            Already have an account?
+            <a asp-controller="Auth" asp-action="Login" class="hms-auth-link">Sign in</a>
+        </p>
+
+        <div class="hms-auth-footer-decoration">
+            <svg viewBox="0 0 200 20" fill="none" xmlns="http://www.w3.org/2000/svg" width="200" height="20" opacity="0.15">
+                <path d="M0 10 L20 10 L25 10 L30 2 L36 18 L42 6 L48 14 L55 10 L80 10 L85 10 L90 2 L96 18 L102 6 L108 14 L115 10 L140 10 L145 10 L150 2 L156 18 L162 6 L168 14 L175 10 L200 10" stroke="#123A7A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

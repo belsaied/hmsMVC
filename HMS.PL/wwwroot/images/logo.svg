@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 120" width="520" height="120">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;800&amp;display=swap');
+    </style>
+  </defs>
+
+  <!-- ECG + Heart Icon Group -->
+  <g transform="translate(10, 10)">
+
+    <!-- ECG Line -->
+    <!-- The line passes through the heart from left to right -->
+    <polyline
+      points="0,50 18,50 24,50 30,18 36,82 42,30 48,50 56,50"
+      fill="none"
+      stroke="#123A7A"
+      stroke-width="3.2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+
+    <!-- Heart shape (open, modern, flowing) centered at ~72,44 -->
+    <path
+      d="M72,38
+         C72,28 60,22 54,30
+         C50,36 52,42 56,47
+         L72,63
+         L88,47
+         C92,42 94,36 90,30
+         C84,22 72,28 72,38 Z"
+      fill="none"
+      stroke="#123A7A"
+      stroke-width="3.2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+
+    <!-- ECG line continues through/across the heart -->
+    <line
+      x1="56" y1="50"
+      x2="88" y2="50"
+      stroke="#123A7A"
+      stroke-width="3.2"
+      stroke-linecap="round"
+    />
+
+    <!-- ECG continues right after heart -->
+    <polyline
+      points="88,50 96,50 102,50"
+      fill="none"
+      stroke="#123A7A"
+      stroke-width="3.2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+
+  </g>
+
+  <!-- HEALING text -->
+  <text
+    x="130"
+    y="72"
+    font-family="'Montserrat', 'Poppins', sans-serif"
+    font-weight="800"
+    font-size="52"
+    letter-spacing="2"
+    fill="#123A7A"
+    dominant-baseline="auto"
+    text-anchor="start"
+  >HEALING</text>
+
+  <!-- HOSPITAL MANAGEMENT SYSTEM text -->
+  <text
+    x="131"
+    y="93"
+    font-family="'Montserrat', 'Poppins', sans-serif"
+    font-weight="500"
+    font-size="13"
+    letter-spacing="5"
+    fill="#123A7A"
+    dominant-baseline="auto"
+    text-anchor="start"
+  >HOSPITAL MANAGEMENT SYSTEM</text>
+
+</svg>
