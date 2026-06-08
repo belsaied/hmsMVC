@@ -209,30 +209,18 @@
 
                 @if (User.Identity?.IsAuthenticated == true)
                 {
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#"
-                           style="display: flex; align-items: center; gap: 0.5rem;
-                                  color: #1e293b; font-size: 0.84rem; font-weight: 500;
-                                  background: #f1f5f9; border-radius: 22px;
-                                  padding: 0.3rem 0.9rem 0.3rem 0.4rem;">
-                            <span style="
-                                width: 28px; height: 28px; border-radius: 50%;
-                                background: linear-gradient(135deg,#0078D4,#00b4d8);
-                                display: flex; align-items: center; justify-content: center;
-                                color: #fff; font-size: 0.75rem; font-weight: 700; flex-shrink: 0;">
-                                @(User.Identity.Name?.Substring(0,1).ToUpper() ?? "A")
-                            </span>
-                            <span class="d-none d-md-inline">@User.Identity.Name</span>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right" style="
-                             border: 1px solid #e2e8f0; border-radius: 12px;
-                             box-shadow: 0 8px 24px rgba(0,0,0,0.1); padding: 0.5rem;
-                             min-width: 160px;">
-                            <a href="/Auth/Logout" class="dropdown-item" style="
-                               border-radius: 8px; font-size: 0.84rem; color: #ef4444;">
-                                <i class="fas fa-sign-out-alt me-2"></i> Sign out
-                            </a>
-                        </div>
+                    <li class="nav-item">
+                        <form asp-controller="Auth" asp-action="LogoutPost" method="post" style="margin:0;display:inline;">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="nav-link" style="
+                                display:flex;align-items:center;gap:0.4rem;
+                                color:#ef4444;font-size:0.84rem;font-weight:600;
+                                background:#fef2f2;border:1px solid #fecaca;border-radius:22px;
+                                padding:0.3rem 0.9rem;cursor:pointer;">
+                                <i class="fas fa-sign-out-alt" style="font-size:0.8rem;"></i>
+                                <span class="d-none d-md-inline">Sign Out</span>
+                            </button>
+                        </form>
                     </li>
                 }
             </ul>
@@ -253,10 +241,11 @@
                 <span style="display:flex;align-items:center;gap:0.65rem;flex-shrink:0;">
                     <span style="width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                         <svg viewBox="0 0 100 100" width="36" height="36" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M5 34 L24 34 L28 40 L38 18 L44 40 L48 34 L85 34" stroke="#FFFFFF" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" opacity="0.85"/>
-                            <path d="M50 86 C8 52 14 22 38 24 C49 24 50 35 50 35 C50 35 53 24 62 25 C85 25 91 55 50 86Z" stroke="#FFFFFF" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.08" transform="rotate(-0.6 50 55)"/>
-                            <path d="M50 86 C8 52 14 22 38 24 C49 24 50 35 50 35 C50 35 53 24 62 25 C85 25 91 55 50 86Z" stroke="#FFFFFF" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
-                            <path d="M50 86 C8 52 14 22 38 24 C49 24 50 35 50 35 C50 35 53 24 62 25 C85 25 91 55 50 86Z" stroke="#FFFFFF" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="0.25" stroke-dasharray="3 5"/>
+                            <path d="M50 88 C6 54 12 20 38 22 C49 22 50 34 50 34 C50 34 53 22 62 23 C88 23 94 56 50 88Z" fill="rgba(255,255,255,0.08)" stroke="none"/>
+                            <path d="M50 86 C8 52 14 22 38 24 C49 24 50 35 50 35 C50 35 53 24 62 25 C85 25 91 55 50 86Z" stroke="#FFFFFF" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" fill="none"/>
+                            <path d="M50 82 C14 54 20 28 38 28 C47 28 50 36 50 36 C50 36 53 28 62 29 C80 29 86 54 50 82Z" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" fill="none"/>
+                            <path d="M5 52 L22 52 L28 52 L34 38 L40 66 L46 52 L54 52 L60 38 L66 66 L72 52 L95 52" stroke="#FFFFFF" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.9"/>
+                            <path d="M5 52 L22 52 L28 52 L34 38 L40 66 L46 52 L54 52 L60 38 L66 66 L72 52 L95 52" stroke="#60A5FA" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0.15" style="filter: blur(2px);"/>
                         </svg>
                     </span>
                     <div>
@@ -290,15 +279,18 @@
                             </a>
                         </li>
 
-                        <li class="nav-item">
-                            <a asp-controller="Dashboard" asp-action="DoctorDashboard"
-                               class="nav-link sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "DoctorDashboard" ? "sidebar-active" : "")">
-                                <span class="sidebar-icon" style="background: rgba(16,185,129,0.15); color: #10b981;">
-                                    <i class="fas fa-stethoscope"></i>
-                                </span>
-                                <span class="sidebar-collapsible">Doctor Dashboard</span>
-                            </a>
-                        </li>
+                        @if (User.IsInRole("Doctor"))
+                        {
+                            <li class="nav-item">
+                                <a asp-controller="Dashboard" asp-action="DoctorDashboard"
+                                   class="nav-link sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "DoctorDashboard" ? "sidebar-active" : "")">
+                                    <span class="sidebar-icon" style="background: rgba(16,185,129,0.15); color: #10b981;">
+                                        <i class="fas fa-stethoscope"></i>
+                                    </span>
+                                    <span class="sidebar-collapsible">Doctor Dashboard</span>
+                                </a>
+                            </li>
+                        }
 
                         <li class="sidebar-collapsible" style="margin: 0;">
                             <hr style="border:none; border-top:1px solid rgba(255,255,255,0.07); margin: 0.75rem 0 0.35rem;">
@@ -463,6 +455,15 @@
                             </li>
 
                             <li class="nav-item">
+                                <a asp-controller="UserManagement" asp-action="PendingRequests"
+                                   class="nav-link sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "PendingRequests" ? "sidebar-active" : "")"
+                                   style="padding-left: 2.4rem;">
+                                    <i class="fas fa-user-clock" style="width:28px; text-align:center; font-size:0.7rem; color:rgba(255,255,255,0.35); flex-shrink:0;"></i>
+                                    <span class="sidebar-collapsible">Pending Requests</span>
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
                                 <a asp-controller="UserManagement" asp-action="AuditLog"
                                    class="nav-link sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "AuditLog" ? "sidebar-active" : "")"
                                    style="padding-left: 2.4rem;">
@@ -475,6 +476,22 @@
                     </ul>
                 </nav>
             </div>
+
+            <!-- Sidebar Logout -->
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <div style="padding: 0.5rem 0.75rem; border-top: 1px solid rgba(255,255,255,0.07);">
+                    <form asp-controller="Auth" asp-action="LogoutPost" method="post" style="margin:0;">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="sidebar-link" style="width:100%; border:none; background:none; cursor:pointer; color:#ef4444 !important;">
+                            <span class="sidebar-icon" style="background: rgba(239,68,68,0.12); color: #f87171;">
+                                <i class="fas fa-sign-out-alt"></i>
+                            </span>
+                            <span class="sidebar-collapsible">Sign Out</span>
+                        </button>
+                    </form>
+                </div>
+            }
         </aside>
 
         <!-- Content Wrapper -->
@@ -496,10 +513,11 @@
             <strong>
                 <svg viewBox="0 0 100 100" width="16" height="16" fill="none"
                      xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle; margin-right: 4px;">
-                    <path d="M5 34 L24 34 L28 40 L38 18 L44 40 L48 34 L85 34" stroke="#1D4ED8" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
-                    <path d="M50 86 C8 52 14 22 38 24 C49 24 50 35 50 35 C50 35 53 24 62 25 C85 25 91 55 50 86Z" stroke="#0078D4" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.1" transform="rotate(-0.6 50 55)"/>
-                    <path d="M50 86 C8 52 14 22 38 24 C49 24 50 35 50 35 C50 35 53 24 62 25 C85 25 91 55 50 86Z" stroke="#0078D4" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="round"/>
-                    <path d="M50 86 C8 52 14 22 38 24 C49 24 50 35 50 35 C50 35 53 24 62 25 C85 25 91 55 50 86Z" stroke="#0078D4" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="0.3" stroke-dasharray="3 5"/>
+                    <path d="M50 88 C6 54 12 20 38 22 C49 22 50 34 50 34 C50 34 53 22 62 23 C88 23 94 56 50 88Z" fill="rgba(29,78,216,0.06)" stroke="none"/>
+                    <path d="M50 86 C8 52 14 22 38 24 C49 24 50 35 50 35 C50 35 53 24 62 25 C85 25 91 55 50 86Z" stroke="#1D4ED8" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" fill="none"/>
+                    <path d="M50 82 C14 54 20 28 38 28 C47 28 50 36 50 36 C50 36 53 28 62 29 C80 29 86 54 50 82Z" stroke="#3B82F6" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" fill="none" opacity="0.5"/>
+                    <path d="M5 52 L22 52 L28 52 L34 38 L40 66 L46 52 L54 52 L60 38 L66 66 L72 52 L95 52" stroke="#1D4ED8" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+                    <path d="M5 52 L22 52 L28 52 L34 38 L40 66 L46 52 L54 52 L60 38 L66 66 L72 52 L95 52" stroke="#60A5FA" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0.2" style="filter: blur(2px);"/>
                 </svg>
                 &copy; @DateTime.Now.Year Healing
             </strong>

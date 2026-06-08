@@ -1,17 +1,16 @@
-﻿// HMS.PL/Extensions/InfrastructureServiceExtensions.cs
-using Hangfire;
+﻿using Hangfire;
 using HMS.BLL.Shared.Common;
 using HMS.DAL.Contracts;
 using HMS.DAL.Data.DbContexts;
 using HMS.DAL.Data.Identity;
 using HMS.DAL.Implementations;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
 using System.Text;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace HMS.PL.Extensions
 {
@@ -51,10 +50,12 @@ namespace HMS.PL.Extensions
             // ── JWT ───────────────────────────────────────────────────────────
             services.Configure<JwtOptions>(configuration.GetSection("JwtSettings"));
             var jwtSettings = configuration.GetSection("JwtSettings").Get<JwtOptions>()!;
+
             services.AddAuthentication(options =>
             {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
+                options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
+                options.DefaultSignInScheme = IdentityConstants.ApplicationScheme;
             })
             .AddJwtBearer(options =>
             {
@@ -70,7 +71,16 @@ namespace HMS.PL.Extensions
                         Encoding.UTF8.GetBytes(jwtSettings.SecretKey))
                 };
             });
-
+            // Configure the Identity cookie so MVC redirects work correctly
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = "/Auth/Login";
+                options.LogoutPath = "/Auth/Logout";
+                options.AccessDeniedPath = "/Auth/Login";
+                options.Cookie.HttpOnly = true;
+                options.SlidingExpiration = true;
+                options.ExpireTimeSpan = TimeSpan.FromHours(8);
+            });
             // ── Redis ─────────────────────────────────────────────────────────
             // Redis is optional — if not available, use in-memory fallback
             try
@@ -111,10 +121,6 @@ namespace HMS.PL.Extensions
             return services;
         }
 
-        /// <summary>
-        /// Creates the Hangfire database if it does not already exist.
-        /// This prevents the "Cannot open database" error on first run.
-        /// </summary>
         private static void EnsureHangfireDatabaseExists(string hangfireConnectionString)
         {
             try

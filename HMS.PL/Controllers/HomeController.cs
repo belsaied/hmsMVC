@@ -3,6 +3,7 @@ using HMS.BLL.Shared.Parameters;
 using HMS.DAL.Models.Enums.DoctorEnums;
 using HMS.PL.ViewModels;
 using HMS.PL.ViewModels.LandingModule;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -45,6 +46,22 @@ namespace HMS.PL.Controllers
             }
 
             return View(vm);
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public IActionResult RequestAccount(AccountRequestViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                TempData["Warning"] = "Please fill in all required fields.";
+                return RedirectToAction("Index");
+            }
+
+            // In production, persist the request and notify admins
+            TempData["Success"] = "Your account request has been submitted. An administrator will review it shortly.";
+            return RedirectToAction("Index");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

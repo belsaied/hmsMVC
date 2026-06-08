@@ -29,6 +29,9 @@ namespace HMS.PL.ViewModels.UserManagementModule
         [Display(Name = "Confirm Password")]
         public string ConfirmPassword { get; set; } = string.Empty;
 
+        [Display(Name = "Email Verified")]
+        public bool IsEmailVerified { get; set; } = true;
+
         [Required]
         [Display(Name = "Role")]
         public string Role { get; set; } = string.Empty;

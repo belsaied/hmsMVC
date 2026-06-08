@@ -41,7 +41,7 @@ namespace HMS.PL.Controllers
             if (!string.IsNullOrEmpty(role) && !allowedRoles.Contains(role))
                 role = null;
 
-            var query = _userManager.Users.AsQueryable();
+            var query = _identityDb.Users.AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(search))
                 query = query.Where(u =>
@@ -51,44 +51,50 @@ namespace HMS.PL.Controllers
 
             if (locked.HasValue)
                 query = locked.Value
-                    ? query.Where(u => u.LockoutEnd != null && u.LockoutEnd > DateTime.UtcNow)
-                    : query.Where(u => u.LockoutEnd == null || u.LockoutEnd <= DateTime.UtcNow);
+                    ? query.Where(u => u.LockoutEnd != null && u.LockoutEnd > DateTimeOffset.UtcNow)
+                    : query.Where(u => u.LockoutEnd == null || u.LockoutEnd <= DateTimeOffset.UtcNow);
 
-            var users = await query.OrderByDescending(u => u.LastLoginAt).ToListAsync();
-
-            var vmList = new List<UserListViewModel>();
-            foreach (var u in users)
+            if (!string.IsNullOrEmpty(role))
             {
-                var roles = await _userManager.GetRolesAsync(u);
-                var firstRole = roles.FirstOrDefault() ?? "Unknown";
-
-                if (!string.IsNullOrEmpty(role) && !roles.Contains(role, StringComparer.OrdinalIgnoreCase))
-                    continue;
-
-                vmList.Add(new UserListViewModel
-                {
-                    Id = u.Id,
-                    FullName = u.FullName,
-                    Email = u.Email ?? string.Empty,
-                    Role = firstRole,
-                    IsEmailVerified = u.IsEmailVerified,
-                    IsLocked = u.LockoutEnd.HasValue && u.LockoutEnd > DateTime.UtcNow,
-                    LastLoginAt = u.LastLoginAt,
-                    FailedLoginAttempts = u.FailedLoginAttempts,
-                    DoctorId = u.DoctorId,
-                    PatientId = u.PatientId
-                });
+                query = from u in query
+                        join ur in _identityDb.UserRoles on u.Id equals ur.UserId
+                        join r in _identityDb.Roles on ur.RoleId equals r.Id
+                        where r.Name == role
+                        select u;
             }
 
-            int totalCount = vmList.Count;
-            var paged = vmList
+            var totalCount = await query.CountAsync();
+
+            var users = await query
+                .OrderByDescending(u => u.LastLoginAt)
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
-                .ToList();
+                .ToListAsync();
+
+            var userIds = users.Select(u => u.Id).ToList();
+            var roleLookup = await _identityDb.UserRoles
+                .Where(ur => userIds.Contains(ur.UserId))
+                .Join(_identityDb.Roles, ur => ur.RoleId, r => r.Id, (ur, r) => new { ur.UserId, r.Name })
+                .GroupBy(x => x.UserId)
+                .ToDictionaryAsync(g => g.Key, g => g.First().Name);
+
+            var vmList = users.Select(u => new UserListViewModel
+            {
+                Id = u.Id,
+                FullName = u.FullName,
+                Email = u.Email ?? string.Empty,
+                Role = roleLookup.GetValueOrDefault(u.Id, "Unknown"),
+                IsEmailVerified = u.IsEmailVerified,
+                IsLocked = u.LockoutEnd.HasValue && u.LockoutEnd > DateTimeOffset.UtcNow,
+                LastLoginAt = u.LastLoginAt,
+                FailedLoginAttempts = u.FailedLoginAttempts,
+                DoctorId = u.DoctorId,
+                PatientId = u.PatientId
+            }).ToList();
 
             var vm = new UserIndexPageViewModel
             {
-                Users = paged,
+                Users = vmList,
                 SearchQuery = search,
                 RoleFilter = role,
                 LockedFilter = locked,
@@ -121,7 +127,7 @@ namespace HMS.PL.Controllers
                 PhoneNumber = user.PhoneNumber ?? string.Empty,
                 Roles = roles,
                 IsEmailVerified = user.IsEmailVerified,
-                IsLocked = user.LockoutEnd.HasValue && user.LockoutEnd > DateTime.UtcNow,
+                IsLocked = user.LockoutEnd.HasValue && user.LockoutEnd > DateTimeOffset.UtcNow,
                 LockoutEnd = user.LockoutEnd?.UtcDateTime,
                 LastLoginAt = user.LastLoginAt,
                 FailedLoginAttempts = user.FailedLoginAttempts,
@@ -167,6 +173,13 @@ namespace HMS.PL.Controllers
                     (result.EmailVerificationToken is not null
                         ? " A verification email has been sent."
                         : string.Empty);
+
+                var createdUser = await _userManager.FindByIdAsync(result.User.Id);
+                if (createdUser is not null && createdUser.IsEmailVerified != vm.IsEmailVerified)
+                {
+                    createdUser.IsEmailVerified = vm.IsEmailVerified;
+                    await _userManager.UpdateAsync(createdUser);
+                }
 
                 await _services.AuditService.LogAsync(
                     User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown",
@@ -231,7 +244,8 @@ namespace HMS.PL.Controllers
                 LastName = user.LastName,
                 Email = user.Email ?? string.Empty,
                 CurrentRole = targetRole,
-                PhoneNumber = user.PhoneNumber
+                PhoneNumber = user.PhoneNumber,
+                IsEmailVerified = user.IsEmailVerified
             };
 
             return View(vm);
@@ -262,6 +276,7 @@ namespace HMS.PL.Controllers
             user.FirstName = vm.FirstName;
             user.LastName = vm.LastName;
             user.PhoneNumber = vm.PhoneNumber;
+            user.IsEmailVerified = vm.IsEmailVerified;
 
             var result = await _userManager.UpdateAsync(user);
             if (!result.Succeeded)
@@ -304,7 +319,7 @@ namespace HMS.PL.Controllers
                 return RedirectToAction(nameof(Details), new { id });
             }
 
-            user.LockoutEnd = DateTime.UtcNow.AddYears(100);
+            user.LockoutEnd = DateTimeOffset.UtcNow.AddYears(100);
             await _userManager.UpdateAsync(user);
 
             await _services.AuditService.LogAsync(
@@ -391,6 +406,11 @@ namespace HMS.PL.Controllers
                 TempData["Error"] = string.Join(" | ", result.Errors.Select(e => e.Description));
                 return RedirectToAction(nameof(Details), new { id = vm.Id });
             }
+
+            user.IsEmailVerified = true;
+            user.FailedLoginAttempts = 0;
+            user.LockoutEnd = null;
+            await _userManager.UpdateAsync(user);
 
             await _services.AuditService.LogAsync(
                 User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown",

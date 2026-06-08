@@ -10,10 +10,11 @@
         <a href="/" class="hms-logo hms-logo--dark hms-logo--lg">
             <span class="hms-logo-icon">
                 <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M5 34 L24 34 L28 40 L38 18 L44 40 L48 34 L85 34" stroke="#FFFFFF" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" opacity="0.85"/>
-                    <path d="M50 86 C8 52 14 22 38 24 C49 24 50 35 50 35 C50 35 53 24 62 25 C85 25 91 55 50 86Z" stroke="#FFFFFF" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.08" transform="rotate(-0.6 50 55)"/>
-                    <path d="M50 86 C8 52 14 22 38 24 C49 24 50 35 50 35 C50 35 53 24 62 25 C85 25 91 55 50 86Z" stroke="#FFFFFF" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
-                    <path d="M50 86 C8 52 14 22 38 24 C49 24 50 35 50 35 C50 35 53 24 62 25 C85 25 91 55 50 86Z" stroke="#FFFFFF" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="0.25" stroke-dasharray="3 5"/>
+                    <path d="M50 88 C6 54 12 20 38 22 C49 22 50 34 50 34 C50 34 53 22 62 23 C88 23 94 56 50 88Z" fill="rgba(255,255,255,0.08)" stroke="none"/>
+                    <path d="M50 86 C8 52 14 22 38 24 C49 24 50 35 50 35 C50 35 53 24 62 25 C85 25 91 55 50 86Z" stroke="#FFFFFF" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" fill="none"/>
+                    <path d="M50 82 C14 54 20 28 38 28 C47 28 50 36 50 36 C50 36 53 28 62 29 C80 29 86 54 50 82Z" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" fill="none"/>
+                    <path d="M5 52 L22 52 L28 52 L34 38 L40 66 L46 52 L54 52 L60 38 L66 66 L72 52 L95 52" stroke="#FFFFFF" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.9"/>
+                    <path d="M5 52 L22 52 L28 52 L34 38 L40 66 L46 52 L54 52 L60 38 L66 66 L72 52 L95 52" stroke="#60A5FA" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0.15" style="filter: blur(2px);"/>
                 </svg>
             </span>
             <span class="hms-logo-text">
@@ -33,9 +34,8 @@
         @if (User.Identity?.IsAuthenticated == true)
         {
             <a asp-controller="Dashboard" asp-action="Index" class="hms-btn-login">Dashboard</a>
-            <a asp-controller="Dashboard" asp-action="Index"
-               class="hms-icon-btn" title="Dashboard" style="margin-left:0.5rem;">
-                <i class="fas fa-user-circle"></i>
+            <a asp-controller="Auth" asp-action="Logout" class="hms-btn-login" style="background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.25);" title="Sign out">
+                <i class="fas fa-sign-out-alt me-1"></i> Logout
             </a>
         }
         else
@@ -57,6 +57,9 @@
         @if (User.Identity?.IsAuthenticated == true)
         {
             <a asp-controller="Dashboard" asp-action="Index" class="hms-mobile-link hms-mobile-cta">Dashboard</a>
+            <a asp-controller="Auth" asp-action="Logout" class="hms-mobile-link" style="color:#ef4444;text-align:center;padding:0.55rem 1rem;">
+                <i class="fas fa-sign-out-alt me-1"></i> Sign Out
+            </a>
         }
         else
         {
@@ -374,6 +377,104 @@
     </div>
 </section>
 
+<!-- DOCTOR ONBOARDING CTA -->
+<section style="position:relative; padding: 5rem 0; background: linear-gradient(135deg, #0b1a33 0%, #162d50 50%, #0f1f38 100%); overflow: hidden;">
+    <!-- Decorative background pattern -->
+    <div style="position:absolute; inset:0; opacity:0.04; background-image: radial-gradient(circle at 25% 50%, #ffffff 1px, transparent 1px), radial-gradient(circle at 75% 50%, #ffffff 1px, transparent 1px); background-size: 40px 40px, 40px 40px; background-position: 0 0, 20px 20px;"></div>
+    <!-- Decorative glowing shapes -->
+    <div style="position:absolute; width:400px; height:400px; border-radius:50%; background:radial-gradient(circle, rgba(0,120,212,0.08) 0%, transparent 70%); top:-120px; right:-80px; pointer-events:none;"></div>
+    <div style="position:absolute; width:300px; height:300px; border-radius:50%; background:radial-gradient(circle, rgba(16,185,129,0.06) 0%, transparent 70%); bottom:-100px; left:-60px; pointer-events:none;"></div>
+
+    <div class="hms-container" style="position:relative; z-index:1;">
+        <div class="row align-items-center">
+            <div class="col-lg-7 mb-4 mb-lg-0">
+                <div class="d-flex align-items-start gap-4">
+                    <div style="width: 72px; height: 72px; min-width: 72px; border-radius: 20px; background: linear-gradient(135deg, rgba(0,120,212,0.2), rgba(0,120,212,0.08)); border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <i class="fas fa-user-md" style="font-size: 1.8rem; color: #60a5fa;"></i>
+                    </div>
+                    <div>
+                        <span style="display:inline-block; background: rgba(0,120,212,0.15); color: #93c5fd; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; padding: 0.25rem 0.75rem; border-radius: 20px; margin-bottom: 0.75rem;">Medical Staff Onboarding</span>
+                        <h3 style="font-family: 'Playfair Display', serif; font-size: clamp(1.4rem, 2.5vw, 1.8rem); color: #ffffff; line-height: 1.25; margin-bottom: 0.6rem;">Are You a Medical Professional?</h3>
+                        <p style="color: rgba(255,255,255,0.55); font-size: 0.95rem; line-height: 1.7; margin-bottom: 0; max-width: 540px;">
+                            Doctors, nurses, and hospital staff cannot self-register. Request an account through our secure onboarding portal, and an administrator will review and activate your access.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5 text-lg-right text-center">
+                <div class="d-flex flex-wrap align-items-center justify-content-lg-end justify-content-center gap-3">
+                    <div style="text-align:left;">
+                        <div style="color: rgba(255,255,255,0.35); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.35rem;">Get Started</div>
+                        <button type="button" class="hms-btn-primary" style="background: #0078D4; border: none; box-shadow: 0 4px 20px rgba(0,120,212,0.35); white-space: nowrap; padding: 0.9rem 2.2rem; font-size: 0.95rem;" data-toggle="modal" data-target="#requestAccountModal">
+                            <i class="fas fa-paper-plane me-2"></i> Request Account Access
+                        </button>
+                    </div>
+                    <div style="width:1px; height:50px; background: rgba(255,255,255,0.08); flex-shrink:0;"></div>
+                    <div style="text-align:left;">
+                        <div style="color: rgba(255,255,255,0.35); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.35rem;">Already Have Access?</div>
+                        <a asp-controller="Auth" asp-action="Login" class="hms-btn-primary" style="background: transparent; border: 2px solid rgba(255,255,255,0.25); box-shadow: none; white-space: nowrap; padding: 0.9rem 2.2rem; font-size: 0.95rem;">
+                            <i class="fas fa-arrow-right me-2"></i> Sign In
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- REQUEST ACCOUNT MODAL -->
+<div class="modal fade" id="requestAccountModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content" style="border-radius: 16px; border: none; box-shadow: 0 20px 60px rgba(15,31,56,0.2);">
+            <div class="modal-header" style="border-bottom: 1px solid #e2e8f0; padding: 1.25rem 1.5rem;">
+                <h5 class="modal-title" style="font-family: 'Playfair Display', serif; color: #0f1f38; font-weight: 700;">
+                    <i class="fas fa-user-md me-2" style="color: #0078D4;"></i> Request Account Access
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form asp-controller="Home" asp-action="RequestAccount" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body" style="padding: 1.5rem;">
+                    <div class="form-group">
+                        <label for="FullName" style="font-weight: 600; font-size: 0.85rem; color: #1e293b;">Full Name</label>
+                        <input type="text" class="form-control" name="FullName" required placeholder="Dr. John Smith" style="border-radius: 10px; border: 1.5px solid #e2e8f0; padding: 0.6rem 0.9rem; font-size: 0.9rem;" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Email" style="font-weight: 600; font-size: 0.85rem; color: #1e293b;">Email Address</label>
+                        <input type="email" class="form-control" name="Email" required placeholder="doctor@hospital.com" style="border-radius: 10px; border: 1.5px solid #e2e8f0; padding: 0.6rem 0.9rem; font-size: 0.9rem;" />
+                    </div>
+                    <div class="form-group">
+                        <label for="RequestedRole" style="font-weight: 600; font-size: 0.85rem; color: #1e293b;">Professional Role</label>
+                        <select class="form-control" name="RequestedRole" required style="border-radius: 10px; border: 1.5px solid #e2e8f0; padding: 0.6rem 0.9rem; font-size: 0.9rem;">
+                            <option value="">Select your role...</option>
+                            <option value="Doctor">Doctor / Physician</option>
+                            <option value="Nurse">Nurse</option>
+                            <option value="Receptionist">Receptionist</option>
+                            <option value="HospitalAdmin">Hospital Administrator</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="LicenseNumber" style="font-weight: 600; font-size: 0.85rem; color: #1e293b;">License Number (if applicable)</label>
+                        <input type="text" class="form-control" name="LicenseNumber" placeholder="Medical license number" style="border-radius: 10px; border: 1.5px solid #e2e8f0; padding: 0.6rem 0.9rem; font-size: 0.9rem;" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Message" style="font-weight: 600; font-size: 0.85rem; color: #1e293b;">Message to Administrator</label>
+                        <textarea class="form-control" name="Message" rows="3" placeholder="Briefly describe your department and reason for access..." style="border-radius: 10px; border: 1.5px solid #e2e8f0; padding: 0.6rem 0.9rem; font-size: 0.9rem; resize: vertical;"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid #e2e8f0; padding: 1rem 1.5rem;">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" style="border-radius: 10px; font-weight: 600; font-size: 0.85rem; padding: 0.5rem 1.25rem;">Cancel</button>
+                    <button type="submit" class="btn btn-primary" style="border-radius: 10px; font-weight: 600; font-size: 0.85rem; padding: 0.5rem 1.25rem; background: #0078D4; border: none;">
+                        <i class="fas fa-paper-plane me-2"></i>Submit Request
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <!-- FOOTER -->
 <footer class="hms-footer" id="contactSection">
     <div class="hms-footer-top">
@@ -384,10 +485,11 @@
                     <div class="hms-logo hms-logo--dark hms-logo--footer" style="margin-bottom:0.85rem;">
                         <span class="hms-logo-icon">
                 <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M5 34 L24 34 L28 40 L38 18 L44 40 L48 34 L85 34" stroke="#FFFFFF" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" opacity="0.85"/>
-                    <path d="M50 86 C8 52 14 22 38 24 C49 24 50 35 50 35 C50 35 53 24 62 25 C85 25 91 55 50 86Z" stroke="#FFFFFF" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.08" transform="rotate(-0.6 50 55)"/>
-                    <path d="M50 86 C8 52 14 22 38 24 C49 24 50 35 50 35 C50 35 53 24 62 25 C85 25 91 55 50 86Z" stroke="#FFFFFF" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
-                    <path d="M50 86 C8 52 14 22 38 24 C49 24 50 35 50 35 C50 35 53 24 62 25 C85 25 91 55 50 86Z" stroke="#FFFFFF" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="0.25" stroke-dasharray="3 5"/>
+                    <path d="M50 88 C6 54 12 20 38 22 C49 22 50 34 50 34 C50 34 53 22 62 23 C88 23 94 56 50 88Z" fill="rgba(255,255,255,0.08)" stroke="none"/>
+                    <path d="M50 86 C8 52 14 22 38 24 C49 24 50 35 50 35 C50 35 53 24 62 25 C85 25 91 55 50 86Z" stroke="#FFFFFF" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" fill="none"/>
+                    <path d="M50 82 C14 54 20 28 38 28 C47 28 50 36 50 36 C50 36 53 28 62 29 C80 29 86 54 50 82Z" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" fill="none"/>
+                    <path d="M5 52 L22 52 L28 52 L34 38 L40 66 L46 52 L54 52 L60 38 L66 66 L72 52 L95 52" stroke="#FFFFFF" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.9"/>
+                    <path d="M5 52 L22 52 L28 52 L34 38 L40 66 L46 52 L54 52 L60 38 L66 66 L72 52 L95 52" stroke="#60A5FA" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0.15" style="filter: blur(2px);"/>
                 </svg>
                         </span>
                         <span class="hms-logo-text">
@@ -398,6 +500,13 @@
                     <p class="hms-footer-tagline">
                         Advanced healthcare management powered by technology — for patients, by professionals.
                     </p>
+                    <div style="display:flex; gap:0.65rem; margin-top:1.25rem;">
+                        <a href="https://www.facebook.com/healinghms" target="_blank" rel="noopener noreferrer" title="Facebook" style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.45);text-decoration:none;transition:all 0.2s;" onmouseover="this.style.background='#1877F2';this.style.color='#fff';this.style.borderColor='#1877F2';" onmouseout="this.style.background='rgba(255,255,255,0.06)';this.style.color='rgba(255,255,255,0.45)';this.style.borderColor='rgba(255,255,255,0.08)';"><i class="fab fa-facebook-f" style="font-size:0.85rem;"></i></a>
+                        <a href="https://x.com/healinghms" target="_blank" rel="noopener noreferrer" title="X (Twitter)" style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.45);text-decoration:none;transition:all 0.2s;" onmouseover="this.style.background='#000';this.style.color='#fff';this.style.borderColor='#000';" onmouseout="this.style.background='rgba(255,255,255,0.06)';this.style.color='rgba(255,255,255,0.45)';this.style.borderColor='rgba(255,255,255,0.08)';"><i class="fab fa-x-twitter" style="font-size:0.85rem;"></i></a>
+                        <a href="https://www.linkedin.com/company/healinghms" target="_blank" rel="noopener noreferrer" title="LinkedIn" style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.45);text-decoration:none;transition:all 0.2s;" onmouseover="this.style.background='#0A66C2';this.style.color='#fff';this.style.borderColor='#0A66C2';" onmouseout="this.style.background='rgba(255,255,255,0.06)';this.style.color='rgba(255,255,255,0.45)';this.style.borderColor='rgba(255,255,255,0.08)';"><i class="fab fa-linkedin-in" style="font-size:0.85rem;"></i></a>
+                        <a href="https://www.instagram.com/healinghms" target="_blank" rel="noopener noreferrer" title="Instagram" style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.45);text-decoration:none;transition:all 0.2s;" onmouseover="this.style.background='#E4405F';this.style.color='#fff';this.style.borderColor='#E4405F';" onmouseout="this.style.background='rgba(255,255,255,0.06)';this.style.color='rgba(255,255,255,0.45)';this.style.borderColor='rgba(255,255,255,0.08)';"><i class="fab fa-instagram" style="font-size:0.85rem;"></i></a>
+                        <a href="https://www.youtube.com/healinghms" target="_blank" rel="noopener noreferrer" title="YouTube" style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.45);text-decoration:none;transition:all 0.2s;" onmouseover="this.style.background='#FF0000';this.style.color='#fff';this.style.borderColor='#FF0000';" onmouseout="this.style.background='rgba(255,255,255,0.06)';this.style.color='rgba(255,255,255,0.45)';this.style.borderColor='rgba(255,255,255,0.08)';"><i class="fab fa-youtube" style="font-size:0.85rem;"></i></a>
+                    </div>
                 </div>
 
                 <div class="hms-footer-col">

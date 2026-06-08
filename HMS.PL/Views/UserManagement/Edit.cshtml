@@ -65,6 +65,14 @@
                     <input asp-for="PhoneNumber" class="form-control" placeholder="+20..." />
                     <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
                 </div>
+                <div class="col-12 mt-2">
+                    <div class="form-check">
+                        <input asp-for="IsEmailVerified" class="form-check-input" />
+                        <label asp-for="IsEmailVerified" class="form-check-label small">
+                            Email is verified
+                        </label>
+                    </div>
+                </div>
             </div>
         </div>
 

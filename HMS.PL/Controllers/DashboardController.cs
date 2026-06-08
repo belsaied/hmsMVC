@@ -4,6 +4,7 @@ using HMS.DAL.Models.Enums.AppointmentEnums;
 using HMS.DAL.Models.Enums.BillingEnums;
 using HMS.DAL.Models.Enums.DoctorEnums;
 using HMS.PL.ViewModels.DashboardModule;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HMS.PL.Controllers
@@ -88,6 +89,7 @@ namespace HMS.PL.Controllers
             return View(vm);
         }
 
+        [Authorize(Roles = "Doctor")]
         public async Task<IActionResult> DoctorDashboard()
         {
             var vm = new DoctorDashboardViewModel();

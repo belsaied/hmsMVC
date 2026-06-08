@@ -12,7 +12,7 @@ namespace HMS.BLL.Services.Implementations.UserManagementModule
     {
         public async Task SendVerificationEmailAsync(string toEmail, string token)
         {
-            var link = $"{_options.Value.FrontendUrl}/verify-email?token={token}";
+            var link = $"{_options.Value.FrontendUrl}/Auth/VerifyEmail?token={token}";
             await SendAsync(toEmail, "Verify your HMS account",
                 $"<p>Click the link below to verify your email:</p>" +
                 $"<p><a href='{link}'>Verify Email</a></p>" +
@@ -21,7 +21,7 @@ namespace HMS.BLL.Services.Implementations.UserManagementModule
 
         public async Task SendPasswordResetEmailAsync(string toEmail, string token)
         {
-            var link = $"{_options.Value.FrontendUrl}/reset-password?token={token}";
+            var link = $"{_options.Value.FrontendUrl}/Auth/ResetPassword?token={token}";
             await SendAsync(toEmail, "Reset your HMS password",
                 $"<p>Click the link below to reset your password:</p>" +
                 $"<p><a href='{link}'>Reset Password</a></p>" +

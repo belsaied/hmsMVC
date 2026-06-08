@@ -20,5 +20,8 @@ namespace HMS.PL.ViewModels.UserManagementModule
         [Phone]
         [Display(Name = "Phone Number")]
         public string? PhoneNumber { get; set; }
+
+        [Display(Name = "Email Verified")]
+        public bool IsEmailVerified { get; set; }
     }
 }

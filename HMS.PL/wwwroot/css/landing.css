@@ -757,6 +757,7 @@ body {
 .hms-hero-carousel {
     position: relative;
     width: 100%;
+    overflow: hidden;
 }
 
 .hms-carousel {
@@ -766,14 +767,32 @@ body {
 .hms-slide {
     min-height: 560px;
     background-size: cover;
-    background-position: center center;
     background-repeat: no-repeat;
+    will-change: transform;
+}
+
+/* Ken Burns zoom effect */
+.hms-slide::after {
+    content: '';
+    position: absolute;
+    inset: -5%;
+    background: inherit;
+    background-size: cover;
+    background-position: center;
+    z-index: 0;
+    transform: scale(1.0);
+    transition: transform 7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: transform;
+}
+
+.carousel-item.active .hms-slide::after {
+    transform: scale(1.08);
 }
 
 .carousel-fade .carousel-item {
     min-height: 560px;
     opacity: 0;
-    transition: opacity 0.9s ease-in-out;
+    transition: opacity 1.2s cubic-bezier(0.65, 0, 0.35, 1);
     transform: none;
 }
 
@@ -812,8 +831,10 @@ body {
         rgba(15, 31, 56, 0.20) 100%
     );
     z-index: 1;
+    transition: opacity 1.2s cubic-bezier(0.65, 0, 0.35, 1);
 }
 
+/* Content slide-up + fade animation */
 .hms-slide-content {
     position: absolute;
     z-index: 2;
@@ -823,8 +844,37 @@ body {
     transform: translateY(-50%);
 }
 
+.hms-slide-content > * {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.carousel-item.active .hms-slide-content > * {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.carousel-item.active .hms-slide-content > .hms-slide-eyebrow {
+    transition-delay: 0.15s;
+}
+
+.carousel-item.active .hms-slide-content > .hms-hero-title {
+    transition-delay: 0.3s;
+}
+
+.carousel-item.active .hms-slide-content > .hms-hero-subtitle {
+    transition-delay: 0.45s;
+}
+
+.carousel-item.active .hms-slide-content > .hms-btn-register {
+    transition-delay: 0.6s;
+}
+
 .hms-indicators {
     bottom: 20px;
+    z-index: 3;
 }
 
 .hms-indicators li {
@@ -847,6 +897,7 @@ body {
     .hms-slide,
     .carousel-fade .carousel-item { min-height: 420px; }
     .hms-slide-content { padding: 2rem 1.25rem 2rem 5%; }
+    .hms-slide-content > * { transform: translateY(16px); }
 }
 
 /* ══════════════════════════════════════════════
@@ -1011,11 +1062,16 @@ body {
     gap: 0.2rem;
 }
 
+.hms-input-wrap {
+    display: grid;
+    grid-template-areas: "overlay";
+    align-items: center;
+}
+
 .hms-input-icon {
-    position: absolute;
-    left: 0.9rem;
-    top: 50%;
-    transform: translateY(-50%);
+    grid-area: overlay;
+    justify-self: start;
+    margin-left: 0.9rem;
     color: #94a3b8;
     font-size: 0.85rem;
     pointer-events: none;
@@ -1023,9 +1079,10 @@ body {
     display: flex;
     align-items: center;
     transition: color 0.25s ease;
+    position: relative;
 }
 
-.hms-form-input:focus ~ .hms-input-icon {
+.hms-input-wrap:focus-within .hms-input-icon {
     color: var(--h-blue);
 }
 
@@ -1036,8 +1093,9 @@ body {
 }
 
 .hms-form-input {
+    grid-area: overlay;
     width: 100%;
-    padding: 0.8rem 0.85rem 0.8rem 2.6rem;
+    padding: 0.8rem 2.6rem 0.8rem 2.6rem;
     border: 1.5px solid rgba(226,232,240,0.7);
     border-radius: 12px;
     font-family: var(--h-font);
@@ -1074,6 +1132,26 @@ body {
     color: #dc2626;
     font-size: 0.75rem;
     padding-left: 0.25rem;
+}
+
+/* Password Toggle */
+.hms-password-toggle {
+    grid-area: overlay;
+    justify-self: end;
+    margin-right: 0.65rem;
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: color 0.2s, opacity 0.2s;
+    z-index: 2;
+    opacity: 0.6;
+    line-height: 1;
+    pointer-events: auto;
+    position: relative;
+}
+.hms-password-toggle:hover {
+    color: #1D4ED8;
+    opacity: 1;
 }
 
 .hms-form-checkbox {
