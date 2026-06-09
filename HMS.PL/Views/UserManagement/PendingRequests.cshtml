@@ -1,0 +1,284 @@
+@using HMS.PL.ViewModels.UserManagementModule
+@model PendingRequestPageViewModel
+
+@{
+    ViewData["Title"] = "Pending Requests";
+}
+
+@section Styles {
+<style>
+    :root {
+        --hms-blue: #1a3a5c;
+        --hms-blue-mid: #2563a8;
+        --hms-accent: #0ea5e9;
+        --hms-green: #10b981;
+        --hms-red: #ef4444;
+        --hms-orange: #f59e0b;
+        --hms-gray: #64748b;
+        --hms-bg: #f0f4f8;
+        --hms-card: #ffffff;
+        --hms-border: #e2e8f0;
+        --hms-text: #1e293b;
+    }
+
+    .pr-header {
+        background: linear-gradient(135deg, var(--hms-blue) 0%, var(--hms-blue-mid) 100%);
+        color: white;
+        padding: 28px 32px;
+        border-radius: 16px;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 8px 32px rgba(26,58,92,.18);
+        position: relative;
+        overflow: hidden;
+    }
+    .pr-header::before {
+        content:''; position:absolute; top:-40px; right:-40px;
+        width:160px; height:160px; background:rgba(255,255,255,.07); border-radius:50%;
+    }
+    .pr-header-title { font-size:1.75rem; font-weight:700; margin:0; }
+    .pr-header-sub   { font-size:.875rem; opacity:.75; margin-top:4px; }
+
+    .requests-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+        gap: 20px;
+    }
+
+    .request-card {
+        background: var(--hms-card);
+        border-radius: 14px;
+        border: 1px solid var(--hms-border);
+        box-shadow: 0 2px 12px rgba(0,0,0,.06);
+        overflow: hidden;
+        transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .request-card:hover {
+        box-shadow: 0 8px 24px rgba(0,0,0,.10);
+        transform: translateY(-2px);
+    }
+
+    .request-card-header {
+        padding: 18px 20px 12px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        border-bottom: 1px solid var(--hms-border);
+    }
+    .request-avatar {
+        width: 44px; height: 44px; border-radius: 50%;
+        background: linear-gradient(135deg, var(--hms-blue), var(--hms-blue-mid));
+        display: flex; align-items: center; justify-content: center;
+        color: #fff; font-size: 1.1rem; font-weight: 700; flex-shrink: 0;
+    }
+    .request-name {
+        font-size: 1rem; font-weight: 700; color: var(--hms-text);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .request-email {
+        font-size: .78rem; color: var(--hms-gray);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    .request-card-body {
+        padding: 14px 20px;
+    }
+    .request-detail {
+        display: flex; align-items: center; gap: 10px;
+        padding: 5px 0;
+        font-size: .84rem; color: #475569;
+    }
+    .request-detail i {
+        width: 16px; color: #94a3b8; font-size: .8rem; text-align: center;
+    }
+    .request-detail strong {
+        color: var(--hms-text); font-weight: 600;
+    }
+    .request-message {
+        margin-top: 8px;
+        padding: 10px 14px;
+        background: #f8fafc;
+        border-radius: 10px;
+        font-size: .82rem;
+        color: #64748b;
+        border-left: 3px solid var(--hms-accent);
+        line-height: 1.5;
+        max-height: 80px;
+        overflow-y: auto;
+    }
+
+    .request-card-footer {
+        padding: 12px 20px;
+        border-top: 1px solid var(--hms-border);
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+    }
+
+    .role-req-badge {
+        display: inline-block; padding: 3px 10px; border-radius: 20px;
+        font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .04em;
+    }
+    .role-req-Doctor        { background:#dcfce7; color:#14532d; }
+    .role-req-Nurse         { background:#fce7f3; color:#831843; }
+    .role-req-Receptionist  { background:#e0e7ff; color:#3730a3; }
+    .role-req-HospitalAdmin { background:#fef3c7; color:#92400e; }
+
+    .empty-state {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 60px 20px;
+        background: var(--hms-card);
+        border-radius: 14px;
+        border: 1px dashed var(--hms-border);
+    }
+    .empty-state i {
+        font-size: 3rem;
+        color: #cbd5e1;
+        margin-bottom: 16px;
+    }
+    .empty-state h5 {
+        color: var(--hms-text);
+        font-weight: 600;
+    }
+    .empty-state p {
+        color: var(--hms-gray);
+        font-size: .9rem;
+    }
+
+    .pagination-area { display:flex; align-items:center; justify-content:center; gap:8px; padding:24px 0; }
+    .page-btn {
+        width:36px; height:36px; border-radius:8px; display:flex;
+        align-items:center; justify-content:center; font-size:.85rem;
+        font-weight:600; border:1px solid var(--hms-border);
+        background:white; color:var(--hms-text); text-decoration:none;
+        transition:all .15s;
+    }
+    .page-btn:hover  { background:var(--hms-accent); color:white; border-color:var(--hms-accent); }
+    .page-btn.active { background:var(--hms-blue);  color:white; border-color:var(--hms-blue); }
+    .page-btn.disabled { opacity:.4; pointer-events:none; }
+</style>
+}
+
+<div class="container-fluid px-4 py-3">
+
+    <div class="pr-header">
+        <div>
+            <h1 class="pr-header-title">
+                <i class="fas fa-user-clock me-3" style="opacity:.6"></i>Pending Requests
+            </h1>
+            <div class="pr-header-sub">
+                @Model.TotalCount pending request(s) &nbsp;·&nbsp; Page @Model.PageIndex of @(Model.TotalPages > 0 ? Model.TotalPages : 1)
+            </div>
+        </div>
+        <a asp-action="Index" class="btn btn-light btn-sm px-4 fw-semibold" style="border-radius:10px;">
+            <i class="fas fa-users me-2"></i>User Management
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show rounded-3 mb-3" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@Html.Raw(TempData["Success"])
+            <button type="button" class="btn-close" data-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show rounded-3 mb-3" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>@TempData["Error"]
+            <button type="button" class="btn-close" data-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="requests-grid">
+        @if (!Model.Requests.Any())
+        {
+            <div class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <h5>No Pending Requests</h5>
+                <p>All account requests have been reviewed. New requests from the landing page will appear here.</p>
+            </div>
+        }
+        @foreach (var req in Model.Requests)
+        {
+            <div class="request-card">
+                <div class="request-card-header">
+                    <span class="request-avatar">@(req.FullName.Length > 0 ? req.FullName[0].ToString().ToUpper() : "?")</span>
+                    <div style="min-width:0;">
+                        <div class="request-name">@req.FullName</div>
+                        <div class="request-email">@req.Email</div>
+                    </div>
+                </div>
+                <div class="request-card-body">
+                    <div class="request-detail">
+                        <i class="fas fa-user-tag"></i>
+                        <span>Role: <strong>@req.RequestedRole</strong></span>
+                        <span class="role-req-badge role-req-@req.RequestedRole" style="margin-left:auto;">@req.RequestedRole</span>
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(req.LicenseNumber))
+                    {
+                        <div class="request-detail">
+                            <i class="fas fa-id-card"></i>
+                            <span>License: <strong>@req.LicenseNumber</strong></span>
+                        </div>
+                    }
+                    <div class="request-detail">
+                        <i class="fas fa-calendar"></i>
+                        <span>Requested: <strong>@req.CreatedAt.ToString("dd MMM yyyy HH:mm")</strong></span>
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(req.Message))
+                    {
+                        <div class="request-message">
+                            <i class="fas fa-quote-left" style="font-size:.65rem;color:var(--hms-accent);margin-right:4px;"></i>
+                            @req.Message
+                        </div>
+                    }
+                </div>
+                <div class="request-card-footer">
+                    <a asp-action="Create"
+                       asp-route-firstName="@(req.FullName.Split(' ', 2)[0])"
+                       asp-route-lastName="@(req.FullName.Split(' ', 2).Length > 1 ? req.FullName.Split(' ', 2)[1] : "")"
+                       asp-route-email="@req.Email"
+                       asp-route-role="@req.RequestedRole"
+                       asp-route-pendingRequestId="@req.Id"
+                       class="btn btn-sm fw-semibold" style="border-radius:8px;background:#dcfce7;color:#166534;border:none;padding:6px 16px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
+                        <i class="fas fa-check me-1"></i>Approve &amp; Create
+                    </a>
+                    <form asp-action="RejectRequest" asp-route-id="@req.Id" method="post" style="display:inline;">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-sm fw-semibold" style="border-radius:8px;background:#fee2e2;color:#991b1b;border:none;padding:6px 16px;" onclick="return confirm('Reject this request?');">
+                            <i class="fas fa-times me-1"></i>Reject
+                        </button>
+                    </form>
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (Model.TotalPages > 1)
+    {
+        <div class="pagination-area border-top mt-3">
+            <a class="page-btn @(Model.PageIndex == 1 ? "disabled" : "")"
+               asp-action="PendingRequests"
+               asp-route-pageIndex="@(Model.PageIndex - 1)">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+            @for (int p = Math.Max(1, Model.PageIndex - 2);
+                      p <= Math.Min(Model.TotalPages, Model.PageIndex + 2); p++)
+            {
+                <a class="page-btn @(p == Model.PageIndex ? "active" : "")"
+                   asp-action="PendingRequests"
+                   asp-route-pageIndex="@p">@p</a>
+            }
+            <a class="page-btn @(Model.PageIndex >= Model.TotalPages ? "disabled" : "")"
+               asp-action="PendingRequests"
+               asp-route-pageIndex="@(Model.PageIndex + 1)">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+    }
+
+</div>

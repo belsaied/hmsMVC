@@ -10,6 +10,7 @@ namespace HMS.DAL.Data.Identity
             : base(options) { }
 
         public DbSet<AuditLog> AuditLogs { get; set; }
+        public DbSet<PendingAccountRequest> PendingAccountRequests { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

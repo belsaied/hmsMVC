@@ -18,6 +18,7 @@ namespace HMS.PL.Controllers
             _services = services;
         }
 
+        [Authorize(Roles = "SuperAdmin,HospitalAdmin")]
         public async Task<IActionResult> Index()
         {
             var vm = new AdminDashboardViewModel();

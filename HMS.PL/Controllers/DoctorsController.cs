@@ -5,6 +5,7 @@ using HMS.BLL.Shared.Dtos.DoctorModule.DoctorDtos;
 using HMS.BLL.Shared.Parameters;
 using HMS.DAL.Models.Enums.DoctorEnums;
 using HMS.DAL.Models.Enums.PatientEnums;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -13,10 +14,12 @@ namespace HMS.PL.Controllers
     public class DoctorsController : Controller
     {
         private readonly IServiceManager _services;
+        private readonly IWebHostEnvironment _env;
 
-        public DoctorsController(IServiceManager services)
+        public DoctorsController(IServiceManager services, IWebHostEnvironment env)
         {
             _services = services;
+            _env = env;
         }
 
         // GET: /Doctors
@@ -139,7 +142,7 @@ namespace HMS.PL.Controllers
         // POST: /Doctors/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, UpdateDoctorDto dto)
+        public async Task<IActionResult> Edit(int id, UpdateDoctorDto dto, IFormFile? pictureFile)
         {
             if (!ModelState.IsValid)
             {
@@ -150,6 +153,19 @@ namespace HMS.PL.Controllers
 
             try
             {
+                if (pictureFile is { Length: > 0 })
+                {
+                    var result = await SavePictureAsync(pictureFile, "doctors");
+                    if (result.IsError)
+                    {
+                        ModelState.AddModelError("PictureFile", result.ErrorMessage!);
+                        ViewBag.DoctorId = id;
+                        await PopulateDropdownsAsync(dto.Status?.ToString());
+                        return View(dto);
+                    }
+                    dto = dto with { PictureUrl = result.Path };
+                }
+
                 await _services.DoctorService.UpdateDoctorAsync(id, dto);
                 TempData["Success"] = "Doctor updated successfully.";
                 return RedirectToAction(nameof(Details), new { id });
@@ -367,6 +383,57 @@ namespace HMS.PL.Controllers
                 .Select(n => new SelectListItem { Value = n, Text = n })
                 .ToList();
             return new SelectList(items, "Value", "Text");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UploadPicture(int id, IFormFile file)
+        {
+            try
+            {
+                if (file is null || file.Length == 0)
+                {
+                    TempData["Error"] = "Please select a file.";
+                    return RedirectToAction(nameof(Details), new { id });
+                }
+
+                var result = await SavePictureAsync(file, "doctors");
+                if (result.IsError)
+                {
+                    TempData["Error"] = result.ErrorMessage;
+                    return RedirectToAction(nameof(Details), new { id });
+                }
+
+                await _services.DoctorService.UpdateDoctorAsync(id, new UpdateDoctorDto { PictureUrl = result.Path });
+                TempData["Success"] = "Profile picture updated successfully.";
+            }
+            catch (Exception ex) { TempData["Error"] = ex.Message; }
+
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        private async Task<(bool IsError, string? ErrorMessage, string? Path)> SavePictureAsync(
+            IFormFile file, string subfolder)
+        {
+            var allowed = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+            var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+
+            if (!allowed.Contains(ext))
+                return (true, "Only JPG, PNG, and WebP images are allowed.", null);
+
+            if (file.Length > 5 * 1024 * 1024)
+                return (true, "Image must be under 5 MB.", null);
+
+            var folder = Path.Combine(_env.WebRootPath, "images", subfolder);
+            Directory.CreateDirectory(folder);
+
+            var fileName = $"{Guid.NewGuid()}{ext}";
+            var fullPath = Path.Combine(folder, fileName);
+
+            await using var stream = new FileStream(fullPath, FileMode.Create);
+            await file.CopyToAsync(stream);
+
+            return (false, null, $"images/{subfolder}/{fileName}");
         }
     }
 }

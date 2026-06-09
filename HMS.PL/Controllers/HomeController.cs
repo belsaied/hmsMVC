@@ -1,6 +1,8 @@
 using HMS.BLL.ServicesAbstraction.Contracts;
 using HMS.BLL.Shared.Parameters;
+using HMS.DAL.Data.Identity;
 using HMS.DAL.Models.Enums.DoctorEnums;
+using HMS.DAL.Models.IdentityModule;
 using HMS.PL.ViewModels;
 using HMS.PL.ViewModels.LandingModule;
 using Microsoft.AspNetCore.Authorization;
@@ -12,10 +14,12 @@ namespace HMS.PL.Controllers
     public class HomeController : Controller
     {
         private readonly IServiceManager _services;
+        private readonly IdentityHospitalDbContext _identityDb;
 
-        public HomeController(IServiceManager services)
+        public HomeController(IServiceManager services, IdentityHospitalDbContext identityDb)
         {
             _services = services;
+            _identityDb = identityDb;
         }
 
         public async Task<IActionResult> Index()
@@ -51,7 +55,7 @@ namespace HMS.PL.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public IActionResult RequestAccount(AccountRequestViewModel model)
+        public async Task<IActionResult> RequestAccount(AccountRequestViewModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -59,7 +63,19 @@ namespace HMS.PL.Controllers
                 return RedirectToAction("Index");
             }
 
-            // In production, persist the request and notify admins
+            var request = new PendingAccountRequest
+            {
+                FullName = model.FullName,
+                Email = model.Email,
+                RequestedRole = model.RequestedRole,
+                LicenseNumber = model.LicenseNumber,
+                Message = model.Message,
+                CreatedAt = DateTimeOffset.UtcNow
+            };
+
+            _identityDb.PendingAccountRequests.Add(request);
+            await _identityDb.SaveChangesAsync();
+
             TempData["Success"] = "Your account request has been submitted. An administrator will review it shortly.";
             return RedirectToAction("Index");
         }

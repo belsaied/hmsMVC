@@ -1,3 +1,4 @@
+@using HMS.DAL.Models.Enums.PatientEnums
 @model HMS.PL.ViewModels.AuthModule.RegisterViewModel
 @{
     ViewData["Title"] = "Register";
@@ -84,6 +85,82 @@
                         <i class="far fa-eye hms-password-toggle" role="button" tabindex="0" aria-label="Show password"></i>
                     </div>
                     <span asp-validation-for="ConfirmPassword" class="hms-field-error"></span>
+                </div>
+            </div>
+
+            <div class="hms-section-divider">
+                <span>Patient Information</span>
+            </div>
+
+            <div class="hms-input-group">
+                <div class="hms-input-wrap">
+                    <span class="hms-input-icon"><i class="fas fa-phone"></i></span>
+                    <input asp-for="Phone" class="hms-form-input" placeholder="Phone number" autocomplete="tel" />
+                </div>
+                <span asp-validation-for="Phone" class="hms-field-error"></span>
+            </div>
+
+            <div class="hms-form-row">
+                <div class="hms-input-group">
+                    <div class="hms-input-wrap">
+                        <span class="hms-input-icon"><i class="fas fa-calendar"></i></span>
+                        <input asp-for="DateOfBirth" class="hms-form-input" placeholder="Date of Birth" type="date" />
+                    </div>
+                    <span asp-validation-for="DateOfBirth" class="hms-field-error"></span>
+                </div>
+
+                <div class="hms-input-group">
+                    <div class="hms-input-wrap">
+                        <span class="hms-input-icon"><i class="fas fa-venus-mars"></i></span>
+                        <select asp-for="Gender" class="hms-form-input hms-form-select" asp-items="Html.GetEnumSelectList<Gender>()">
+                            <option value="">Select Gender</option>
+                        </select>
+                    </div>
+                    <span asp-validation-for="Gender" class="hms-field-error"></span>
+                </div>
+            </div>
+
+            <div class="hms-input-group">
+                <div class="hms-input-wrap">
+                    <span class="hms-input-icon"><i class="fas fa-id-card"></i></span>
+                    <input asp-for="NationalId" class="hms-form-input" placeholder="National ID (14 digits)" />
+                </div>
+                <span asp-validation-for="NationalId" class="hms-field-error"></span>
+            </div>
+
+            <div class="hms-section-divider">
+                <span>Address (Optional)</span>
+            </div>
+
+            <div class="hms-form-row">
+                <div class="hms-input-group">
+                    <div class="hms-input-wrap">
+                        <span class="hms-input-icon"><i class="fas fa-road"></i></span>
+                        <input asp-for="Street" class="hms-form-input" placeholder="Street" />
+                    </div>
+                </div>
+
+                <div class="hms-input-group">
+                    <div class="hms-input-wrap">
+                        <span class="hms-input-icon"><i class="fas fa-city"></i></span>
+                        <input asp-for="City" class="hms-form-input" placeholder="City" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="hms-form-row">
+                <div class="hms-input-group">
+                    <div class="hms-input-wrap">
+                        <span class="hms-input-icon"><i class="fas fa-globe"></i></span>
+                        <input asp-for="Country" class="hms-form-input" placeholder="Country" />
+                    </div>
+                </div>
+
+                <div class="hms-input-group">
+                    <div class="hms-input-wrap">
+                        <span class="hms-input-icon"><i class="fas fa-mailbox"></i></span>
+                        <input asp-for="PostalCode" class="hms-form-input" placeholder="Postal code" />
+                    </div>
                 </div>
             </div>
 

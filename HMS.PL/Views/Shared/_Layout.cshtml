@@ -1,4 +1,9 @@
-﻿<!DOCTYPE html>
+﻿@using System.Security.Claims
+@using HMS.DAL.Models.IdentityModule
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -152,6 +157,96 @@
             0%, 100% { opacity: 1; transform: scale(1); }
             50%       { opacity: 0.4; transform: scale(0.85); }
         }
+
+        .user-profile-panel {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            width: 300px;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+            border: 1px solid #e2e8f0;
+            z-index: 9999;
+            display: none;
+            overflow: hidden;
+            animation: panelFadeIn 0.2s ease;
+        }
+        @@keyframes panelFadeIn {
+            from { opacity: 0; transform: translateY(-6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .user-profile-panel.open {
+            display: block;
+        }
+        .upp-header {
+            background: linear-gradient(135deg, #0f1f38 0%, #1a3a5f 100%);
+            padding: 1.5rem 1.25rem;
+            text-align: center;
+            color: #fff;
+        }
+        .upp-avatar-lg {
+            width: 56px; height: 56px; border-radius: 50%;
+            background: linear-gradient(135deg,#0078D4,#00b4d8);
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 1.3rem; font-weight: 700;
+            margin: 0 auto 10px;
+            border: 3px solid rgba(255,255,255,0.2);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .upp-name { font-size: 1rem; font-weight: 700; }
+        .upp-email { font-size: 0.78rem; color: rgba(255,255,255,0.6); margin-top: 2px; }
+        .upp-role-badge {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 3px 14px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.12);
+            color: #fff;
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            backdrop-filter: blur(4px);
+        }
+        .upp-body { padding: 0.75rem 1rem; }
+        .upp-row {
+            display: flex; align-items: center; gap: 0.75rem;
+            padding: 0.5rem 0.5rem;
+            font-size: 0.84rem; color: #475569;
+            border-radius: 8px;
+            transition: background 0.15s;
+        }
+        .upp-row:hover { background: #f8fafc; }
+        .upp-row i {
+            width: 18px; color: #94a3b8; font-size: 0.82rem; text-align: center;
+        }
+        .upp-row-icon {
+            width: 32px; height: 32px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .upp-footer {
+            border-top: 1px solid #e2e8f0;
+            padding: 0.65rem 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .upp-profile-btn {
+            display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+            width: 100%; padding: 0.6rem; border: none; border-radius: 10px;
+            background: #f1f5f9; color: #1e293b; font-size: 0.84rem; font-weight: 600;
+            cursor: pointer; transition: background 0.15s; text-decoration: none;
+        }
+        .upp-profile-btn:hover { background: #e2e8f0; color: #1e293b; }
+        .upp-signout {
+            display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+            width: 100%; padding: 0.55rem; border: none; border-radius: 10px;
+            background: #fef2f2; color: #ef4444; font-size: 0.84rem; font-weight: 600;
+            cursor: pointer; transition: background 0.15s;
+        }
+        .upp-signout:hover { background: #fee2e2; }
     </style>
 
     @await RenderSectionAsync("Styles", required: false)
@@ -209,18 +304,107 @@
 
                 @if (User.Identity?.IsAuthenticated == true)
                 {
-                    <li class="nav-item">
-                        <form asp-controller="Auth" asp-action="LogoutPost" method="post" style="margin:0;display:inline;">
-                            @Html.AntiForgeryToken()
-                            <button type="submit" class="nav-link" style="
-                                display:flex;align-items:center;gap:0.4rem;
-                                color:#ef4444;font-size:0.84rem;font-weight:600;
-                                background:#fef2f2;border:1px solid #fecaca;border-radius:22px;
-                                padding:0.3rem 0.9rem;cursor:pointer;">
-                                <i class="fas fa-sign-out-alt" style="font-size:0.8rem;"></i>
-                                <span class="d-none d-md-inline">Sign Out</span>
-                            </button>
-                        </form>
+                    var currentUser = await UserManager.FindByNameAsync(User.Identity?.Name ?? "");
+                    var displayName = currentUser?.FullName ?? User.Identity?.Name ?? "User";
+                    var displayEmail = currentUser?.Email ?? User.Identity?.Name ?? "";
+                    var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                    var roleDisplay = User.IsInRole("SuperAdmin") ? "Super Admin"
+                        : User.IsInRole("HospitalAdmin") ? "Hospital Admin"
+                        : User.IsInRole("Doctor") ? "Doctor"
+                        : User.IsInRole("Nurse") ? "Nurse"
+                        : User.IsInRole("Receptionist") ? "Receptionist"
+                        : "Patient";
+
+                    <li class="nav-item" style="position:relative;">
+                        <a class="nav-link" href="#" role="button" id="userProfileBtn"
+                           style="display:flex;align-items:center;gap:0.5rem;
+                                   color:#1e293b;font-size:0.84rem;font-weight:500;
+                                   background:#f1f5f9;border-radius:22px;
+                                   padding:0.3rem 0.9rem 0.3rem 0.4rem;text-decoration:none;
+                                   cursor:pointer;user-select:none;
+                                   transition:background 0.15s, box-shadow 0.15s;"
+                           onmouseover="this.style.background='#e8edf4';this.style.boxShadow='0 2px 8px rgba(0,0,0,0.06)'"
+                           onmouseout="this.style.background='#f1f5f9';this.style.boxShadow='none'">
+                            <span style="width:28px;height:28px;border-radius:50%;
+                                background:linear-gradient(135deg,#0078D4,#00b4d8);
+                                display:flex;align-items:center;justify-content:center;
+                                color:#fff;font-size:0.75rem;font-weight:700;flex-shrink:0;
+                                box-shadow:0 2px 6px rgba(0,120,212,0.25);">
+                                @(displayName.Length > 0 ? displayName[0].ToString().ToUpper() : "U")
+                            </span>
+                            <span class="d-none d-md-inline" style="max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">@displayName</span>
+                            <i class="fas fa-chevron-down" style="font-size:0.55rem;color:#94a3b8;margin-left:0.15rem;transition:transform 0.2s;" id="profileChevron"></i>
+                        </a>
+                        <div id="userProfilePanel" class="user-profile-panel">
+                            <div class="upp-header">
+                                <div class="upp-avatar-lg">
+                                    @(displayName.Length > 0 ? displayName[0].ToString().ToUpper() : "U")
+                                </div>
+                                <div class="upp-name">@displayName</div>
+                                <div class="upp-email">@displayEmail</div>
+                                <span class="upp-role-badge">
+                                    <i class="fas fa-shield-alt me-1" style="font-size:0.65rem;"></i>@roleDisplay
+                                </span>
+                            </div>
+                            <div class="upp-body" style="border-bottom:1px solid #e2e8f0;">
+                                <div class="upp-row">
+                                    <span class="upp-row-icon" style="background:#dbeafe;color:#1e40af;">
+                                        <i class="fas fa-user"></i>
+                                    </span>
+                                    <div>
+                                        <div style="font-size:0.72rem;color:#94a3b8;font-weight:600;">Full Name</div>
+                                        <div style="font-weight:600;color:#1e293b;">@displayName</div>
+                                    </div>
+                                </div>
+                                <div class="upp-row">
+                                    <span class="upp-row-icon" style="background:#fce7f3;color:#831843;">
+                                        <i class="fas fa-envelope"></i>
+                                    </span>
+                                    <div>
+                                        <div style="font-size:0.72rem;color:#94a3b8;font-weight:600;">Email</div>
+                                        <div style="font-weight:600;color:#1e293b;">@displayEmail</div>
+                                    </div>
+                                </div>
+                                <div class="upp-row">
+                                    <span class="upp-row-icon" style="background:#fef3c7;color:#92400e;">
+                                        <i class="fas fa-user-tag"></i>
+                                    </span>
+                                    <div>
+                                        <div style="font-size:0.72rem;color:#94a3b8;font-weight:600;">Role</div>
+                                        <div style="font-weight:600;color:#1e293b;">@roleDisplay</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="upp-footer">
+                                @if (User.IsInRole("SuperAdmin") || User.IsInRole("HospitalAdmin"))
+                                {
+                                    <a asp-controller="UserManagement" asp-action="Details" asp-route-id="@currentUserId"
+                                       class="upp-profile-btn">
+                                        <i class="fas fa-user-circle"></i> View My Profile
+                                    </a>
+                                }
+                                else if (User.IsInRole("Doctor") && currentUser?.DoctorId.HasValue == true)
+                                {
+                                    <a asp-controller="Doctors" asp-action="Details" asp-route-id="@currentUser.DoctorId"
+                                       class="upp-profile-btn">
+                                        <i class="fas fa-user-md"></i> My Doctor Profile
+                                    </a>
+                                }
+                                else if (User.IsInRole("Patient") && currentUser?.PatientId.HasValue == true)
+                                {
+                                    <a asp-controller="Patients" asp-action="Details" asp-route-id="@currentUser.PatientId"
+                                       class="upp-profile-btn">
+                                        <i class="fas fa-user-circle"></i> My Profile
+                                    </a>
+                                }
+                                <form asp-controller="Auth" asp-action="LogoutPost" method="post" style="margin:0;">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="upp-signout">
+                                        <i class="fas fa-sign-out-alt"></i> Sign Out
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
                     </li>
                 }
             </ul>
@@ -269,15 +453,18 @@
                                          text-transform: uppercase; letter-spacing: 0.13em;">Overview</span>
                         </li>
 
-                        <li class="nav-item">
-                            <a asp-controller="Dashboard" asp-action="Index"
-                               class="nav-link sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "sidebar-active" : "")">
-                                <span class="sidebar-icon" style="background: rgba(0,120,212,0.18); color: #4da3e8;">
-                                    <i class="fas fa-th-large"></i>
-                                </span>
-                                <span class="sidebar-collapsible">Admin Dashboard</span>
-                            </a>
-                        </li>
+                        @if (User.IsInRole("SuperAdmin") || User.IsInRole("HospitalAdmin"))
+                        {
+                            <li class="nav-item">
+                                <a asp-controller="Dashboard" asp-action="Index"
+                                   class="nav-link sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "sidebar-active" : "")">
+                                    <span class="sidebar-icon" style="background: rgba(0,120,212,0.18); color: #4da3e8;">
+                                        <i class="fas fa-th-large"></i>
+                                    </span>
+                                    <span class="sidebar-collapsible">Admin Dashboard</span>
+                                </a>
+                            </li>
+                        }
 
                         @if (User.IsInRole("Doctor"))
                         {
@@ -292,149 +479,218 @@
                             </li>
                         }
 
-                        <li class="sidebar-collapsible" style="margin: 0;">
-                            <hr style="border:none; border-top:1px solid rgba(255,255,255,0.07); margin: 0.75rem 0 0.35rem;">
-                            <span style="font-size: 0.6rem; font-weight: 700; color: rgba(255,255,255,0.25);
-                                         text-transform: uppercase; letter-spacing: 0.13em;">Patients</span>
-                        </li>
+                        @if (User.IsInRole("Patient"))
+                        {
+                            ApplicationUser? patientUser = null;
+                            var patientUserIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                            if (!string.IsNullOrWhiteSpace(patientUserIdClaim))
+                            {
+                                patientUser = await UserManager.FindByIdAsync(patientUserIdClaim);
+                            }
+                            var patientId = patientUser?.PatientId ?? 0;
 
-                        <li class="nav-item">
-                            <a asp-controller="Patients" asp-action="Index"
-                               class="nav-link sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Patients" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "sidebar-active" : "")">
-                                <span class="sidebar-icon" style="background: rgba(245,158,11,0.15); color: #f59e0b;">
-                                    <i class="fas fa-user-injured"></i>
-                                </span>
-                                <span class="sidebar-collapsible">All Patients</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a asp-controller="Patients" asp-action="Create"
-                               class="nav-link sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Create" && ViewContext.RouteData.Values["controller"]?.ToString() == "Patients" ? "sidebar-active" : "")"
-                               style="padding-left: 2.4rem;">
-                                <i class="fas fa-plus" style="width:28px; text-align:center; font-size:0.7rem; color:rgba(255,255,255,0.35); flex-shrink:0;"></i>
-                                <span class="sidebar-collapsible">Add Patient</span>
-                            </a>
-                        </li>
+                            <li class="sidebar-collapsible" style="margin: 0;">
+                                <hr style="border:none; border-top:1px solid rgba(255,255,255,0.07); margin: 0.75rem 0 0.35rem;">
+                                <span style="font-size: 0.6rem; font-weight: 700; color: rgba(255,255,255,0.25);
+                                             text-transform: uppercase; letter-spacing: 0.13em;">My Health</span>
+                            </li>
 
-                        <li class="sidebar-collapsible" style="margin: 0;">
-                            <hr style="border:none; border-top:1px solid rgba(255,255,255,0.07); margin: 0.75rem 0 0.35rem;">
-                            <span style="font-size: 0.6rem; font-weight: 700; color: rgba(255,255,255,0.25);
-                                         text-transform: uppercase; letter-spacing: 0.13em;">Clinical</span>
-                        </li>
+                            <li class="nav-item">
+                                <a asp-controller="Patients" asp-action="Details" asp-route-id="@patientId"
+                                   class="nav-link sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Patients" && ViewContext.RouteData.Values["action"]?.ToString() == "Details" ? "sidebar-active" : "")">
+                                    <span class="sidebar-icon" style="background: rgba(0,120,212,0.18); color: #4da3e8;">
+                                        <i class="fas fa-user-circle"></i>
+                                    </span>
+                                    <span class="sidebar-collapsible">My Profile</span>
+                                </a>
+                            </li>
 
-                        <li class="nav-item">
-                            <a asp-controller="Appointments" asp-action="Index"
-                               class="nav-link sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Appointments" ? "sidebar-active" : "")">
-                                <span class="sidebar-icon" style="background: rgba(245,158,11,0.12); color: #fbbf24;">
-                                    <i class="fas fa-calendar-check"></i>
-                                </span>
-                                <span class="sidebar-collapsible">Appointments</span>
-                            </a>
-                        </li>
+                            <li class="nav-item">
+                                <a asp-controller="Appointments" asp-action="PatientAppointments" asp-route-patientId="@patientId"
+                                   class="nav-link sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Appointments" ? "sidebar-active" : "")">
+                                    <span class="sidebar-icon" style="background: rgba(245,158,11,0.15); color: #fbbf24;">
+                                        <i class="fas fa-calendar-check"></i>
+                                    </span>
+                                    <span class="sidebar-collapsible">My Appointments</span>
+                                </a>
+                            </li>
 
-                        <li class="nav-item">
-                            <a asp-controller="MedicalRecords" asp-action="Index"
-                               class="nav-link sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "MedicalRecords" ? "sidebar-active" : "")">
-                                <span class="sidebar-icon" style="background: rgba(239,68,68,0.12); color: #f87171;">
-                                    <i class="fas fa-notes-medical"></i>
-                                </span>
-                                <span class="sidebar-collapsible">Medical Records</span>
-                            </a>
-                        </li>
+                            <li class="nav-item">
+                                <a asp-controller="Appointments" asp-action="Book"
+                                   class="nav-link sidebar-link">
+                                    <span class="sidebar-icon" style="background: rgba(16,185,129,0.15); color: #34d399;">
+                                        <i class="fas fa-plus-circle"></i>
+                                    </span>
+                                    <span class="sidebar-collapsible">Book Appointment</span>
+                                </a>
+                            </li>
 
-                        <li class="nav-item">
-                            <a asp-controller="Admissions" asp-action="Index"
-                               class="nav-link sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Admissions" ? "sidebar-active" : "")">
-                                <span class="sidebar-icon" style="background: rgba(239,68,68,0.12); color: #f87171;">
-                                    <i class="fas fa-procedures"></i>
-                                </span>
-                                <span class="sidebar-collapsible">Active Admissions</span>
-                                <span id="sidebarPulseAdmissions" style="
-                                    display: none;
-                                    width: 7px; height: 7px;
-                                    background: #ef4444;
-                                    border-radius: 50%;
-                                    margin-left: auto;
-                                    flex-shrink: 0;
-                                    animation: pulse 1.5s infinite;">
-                                </span>
-                            </a>
-                        </li>
+                            <li class="nav-item">
+                                <a asp-controller="MedicalRecords" asp-action="PatientRecords" asp-route-patientId="@patientId"
+                                   class="nav-link sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "MedicalRecords" ? "sidebar-active" : "")">
+                                    <span class="sidebar-icon" style="background: rgba(239,68,68,0.12); color: #f87171;">
+                                        <i class="fas fa-notes-medical"></i>
+                                    </span>
+                                    <span class="sidebar-collapsible">My Medical Records</span>
+                                </a>
+                            </li>
+                        }
 
-                        <li class="nav-item">
-                            <a asp-controller="Wards" asp-action="Index"
-                               class="nav-link sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Wards" ? "sidebar-active" : "")">
-                                <span class="sidebar-icon" style="background: rgba(14,165,233,0.12); color: #38bdf8;">
-                                    <i class="fas fa-bed"></i>
-                                </span>
-                                <span class="sidebar-collapsible">Ward &amp; Beds</span>
-                                <span id="sidebarBedPulse" style="
-                                    display: none;
-                                    width: 7px; height: 7px;
-                                    background: #10b981;
-                                    border-radius: 50%;
-                                    margin-left: auto;
-                                    flex-shrink: 0;
-                                    animation: pulse 1.5s infinite;">
-                                </span>
-                            </a>
-                        </li>
+                        @if (User.IsInRole("SuperAdmin") || User.IsInRole("HospitalAdmin") || User.IsInRole("Doctor") || User.IsInRole("Nurse") || User.IsInRole("Receptionist"))
+                        {
+                            <li class="sidebar-collapsible" style="margin: 0;">
+                                <hr style="border:none; border-top:1px solid rgba(255,255,255,0.07); margin: 0.75rem 0 0.35rem;">
+                                <span style="font-size: 0.6rem; font-weight: 700; color: rgba(255,255,255,0.25);
+                                             text-transform: uppercase; letter-spacing: 0.13em;">Patients</span>
+                            </li>
 
-                        <li class="sidebar-collapsible" style="margin: 0;">
-                            <hr style="border:none; border-top:1px solid rgba(255,255,255,0.07); margin: 0.75rem 0 0.35rem;">
-                            <span style="font-size: 0.6rem; font-weight: 700; color: rgba(255,255,255,0.25);
-                                         text-transform: uppercase; letter-spacing: 0.13em;">Staff</span>
-                        </li>
+                            <li class="nav-item">
+                                <a asp-controller="Patients" asp-action="Index"
+                                   class="nav-link sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Patients" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "sidebar-active" : "")">
+                                    <span class="sidebar-icon" style="background: rgba(245,158,11,0.15); color: #f59e0b;">
+                                        <i class="fas fa-user-injured"></i>
+                                    </span>
+                                    <span class="sidebar-collapsible">All Patients</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a asp-controller="Patients" asp-action="Create"
+                                   class="nav-link sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Create" && ViewContext.RouteData.Values["controller"]?.ToString() == "Patients" ? "sidebar-active" : "")"
+                                   style="padding-left: 2.4rem;">
+                                    <i class="fas fa-plus" style="width:28px; text-align:center; font-size:0.7rem; color:rgba(255,255,255,0.35); flex-shrink:0;"></i>
+                                    <span class="sidebar-collapsible">Add Patient</span>
+                                </a>
+                            </li>
+                        }
 
-                        <li class="nav-item">
-                            <a asp-controller="Doctors" asp-action="Index"
-                               class="nav-link sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Doctors" ? "sidebar-active" : "")">
-                                <span class="sidebar-icon" style="background: rgba(139,92,246,0.15); color: #a78bfa;">
-                                    <i class="fas fa-user-md"></i>
-                                </span>
-                                <span class="sidebar-collapsible">All Doctors</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a asp-controller="Departments" asp-action="Index"
-                               class="nav-link sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Departments" ? "sidebar-active" : "")"
-                               style="padding-left: 2.4rem;">
-                                <i class="fas fa-hospital" style="width:28px; text-align:center; font-size:0.7rem; color:rgba(255,255,255,0.35); flex-shrink:0;"></i>
-                                <span class="sidebar-collapsible">Departments</span>
-                            </a>
-                        </li>
+                        @if (User.IsInRole("SuperAdmin") || User.IsInRole("HospitalAdmin") || User.IsInRole("Doctor") || User.IsInRole("Nurse"))
+                        {
+                            <li class="sidebar-collapsible" style="margin: 0;">
+                                <hr style="border:none; border-top:1px solid rgba(255,255,255,0.07); margin: 0.75rem 0 0.35rem;">
+                                <span style="font-size: 0.6rem; font-weight: 700; color: rgba(255,255,255,0.25);
+                                             text-transform: uppercase; letter-spacing: 0.13em;">Clinical</span>
+                            </li>
 
-                        <li class="sidebar-collapsible" style="margin: 0;">
-                            <hr style="border:none; border-top:1px solid rgba(255,255,255,0.07); margin: 0.75rem 0 0.35rem;">
-                            <span style="font-size: 0.6rem; font-weight: 700; color: rgba(255,255,255,0.25);
-                                         text-transform: uppercase; letter-spacing: 0.13em;">Finance</span>
-                        </li>
+                            <li class="nav-item">
+                                <a asp-controller="Appointments" asp-action="Index"
+                                   class="nav-link sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Appointments" ? "sidebar-active" : "")">
+                                    <span class="sidebar-icon" style="background: rgba(245,158,11,0.12); color: #fbbf24;">
+                                        <i class="fas fa-calendar-check"></i>
+                                    </span>
+                                    <span class="sidebar-collapsible">Appointments</span>
+                                </a>
+                            </li>
 
-                        <li class="nav-item">
-                            <a asp-controller="Invoices" asp-action="Index"
-                               class="nav-link sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Invoices" ? "sidebar-active" : "")">
-                                <span class="sidebar-icon" style="background: rgba(16,185,129,0.12); color: #34d399;">
-                                    <i class="fas fa-receipt"></i>
-                                </span>
-                                <span class="sidebar-collapsible">Invoices</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a asp-controller="Reports" asp-action="Revenue"
-                               class="nav-link sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Reports" && ViewContext.RouteData.Values["action"]?.ToString() == "Revenue" ? "sidebar-active" : "")"
-                               style="padding-left: 2.4rem;">
-                                <i class="fas fa-chart-bar" style="width:28px; text-align:center; font-size:0.7rem; color:rgba(255,255,255,0.35); flex-shrink:0;"></i>
-                                <span class="sidebar-collapsible">Revenue Report</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a asp-controller="Reports" asp-action="Outstanding"
-                               class="nav-link sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Outstanding" ? "sidebar-active" : "")"
-                               style="padding-left: 2.4rem;">
-                                <i class="fas fa-exclamation-circle" style="width:28px; text-align:center; font-size:0.7rem; color:rgba(255,255,255,0.35); flex-shrink:0;"></i>
-                                <span class="sidebar-collapsible">Outstanding</span>
-                            </a>
-                        </li>
+                            <li class="nav-item">
+                                <a asp-controller="MedicalRecords" asp-action="Index"
+                                   class="nav-link sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "MedicalRecords" ? "sidebar-active" : "")">
+                                    <span class="sidebar-icon" style="background: rgba(239,68,68,0.12); color: #f87171;">
+                                        <i class="fas fa-notes-medical"></i>
+                                    </span>
+                                    <span class="sidebar-collapsible">Medical Records</span>
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a asp-controller="Admissions" asp-action="Index"
+                                   class="nav-link sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Admissions" ? "sidebar-active" : "")">
+                                    <span class="sidebar-icon" style="background: rgba(239,68,68,0.12); color: #f87171;">
+                                        <i class="fas fa-procedures"></i>
+                                    </span>
+                                    <span class="sidebar-collapsible">Active Admissions</span>
+                                    <span id="sidebarPulseAdmissions" style="
+                                        display: none;
+                                        width: 7px; height: 7px;
+                                        background: #ef4444;
+                                        border-radius: 50%;
+                                        margin-left: auto;
+                                        flex-shrink: 0;
+                                        animation: pulse 1.5s infinite;">
+                                    </span>
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a asp-controller="Wards" asp-action="Index"
+                                   class="nav-link sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Wards" ? "sidebar-active" : "")">
+                                    <span class="sidebar-icon" style="background: rgba(14,165,233,0.12); color: #38bdf8;">
+                                        <i class="fas fa-bed"></i>
+                                    </span>
+                                    <span class="sidebar-collapsible">Ward &amp; Beds</span>
+                                    <span id="sidebarBedPulse" style="
+                                        display: none;
+                                        width: 7px; height: 7px;
+                                        background: #10b981;
+                                        border-radius: 50%;
+                                        margin-left: auto;
+                                        flex-shrink: 0;
+                                        animation: pulse 1.5s infinite;">
+                                    </span>
+                                </a>
+                            </li>
+                        }
+
+                        @if (User.IsInRole("SuperAdmin") || User.IsInRole("HospitalAdmin"))
+                        {
+                            <li class="sidebar-collapsible" style="margin: 0;">
+                                <hr style="border:none; border-top:1px solid rgba(255,255,255,0.07); margin: 0.75rem 0 0.35rem;">
+                                <span style="font-size: 0.6rem; font-weight: 700; color: rgba(255,255,255,0.25);
+                                             text-transform: uppercase; letter-spacing: 0.13em;">Staff</span>
+                            </li>
+
+                            <li class="nav-item">
+                                <a asp-controller="Doctors" asp-action="Index"
+                                   class="nav-link sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Doctors" ? "sidebar-active" : "")">
+                                    <span class="sidebar-icon" style="background: rgba(139,92,246,0.15); color: #a78bfa;">
+                                        <i class="fas fa-user-md"></i>
+                                    </span>
+                                    <span class="sidebar-collapsible">All Doctors</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a asp-controller="Departments" asp-action="Index"
+                                   class="nav-link sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Departments" ? "sidebar-active" : "")"
+                                   style="padding-left: 2.4rem;">
+                                    <i class="fas fa-hospital" style="width:28px; text-align:center; font-size:0.7rem; color:rgba(255,255,255,0.35); flex-shrink:0;"></i>
+                                    <span class="sidebar-collapsible">Departments</span>
+                                </a>
+                            </li>
+                        }
+
+                        @if (User.IsInRole("SuperAdmin") || User.IsInRole("HospitalAdmin"))
+                        {
+                            <li class="sidebar-collapsible" style="margin: 0;">
+                                <hr style="border:none; border-top:1px solid rgba(255,255,255,0.07); margin: 0.75rem 0 0.35rem;">
+                                <span style="font-size: 0.6rem; font-weight: 700; color: rgba(255,255,255,0.25);
+                                             text-transform: uppercase; letter-spacing: 0.13em;">Finance</span>
+                            </li>
+
+                            <li class="nav-item">
+                                <a asp-controller="Invoices" asp-action="Index"
+                                   class="nav-link sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Invoices" ? "sidebar-active" : "")">
+                                    <span class="sidebar-icon" style="background: rgba(16,185,129,0.12); color: #34d399;">
+                                        <i class="fas fa-receipt"></i>
+                                    </span>
+                                    <span class="sidebar-collapsible">Invoices</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a asp-controller="Reports" asp-action="Revenue"
+                                   class="nav-link sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Reports" && ViewContext.RouteData.Values["action"]?.ToString() == "Revenue" ? "sidebar-active" : "")"
+                                   style="padding-left: 2.4rem;">
+                                    <i class="fas fa-chart-bar" style="width:28px; text-align:center; font-size:0.7rem; color:rgba(255,255,255,0.35); flex-shrink:0;"></i>
+                                    <span class="sidebar-collapsible">Revenue Report</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a asp-controller="Reports" asp-action="Outstanding"
+                                   class="nav-link sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Outstanding" ? "sidebar-active" : "")"
+                                   style="padding-left: 2.4rem;">
+                                    <i class="fas fa-exclamation-circle" style="width:28px; text-align:center; font-size:0.7rem; color:rgba(255,255,255,0.35); flex-shrink:0;"></i>
+                                    <span class="sidebar-collapsible">Outstanding</span>
+                                </a>
+                            </li>
+                        }
 
                         @if (User.IsInRole("SuperAdmin") || User.IsInRole("HospitalAdmin"))
                         {
@@ -571,6 +827,8 @@
             var sidebar = document.querySelector('.main-sidebar');
             var wrapper = document.querySelector('.wrapper');
             var toggleBtn = document.querySelector('[data-widget="pushmenu"]');
+            var profileBtn = document.getElementById('userProfileBtn');
+            var profilePanel = document.getElementById('userProfilePanel');
 
             if (trigger && sidebar && wrapper) {
                 trigger.addEventListener('mouseenter', function() {
@@ -588,6 +846,24 @@
                 toggleBtn.addEventListener('click', function(e) {
                     e.preventDefault();
                     wrapper.classList.toggle('sidebar-visible');
+                });
+            }
+
+            if (profileBtn && profilePanel) {
+                var chevron = document.getElementById('profileChevron');
+                profileBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    var isOpen = profilePanel.classList.toggle('open');
+                    if (chevron) {
+                        chevron.style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+                    }
+                });
+                document.addEventListener('click', function(e) {
+                    if (!profileBtn.contains(e.target) && !profilePanel.contains(e.target)) {
+                        profilePanel.classList.remove('open');
+                        if (chevron) chevron.style.transform = 'rotate(0deg)';
+                    }
                 });
             }
         });

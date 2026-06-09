@@ -1323,3 +1323,43 @@ body {
 .hms-logo--lg .hms-logo-title {
     font-size: 1.75rem;
 }
+
+/* ── Section divider inside auth forms ────────── */
+.hms-section-divider {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0.25rem 0;
+}
+.hms-section-divider::before,
+.hms-section-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--h-border);
+}
+.hms-section-divider span {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--h-muted);
+    white-space: nowrap;
+}
+
+/* ── Select input in auth forms ───────────────── */
+.hms-form-select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1rem;
+    padding-right: 2.5rem;
+    cursor: pointer;
+}
+.hms-form-select optgroup,
+.hms-form-select option {
+    color: var(--h-text);
+    background: var(--h-white);
+}

@@ -7,85 +7,232 @@
 
 @section Styles {
 <style>
-    :root { --hms-blue:#1a3a5c; --hms-blue-mid:#2563a8; --hms-card:#ffffff; --hms-border:#e2e8f0; }
-    .form-card {
-        background:var(--hms-card); border-radius:14px;
-        border:1px solid var(--hms-border); box-shadow:0 2px 12px rgba(0,0,0,.06);
-        padding:32px; margin-bottom:24px;
+    * { box-sizing: border-box; }
+
+    .bg-edit {
+        position: fixed; inset: 0; z-index: 0; overflow: hidden;
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
     }
-    .section-header {
-        font-size:.75rem; font-weight:700; text-transform:uppercase;
-        letter-spacing:.08em; color:#64748b; margin-bottom:16px;
-        padding-bottom:8px; border-bottom:2px solid var(--hms-border);
+    .bg-edit::before {
+        content: ''; position: absolute; inset: 0;
+        background-image:
+            linear-gradient(rgba(99,102,241,.06) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(99,102,241,.06) 1px, transparent 1px);
+        background-size: 60px 60px;
+    }
+    .bg-edit .orb {
+        position: absolute; width: 400px; height: 400px; border-radius: 50%;
+        filter: blur(100px); opacity: .12;
+    }
+    .bg-edit .orb:nth-child(1) { background: #6366f1; top: -150px; left: -100px; }
+    .bg-edit .orb:nth-child(2) { background: #06b6d4; bottom: -150px; right: -100px; }
+
+    .edit-wrapper {
+        position: relative; z-index: 1;
+        min-height: 100vh; padding: 2rem 1rem;
+        display: flex; align-items: flex-start; justify-content: center;
+    }
+    .edit-container { width: 100%; max-width: 620px; }
+
+    .back-link {
+        display: inline-flex; align-items: center; gap: .5rem;
+        background: rgba(255,255,255,.05);
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius: 50px; padding: .4rem 1rem .4rem .6rem;
+        color: rgba(255,255,255,.5); font-size: .8rem; font-weight: 500;
+        transition: all .25s; text-decoration: none; margin-bottom: 1.5rem;
+    }
+    .back-link:hover {
+        background: rgba(255,255,255,.1); color: #fff; text-decoration: none;
+    }
+
+    .hero-mini {
+        text-align: center; margin-bottom: 2rem;
+    }
+    .hero-mini h1 {
+        font-size: 1.6rem; font-weight: 800; color: #fff;
+        letter-spacing: -.02em; text-shadow: 0 2px 20px rgba(0,0,0,.3);
+    }
+    .hero-mini p {
+        color: rgba(255,255,255,.5); font-size: .88rem;
+    }
+
+    .form-card {
+        background: rgba(255,255,255,.04);
+        backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255,255,255,.1);
+        border-radius: 20px; padding: 2rem; margin-bottom: 1.5rem;
+        box-shadow: 0 8px 40px rgba(0,0,0,.2);
+    }
+
+    .section-badge {
+        display: inline-flex; align-items: center; gap: .5rem;
+        font-size: .68rem; font-weight: 700; text-transform: uppercase;
+        letter-spacing: .12em; color: rgba(255,255,255,.4);
+        margin-bottom: 1.25rem; padding-bottom: .75rem;
+        border-bottom: 1px solid rgba(255,255,255,.06);
+        width: 100%;
+    }
+    .section-badge i { font-size: .75rem; color: rgba(255,255,255,.25); }
+
+    .note-box {
+        background: rgba(59,130,246,.08);
+        border: 1px solid rgba(59,130,246,.15);
+        border-radius: 12px; padding: .75rem 1rem; margin-bottom: 1.5rem;
+        color: #93c5fd; font-size: .82rem;
+    }
+    .note-box i { margin-right: .5rem; }
+
+    .form-floating-custom {
+        position: relative; margin-bottom: 1rem;
+    }
+    .form-floating-custom label {
+        display: block; font-size: .72rem; font-weight: 600;
+        color: rgba(255,255,255,.5); text-transform: uppercase;
+        letter-spacing: .06em; margin-bottom: .35rem;
+    }
+    .form-floating-custom .form-control {
+        background: rgba(255,255,255,.06);
+        border: 1px solid rgba(255,255,255,.1);
+        border-radius: 12px; color: #fff; padding: .65rem 1rem;
+        font-size: .9rem; transition: all .25s;
+    }
+    .form-floating-custom .form-control:focus {
+        background: rgba(255,255,255,.08);
+        border-color: rgba(99,102,241,.5);
+        box-shadow: 0 0 0 3px rgba(99,102,241,.15);
+        color: #fff;
+    }
+    .form-floating-custom .form-control:disabled,
+    .form-floating-custom .form-control[readonly] {
+        background: rgba(255,255,255,.03);
+        color: rgba(255,255,255,.35);
+    }
+    .form-floating-custom .text-danger { font-size: .72rem; margin-top: .25rem; display: block; }
+
+    .form-check-custom { margin-top: .5rem; }
+    .form-check-custom .form-check-input {
+        background: rgba(255,255,255,.06);
+        border: 1px solid rgba(255,255,255,.15);
+        border-radius: 5px; cursor: pointer;
+    }
+    .form-check-custom .form-check-input:checked {
+        background: #6366f1; border-color: #6366f1;
+    }
+    .form-check-custom .form-check-label {
+        color: rgba(255,255,255,.6); font-size: .82rem;
+    }
+
+    .submit-btn {
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        border: none; border-radius: 14px; padding: .75rem 2rem;
+        font-weight: 700; font-size: .9rem; color: #fff;
+        box-shadow: 0 4px 24px rgba(99,102,241,.35);
+        transition: all .3s; letter-spacing: .01em;
+    }
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 32px rgba(99,102,241,.45);
+        color: #fff;
+    }
+
+    .cancel-btn {
+        background: rgba(255,255,255,.06);
+        border: 1px solid rgba(255,255,255,.1);
+        border-radius: 14px; padding: .75rem 1.5rem;
+        font-weight: 600; font-size: .85rem; color: rgba(255,255,255,.6);
+        transition: all .25s; text-decoration: none;
+    }
+    .cancel-btn:hover {
+        background: rgba(255,255,255,.1);
+        color: #fff; text-decoration: none;
     }
 </style>
 }
 
-<div class="container px-4 py-3" style="max-width:600px;">
-    <div class="d-flex align-items-center gap-2 mb-3">
-        <a asp-action="Details" asp-route-id="@Model.Id"
-           class="btn btn-sm btn-outline-secondary" style="border-radius:8px;">
-            <i class="fas fa-arrow-left me-1"></i>Back to Details
+<div class="bg-edit">
+    <div class="orb"></div>
+    <div class="orb"></div>
+</div>
+
+<div class="edit-wrapper">
+    <div class="edit-container">
+
+        <a asp-action="Details" asp-route-id="@Model.Id" class="back-link">
+            <i class="fas fa-arrow-left" style="font-size:.7rem;"></i> Back to Profile
         </a>
-        <h4 class="mb-0 fw-bold ms-2">Edit User Profile</h4>
-    </div>
 
-    <div class="alert alert-info rounded-3 mb-4 small">
-        <i class="fas fa-info-circle me-2"></i>
-        <strong>Note:</strong> Email and Role cannot be changed here.
-        Email changes require identity verification. Role changes require creating a new account.
-    </div>
+        <div class="hero-mini">
+            <h1><i class="fas fa-pen" style="color:#a78bfa;font-size:1.3rem;vertical-align:middle;"></i> Edit Profile</h1>
+            <p>Update account information for <strong style="color:rgba(255,255,255,.8);">@Model.FirstName @Model.LastName</strong></p>
+        </div>
 
-    <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
-        @Html.AntiForgeryToken()
+        <div class="note-box">
+            <i class="fas fa-info-circle"></i>
+            <strong>Note:</strong> Email and Role cannot be changed here.
+            Email changes require identity verification. Role changes require creating a new account.
+        </div>
 
-        <div class="form-card">
-            <div class="section-header"><i class="fas fa-user me-2"></i>Profile</div>
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label asp-for="FirstName" class="form-label fw-semibold small"></label>
-                    <input asp-for="FirstName" class="form-control" />
-                    <span asp-validation-for="FirstName" class="text-danger small"></span>
-                </div>
-                <div class="col-md-6">
-                    <label asp-for="LastName" class="form-label fw-semibold small"></label>
-                    <input asp-for="LastName" class="form-control" />
-                    <span asp-validation-for="LastName" class="text-danger small"></span>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold small text-muted">Email (read-only)</label>
-                    <input value="@Model.Email" class="form-control bg-light" disabled />
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold small text-muted">Role (read-only)</label>
-                    <input value="@Model.CurrentRole" class="form-control bg-light" disabled />
-                </div>
-                <div class="col-md-6">
-                    <label asp-for="PhoneNumber" class="form-label fw-semibold small"></label>
-                    <input asp-for="PhoneNumber" class="form-control" placeholder="+20..." />
-                    <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
-                </div>
-                <div class="col-12 mt-2">
-                    <div class="form-check">
-                        <input asp-for="IsEmailVerified" class="form-check-input" />
-                        <label asp-for="IsEmailVerified" class="form-check-label small">
-                            Email is verified
-                        </label>
+        <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+            @Html.AntiForgeryToken()
+
+            <div class="form-card">
+                <div class="section-badge"><i class="fas fa-user"></i> Profile Information</div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="form-floating-custom">
+                            <label asp-for="FirstName"><i class="fas fa-user me-1" style="opacity:.5;"></i> First Name</label>
+                            <input asp-for="FirstName" class="form-control" />
+                            <span asp-validation-for="FirstName" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating-custom">
+                            <label asp-for="LastName"><i class="fas fa-user me-1" style="opacity:.5;"></i> Last Name</label>
+                            <input asp-for="LastName" class="form-control" />
+                            <span asp-validation-for="LastName" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating-custom">
+                            <label><i class="fas fa-envelope me-1" style="opacity:.5;"></i> Email (read-only)</label>
+                            <input value="@Model.Email" class="form-control" disabled />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating-custom">
+                            <label><i class="fas fa-id-badge me-1" style="opacity:.5;"></i> Role (read-only)</label>
+                            <input value="@Model.CurrentRole" class="form-control" disabled />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating-custom">
+                            <label asp-for="PhoneNumber"><i class="fas fa-phone me-1" style="opacity:.5;"></i> Phone Number</label>
+                            <input asp-for="PhoneNumber" class="form-control" placeholder="+20..." />
+                            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-check-custom">
+                            <input asp-for="IsEmailVerified" class="form-check-input" />
+                            <label asp-for="IsEmailVerified" class="form-check-label">
+                                <i class="fas fa-check-circle me-1" style="opacity:.5;"></i> Email is verified
+                            </label>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="d-flex gap-3">
-            <button type="submit" class="btn btn-primary px-5" style="border-radius:10px;">
-                <i class="fas fa-save me-2"></i>Save Changes
-            </button>
-            <a asp-action="Details" asp-route-id="@Model.Id"
-               class="btn btn-outline-secondary px-4" style="border-radius:10px;">
-                Cancel
-            </a>
-        </div>
-    </form>
+            <div class="d-flex gap-3 justify-content-center">
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-save me-2"></i>Save Changes
+                </button>
+                <a asp-action="Details" asp-route-id="@Model.Id" class="cancel-btn">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
 </div>
 
 @section Scripts {

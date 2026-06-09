@@ -36,9 +36,6 @@ namespace HMS.PL.ViewModels.UserManagementModule
         [Display(Name = "Role")]
         public string Role { get; set; } = string.Empty;
 
-        [Display(Name = "Doctor ID")]
-        public int? DoctorId { get; set; }
-
         [Display(Name = "Phone Number")]
         [Phone, MinLength(11), MaxLength(15)]
         public string? Phone { get; set; }
@@ -58,5 +55,28 @@ namespace HMS.PL.ViewModels.UserManagementModule
         public string? City { get; set; }
         public string? Country { get; set; }
         public string? PostalCode { get; set; }
+
+        [Display(Name = "License Number")]
+        [MaxLength(50)]
+        public string? LicenseNumber { get; set; }
+
+        [Display(Name = "Specialization")]
+        [MaxLength(100)]
+        public string? Specialization { get; set; }
+
+        [Display(Name = "Department")]
+        public int? DepartmentId { get; set; }
+
+        [Display(Name = "Years of Experience")]
+        [Range(0, 60)]
+        public int? YearsOfExperience { get; set; }
+
+        [Display(Name = "Consultation Fee")]
+        [Range(0, 100000)]
+        public decimal? ConsultationFee { get; set; }
+
+        [Display(Name = "Bio")]
+        [MaxLength(1000)]
+        public string? Bio { get; set; }
     }
 }

@@ -7,82 +7,307 @@
 
 @section Styles {
 <style>
-    :root { --hms-blue:#1a3a5c; --hms-border:#e2e8f0; --hms-bg:#f0f4f8; }
-    .audit-table { border-radius:14px; overflow:hidden; box-shadow:0 2px 16px rgba(0,0,0,.07); border:1px solid var(--hms-border); }
-    .audit-table .table { margin:0; }
-    .audit-table thead th {
-        background:var(--hms-blue); color:white; font-weight:600;
-        font-size:.8rem; text-transform:uppercase; letter-spacing:.06em;
+    :root {
+        --hms-blue: #1a3a5c;
+        --hms-blue-mid: #2563a8;
+        --hms-accent: #0ea5e9;
+        --hms-green: #10b981;
+        --hms-red: #ef4444;
+        --hms-orange: #f59e0b;
+        --hms-gray: #64748b;
+        --hms-bg: #f0f4f8;
+        --hms-card: #ffffff;
+        --hms-border: #e2e8f0;
+        --hms-text: #1e293b;
+    }
+
+    .al-header {
+        background: linear-gradient(135deg, var(--hms-blue) 0%, var(--hms-blue-mid) 100%);
+        color: white;
+        padding: 28px 32px;
+        border-radius: 16px;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 8px 32px rgba(26,58,92,.18);
+        position: relative;
+        overflow: hidden;
+    }
+    .al-header::before {
+        content:''; position:absolute; top:-40px; right:-40px;
+        width:160px; height:160px; background:rgba(255,255,255,.07); border-radius:50%;
+    }
+    .al-header-title { font-size:1.75rem; font-weight:700; margin:0; }
+    .al-header-sub   { font-size:.875rem; opacity:.75; margin-top:4px; }
+
+    .filter-card {
+        background: var(--hms-card); border-radius:14px;
+        padding:20px 24px; margin-bottom:20px;
+        box-shadow:0 2px 12px rgba(0,0,0,.06);
+        border:1px solid var(--hms-border);
+    }
+
+    .al-table-card {
+        background: var(--hms-card); border-radius:14px;
+        overflow:hidden; box-shadow:0 2px 16px rgba(0,0,0,.07);
+        border:1px solid var(--hms-border);
+    }
+    .al-table-card .table { margin:0; }
+    .al-table-card thead th {
+        background: var(--hms-blue); color:white;
+        font-weight:600; font-size:.8rem;
+        text-transform:uppercase; letter-spacing:.06em;
         padding:14px 16px; border:none;
     }
-    .audit-table tbody tr { transition:background .15s; border-bottom:1px solid var(--hms-border); }
-    .audit-table tbody tr:hover { background:#f8fafc; }
-    .audit-table tbody td { padding:14px 16px; vertical-align:middle; }
+    .al-table-card tbody tr {
+        transition:background .15s;
+        border-bottom:1px solid var(--hms-border);
+    }
+    .al-table-card tbody tr:hover { background:#f8fafc; }
+    .al-table-card tbody td { padding:14px 16px; vertical-align:middle; }
+
+    .pagination-area { display:flex; align-items:center; justify-content:center; gap:8px; padding:20px; }
+    .page-btn {
+        width:36px; height:36px; border-radius:8px; display:flex;
+        align-items:center; justify-content:center; font-size:.85rem;
+        font-weight:600; border:1px solid var(--hms-border);
+        background:white; color:var(--hms-text); text-decoration:none;
+        transition:all .15s;
+    }
+    .page-btn:hover  { background:var(--hms-accent); color:white; border-color:var(--hms-accent); }
+    .page-btn.active { background:var(--hms-blue);  color:white; border-color:var(--hms-blue); }
+    .page-btn.disabled { opacity:.4; pointer-events:none; }
+
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+    .stat-card {
+        background: var(--hms-card);
+        border-radius: 12px;
+        padding: 16px 20px;
+        border: 1px solid var(--hms-border);
+        box-shadow: 0 2px 8px rgba(0,0,0,.04);
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+    .stat-icon {
+        width: 42px; height: 42px; border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.1rem; flex-shrink: 0;
+    }
+    .stat-value { font-size: 1.2rem; font-weight: 700; color: var(--hms-text); line-height: 1.2; }
+    .stat-label { font-size: .75rem; color: var(--hms-gray); text-transform: uppercase; letter-spacing: .04em; font-weight: 600; }
+
+    .al-detail-cell {
+        max-width: 260px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 </style>
 }
 
 <div class="container-fluid px-4 py-3">
-    <div class="d-flex align-items-center gap-2 mb-3">
-        <a asp-action="Index" class="btn btn-sm btn-outline-secondary" style="border-radius:8px;">
-            <i class="fas fa-arrow-left me-1"></i>Back to Users
+
+    <div class="al-header">
+        <div>
+            <h1 class="al-header-title">
+                <i class="fas fa-history me-3" style="opacity:.6"></i>Audit Log
+            </h1>
+            <div class="al-header-sub">
+                @Model.TotalCount total entries &nbsp;·&nbsp; Page @Model.PageIndex of @(Model.TotalPages > 0 ? Model.TotalPages : 1)
+            </div>
+        </div>
+        <a asp-action="Index" class="btn btn-light btn-sm px-4 fw-semibold" style="border-radius:10px;">
+            <i class="fas fa-arrow-left me-2"></i>Back to Users
         </a>
-        <h4 class="mb-0 fw-bold ms-2">
-            <i class="fas fa-history me-2"></i>Audit Log
-        </h4>
     </div>
 
-    <div class="audit-table">
-        <table class="table table-hover mb-0">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>User</th>
-                    <th>Action</th>
-                    <th>Details</th>
-                    <th>IP Address</th>
-                    <th>Timestamp</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (!Model.Entries.Any())
-                {
-                    <tr>
-                        <td colspan="6" class="text-center py-5 text-muted">
-                            <i class="fas fa-clipboard-list display-6 d-block mb-2"></i>
-                            No audit entries found.
-                        </td>
-                    </tr>
-                }
-                @{ int i = 0; }
-                @foreach (var entry in Model.Entries)
-                {
-                    i++;
-                    var actionColor = entry.Action switch {
-                        "LOGIN_SUCCESS"       => "success",
-                        "LOGIN_FAILED"        => "danger",
-                        "USER_LOCKED"         => "danger",
-                        "USER_UNLOCKED"       => "warning",
-                        "USER_CREATED"        => "primary",
-                        "USER_UPDATED"        => "info",
-                        "PASSWORD_FORCE_RESET" => "warning",
-                        "LOGOUT"              => "secondary",
-                        _                     => "secondary"
-                    };
-                    <tr>
-                        <td class="text-muted small">@i</td>
-                        <td class="small">
-                            <div class="fw-semibold">@entry.UserEmail</div>
-                            <div class="text-muted" style="font-size:.72rem;">@entry.UserId</div>
-                        </td>
-                        <td>
-                            <span class="badge bg-@actionColor">@entry.Action</span>
-                        </td>
-                        <td class="small text-muted">@(entry.Details ?? "—")</td>
-                        <td class="small text-muted">@(entry.IpAddress ?? "—")</td>
-                        <td class="small text-muted">@entry.CreatedAt.ToString("dd MMM yyyy HH:mm")</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+    @{
+        var successCount = Model.Entries.Count(e => e.Action == "LOGIN_SUCCESS");
+        var failedCount = Model.Entries.Count(e => e.Action == "LOGIN_FAILED");
+        var userCreatedCount = Model.Entries.Count(e => e.Action == "USER_CREATED");
+    }
+
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#dcfce7;color:#166534;">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div>
+                <div class="stat-value">@successCount</div>
+                <div class="stat-label">Successful Logins</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fee2e2;color:#991b1b;">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div>
+                <div class="stat-value">@failedCount</div>
+                <div class="stat-label">Failed Logins</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#dbeafe;color:#1e40af;">
+                <i class="fas fa-user-plus"></i>
+            </div>
+            <div>
+                <div class="stat-value">@userCreatedCount</div>
+                <div class="stat-label">Users Created</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fef3c7;color:#92400e;">
+                <i class="fas fa-list"></i>
+            </div>
+            <div>
+                <div class="stat-value">@Model.TotalCount</div>
+                <div class="stat-label">Total Entries</div>
+            </div>
+        </div>
     </div>
+
+    <div class="filter-card">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label fw-semibold small text-muted">User ID</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="fas fa-user text-muted"></i>
+                    </span>
+                    <input type="text" name="userId" value="@Model.UserIdFilter"
+                           class="form-control border-start-0 ps-0"
+                           placeholder="Filter by user ID..." />
+                </div>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-semibold small text-muted">Action</label>
+                <select name="action" class="form-select">
+                    <option value="">All Actions</option>
+                    <option value="LOGIN_SUCCESS" selected="@(Model.ActionFilter == "LOGIN_SUCCESS")">Login Success</option>
+                    <option value="LOGIN_FAILED" selected="@(Model.ActionFilter == "LOGIN_FAILED")">Login Failed</option>
+                    <option value="USER_CREATED" selected="@(Model.ActionFilter == "USER_CREATED")">User Created</option>
+                    <option value="USER_UPDATED" selected="@(Model.ActionFilter == "USER_UPDATED")">User Updated</option>
+                    <option value="USER_LOCKED" selected="@(Model.ActionFilter == "USER_LOCKED")">User Locked</option>
+                    <option value="USER_UNLOCKED" selected="@(Model.ActionFilter == "USER_UNLOCKED")">User Unlocked</option>
+                    <option value="PASSWORD_FORCE_RESET" selected="@(Model.ActionFilter == "PASSWORD_FORCE_RESET")">Password Reset</option>
+                    <option value="LOGOUT" selected="@(Model.ActionFilter == "LOGOUT")">Logout</option>
+                </select>
+            </div>
+            <div class="col-md-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary flex-fill" style="border-radius:10px;">
+                    <i class="fas fa-filter me-1"></i>Filter
+                </button>
+                <a asp-action="AuditLog" class="btn btn-outline-secondary" style="border-radius:10px;" title="Clear">
+                    <i class="fas fa-times"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <div class="al-table-card">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th style="width:50px;">#</th>
+                        <th>User</th>
+                        <th style="width:140px;">Action</th>
+                        <th>Details</th>
+                        <th style="width:130px;">IP Address</th>
+                        <th style="width:160px;">Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Entries.Any())
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <i class="fas fa-clipboard-list display-6 d-block mb-2"></i>
+                                No audit entries found.
+                            </td>
+                        </tr>
+                    }
+                    @{ int i = (Model.PageIndex - 1) * Model.PageSize; }
+                    @foreach (var entry in Model.Entries)
+                    {
+                        i++;
+                        var actionColor = entry.Action switch {
+                            "LOGIN_SUCCESS"       => "success",
+                            "LOGIN_FAILED"        => "danger",
+                            "USER_LOCKED"         => "danger",
+                            "USER_UNLOCKED"       => "warning",
+                            "USER_CREATED"        => "primary",
+                            "USER_UPDATED"        => "info",
+                            "PASSWORD_FORCE_RESET" => "warning",
+                            "LOGOUT"              => "secondary",
+                            _                     => "secondary"
+                        };
+                        <tr>
+                            <td class="text-muted small fw-semibold">@i</td>
+                            <td class="small">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span style="width:30px;height:30px;border-radius:50%;
+                                        background:linear-gradient(135deg,var(--hms-blue),var(--hms-blue-mid));
+                                        color:white;display:flex;align-items:center;
+                                        justify-content:center;font-weight:700;font-size:.7rem;flex-shrink:0;">
+                                        @(entry.UserEmail.Length > 0 ? entry.UserEmail[0].ToString().ToUpper() : "?")
+                                    </span>
+                                    <div>
+                                        <div class="fw-semibold" style="font-size:.84rem;">@entry.UserEmail</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-@actionColor" style="font-size:.72rem;padding:5px 10px;border-radius:6px;font-weight:600;">@entry.Action</span>
+                            </td>
+                            <td class="small text-muted al-detail-cell" title="@entry.Details">@(entry.Details ?? "—")</td>
+                            <td class="small text-muted">
+                                <code style="font-size:.75rem;background:#f1f5f9;padding:2px 8px;border-radius:4px;">@(entry.IpAddress ?? "—")</code>
+                            </td>
+                            <td class="small text-muted" style="white-space:nowrap;">
+                                <i class="far fa-clock me-1" style="color:#94a3b8;"></i>@entry.CreatedAt.ToString("dd MMM yyyy HH:mm")
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (Model.TotalPages > 1)
+        {
+            <div class="pagination-area border-top">
+                <a class="page-btn @(Model.PageIndex == 1 ? "disabled" : "")"
+                   asp-action="AuditLog"
+                   asp-route-userId="@Model.UserIdFilter"
+                   asp-route-action="@Model.ActionFilter"
+                   asp-route-pageIndex="@(Model.PageIndex - 1)">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+                @for (int p = Math.Max(1, Model.PageIndex - 2);
+                          p <= Math.Min(Model.TotalPages, Model.PageIndex + 2); p++)
+                {
+                    <a class="page-btn @(p == Model.PageIndex ? "active" : "")"
+                       asp-action="AuditLog"
+                       asp-route-userId="@Model.UserIdFilter"
+                       asp-route-action="@Model.ActionFilter"
+                       asp-route-pageIndex="@p">@p</a>
+                }
+                <a class="page-btn @(Model.PageIndex >= Model.TotalPages ? "disabled" : "")"
+                   asp-action="AuditLog"
+                   asp-route-userId="@Model.UserIdFilter"
+                   asp-route-action="@Model.ActionFilter"
+                   asp-route-pageIndex="@(Model.PageIndex + 1)">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </div>
+        }
+    </div>
+
 </div>

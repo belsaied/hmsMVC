@@ -20,12 +20,12 @@ namespace HMS.PL.Controllers
             try
             {
                 var admissions = await _services.AdmissionService.GetActiveAdmissionsAsync();
-                return View("~/Views/WardBeds/Admissions.cshtml", admissions);
+                return View("~/Views/Wards/Admissions.cshtml", admissions);
             }
             catch (Exception ex)
             {
                 TempData["Error"] = ex.Message;
-                return View("~/Views/WardBeds/Admissions.cshtml", Enumerable.Empty<AdmissionResultDto>());
+                return View("~/Views/Wards/Admissions.cshtml", Enumerable.Empty<AdmissionResultDto>());
             }
         }
 
@@ -34,7 +34,7 @@ namespace HMS.PL.Controllers
             try
             {
                 var admission = await _services.AdmissionService.GetAdmissionByIdAsync(id);
-                return View("~/Views/WardBeds/AdmissionDetails.cshtml", admission);
+                return View("~/Views/Wards/AdmissionDetails.cshtml", admission);
             }
             catch (NotFoundException)
             {
@@ -48,7 +48,7 @@ namespace HMS.PL.Controllers
             try
             {
                 await PopulateAdmissionDropdownsAsync();
-                return View("~/Views/WardBeds/Admit.cshtml", new CreateAdmissionDto { AdmissionDate = DateTime.Now });
+                return View("~/Views/Wards/Admit.cshtml", new CreateAdmissionDto { AdmissionDate = DateTime.Now });
             }
             catch (Exception ex)
             {
@@ -64,7 +64,7 @@ namespace HMS.PL.Controllers
             if (!ModelState.IsValid)
             {
                 await PopulateAdmissionDropdownsAsync();
-                return View("~/Views/WardBeds/Admit.cshtml", dto);
+                return View("~/Views/Wards/Admit.cshtml", dto);
             }
 
             try
@@ -78,7 +78,7 @@ namespace HMS.PL.Controllers
             catch (Exception ex) { ModelState.AddModelError(string.Empty, ex.Message); }
 
             await PopulateAdmissionDropdownsAsync();
-            return View("~/Views/WardBeds/Admit.cshtml", dto);
+            return View("~/Views/Wards/Admit.cshtml", dto);
         }
 
         [HttpPost]
@@ -124,7 +124,7 @@ namespace HMS.PL.Controllers
                 ViewBag.PatientName = patient.FullName;
                 ViewBag.MRN = patient.MedicalRecordNumber;
 
-                return View("~/Views/WardBeds/PatientAdmissions.cshtml", admissions);
+                return View("~/Views/Wards/PatientAdmissions.cshtml", admissions);
             }
             catch (NotFoundException)
             {

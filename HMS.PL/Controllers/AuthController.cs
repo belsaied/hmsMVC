@@ -28,10 +28,10 @@ namespace HMS.PL.Controllers
 
         [AllowAnonymous]
         [HttpGet]
-        public IActionResult Login(string? returnUrl = null)
+        public async Task<IActionResult> Login(string? returnUrl = null)
         {
             if (User.Identity?.IsAuthenticated == true)
-                return RedirectToDashboard();
+                return await RedirectToDashboard();
 
             ViewBag.ReturnUrl = returnUrl;
             return View();
@@ -67,6 +67,8 @@ namespace HMS.PL.Controllers
                         return RedirectToAction("Index", "Dashboard");
                     if (roles.Contains("Doctor"))
                         return RedirectToAction("DoctorDashboard", "Dashboard");
+                    if (roles.Contains("Patient") && user.PatientId.HasValue)
+                        return RedirectToAction("Details", "Patients", new { id = user.PatientId.Value });
                     return RedirectToAction("Index", "Home");
                 }
             }
@@ -92,10 +94,10 @@ namespace HMS.PL.Controllers
 
         [AllowAnonymous]
         [HttpGet]
-        public IActionResult Register()
+        public async Task<IActionResult> Register()
         {
             if (User.Identity?.IsAuthenticated == true)
-                return RedirectToDashboard();
+                return await RedirectToDashboard();
 
             return View();
         }
@@ -116,6 +118,20 @@ namespace HMS.PL.Controllers
                     Email = vm.Email,
                     Password = vm.Password,
                     Role = "Patient",
+                    PatientInfo = new PatientRegistrationInfo
+                    {
+                        Phone = vm.Phone,
+                        DateOfBirth = vm.DateOfBirth,
+                        Gender = vm.Gender,
+                        NationalId = vm.NationalId,
+                        Address = new PatientAddressInfo
+                        {
+                            Street = vm.Street ?? string.Empty,
+                            City = vm.City ?? string.Empty,
+                            Country = vm.Country ?? string.Empty,
+                            PostalCode = vm.PostalCode ?? string.Empty,
+                        }
+                    }
                 }, callerRole: null);
 
                 TempData["Success"] = "Account created successfully! Please check your email to verify your account.";
@@ -246,12 +262,23 @@ namespace HMS.PL.Controllers
             return RedirectToAction(nameof(Login));
         }
 
-        private IActionResult RedirectToDashboard()
+        private async Task<IActionResult> RedirectToDashboard()
         {
             if (User.IsInRole("SuperAdmin") || User.IsInRole("HospitalAdmin"))
                 return RedirectToAction("Index", "Dashboard");
             if (User.IsInRole("Doctor"))
                 return RedirectToAction("DoctorDashboard", "Dashboard");
+            if (User.IsInRole("Patient"))
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (!string.IsNullOrWhiteSpace(userId))
+                {
+                    var appUser = await _userManager.FindByIdAsync(userId);
+                    if (appUser?.PatientId.HasValue == true)
+                        return RedirectToAction("Details", "Patients", new { id = appUser.PatientId.Value });
+                }
+                return RedirectToAction("Index", "Home");
+            }
             return RedirectToAction("Index", "Home");
         }
     }

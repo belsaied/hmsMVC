@@ -4,7 +4,7 @@
     {
         Task SendVerificationEmailAsync(string toEmail, string token);
         Task SendPasswordResetEmailAsync(string toEmail, string token);
-        Task SendDoctorWelcomeEmailAsync(string toEmail, string doctorName, int doctorId); 
+        Task SendDoctorWelcomeEmailAsync(string toEmail, string doctorName, int doctorId, string? password = null); 
 
     }
 }
