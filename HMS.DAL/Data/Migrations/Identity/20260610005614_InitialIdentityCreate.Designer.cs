@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HMS.DAL.Data.Migrations.Identity
 {
     [DbContext(typeof(IdentityHospitalDbContext))]
-    [Migration("20260609200347_InitialIdentityCreate")]
+    [Migration("20260610005614_InitialIdentityCreate")]
     partial class InitialIdentityCreate
     {
         /// <inheritdoc />

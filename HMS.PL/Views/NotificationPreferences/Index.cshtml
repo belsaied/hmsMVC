@@ -1,0 +1,222 @@
+@using HMS.DAL.Models.Enums.NotificationEnums
+@model HMS.PL.ViewModels.NotificationModule.NotificationPreferenceViewModel
+
+@{
+    ViewData["Title"] = "Notification Preferences";
+}
+
+@section Styles {
+    <style>
+        .pref-header {
+            background: linear-gradient(135deg, #1a3a5c 0%, #2563a8 100%);
+            color: white;
+            padding: 28px 32px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 32px rgba(26,58,92,.18);
+        }
+        .pref-header-title { font-size: 1.75rem; font-weight: 700; }
+        .pref-header-sub { font-size: .875rem; opacity: .75; margin-top: 4px; }
+        .pref-card {
+            background: #fff;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 8px rgba(0,0,0,.06);
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+        .pref-card-header {
+            background: #f8fafc;
+            padding: 12px 20px;
+            border-bottom: 1px solid #e2e8f0;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: #1e293b;
+        }
+        .pref-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            transition: background 0.15s;
+        }
+        .pref-row:last-child { border-bottom: none; }
+        .pref-row:hover { background: #f8fafc; }
+        .pref-channel-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .channel-email { background: #dbeafe; color: #1e40af; }
+        .channel-sms { background: #fce7f3; color: #831843; }
+        .channel-push { background: #d1fae5; color: #065f46; }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 22px;
+        }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: #cbd5e1;
+            border-radius: 22px;
+            transition: 0.3s;
+        }
+        .toggle-slider:before {
+            content: "";
+            position: absolute;
+            height: 16px; width: 16px;
+            left: 3px; bottom: 3px;
+            background: #fff;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+        .toggle-switch input:checked + .toggle-slider { background: #10b981; }
+        .toggle-switch input:checked + .toggle-slider:before { transform: translateX(18px); }
+        .notif-type-label {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #1e293b;
+            min-width: 180px;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #94a3b8;
+        }
+    </style>
+}
+
+<div class="pref-header">
+    <div>
+        <div class="pref-header-title"><i class="fas fa-cog me-2"></i>Notification Preferences</div>
+        <div class="pref-header-sub">Choose which notifications you want to receive and through which channels</div>
+    </div>
+</div>
+
+<div class="mb-3 text-end">
+    <form asp-action="Reset" method="post" style="display:inline;">
+        @Html.AntiForgeryToken()
+        <button type="submit" class="btn btn-sm" style="background:#f1f5f9;color:#64748b;border-radius:8px;padding:0.4rem 1.2rem;border:1px solid #e2e8f0;"
+                onclick="return confirm('Reset all notification preferences to enabled?');">
+            <i class="fas fa-undo me-1"></i>Reset to Default
+        </button>
+    </form>
+</div>
+
+@if (!Model.Preferences.Any())
+{
+    <div class="empty-state">
+        <i class="fas fa-bell-slash" style="font-size:3rem;margin-bottom:16px;"></i>
+        <h5 style="color:#64748b;">No preferences found</h5>
+        <p style="font-size:0.9rem;">All notifications are enabled by default. As you update preferences, they will appear here.</p>
+    </div>
+}
+else
+{
+    var grouped = Model.Preferences.GroupBy(p => p.NotificationType);
+    @foreach (var group in grouped)
+    {
+        <div class="pref-card">
+            <div class="pref-card-header">
+                <i class="fas
+                    @(group.Key == NotificationType.AppointmentConfirmed || group.Key == NotificationType.AppointmentCancelled || group.Key == NotificationType.AppointmentReminder ? "fa-calendar-check" :
+                      group.Key == NotificationType.AbnormalLabResult ? "fa-flask" :
+                      group.Key == NotificationType.PrescriptionExpiryWarning ? "fa-prescription" :
+                      group.Key == NotificationType.InvoiceIssued || group.Key == NotificationType.PaymentReceived || group.Key == NotificationType.InvoiceOverdue ? "fa-receipt" :
+                      "fa-bullhorn") me-2">
+                </i>
+                @FormatNotificationType(group.Key)
+            </div>
+            @foreach (var pref in group)
+            {
+                <div class="pref-row">
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="pref-channel-badge
+                            @(pref.Channel == NotificationChannel.Email ? "channel-email" :
+                              pref.Channel == NotificationChannel.SMS ? "channel-sms" : "channel-push")">
+                            <i class="fas
+                                @(pref.Channel == NotificationChannel.Email ? "fa-envelope" :
+                                  pref.Channel == NotificationChannel.SMS ? "fa-sms" : "fa-bell")">
+                            </i>
+                            @pref.Channel
+                        </span>
+                    </div>
+                    <label class="toggle-switch" title="@(pref.IsEnabled ? "Click to disable" : "Click to enable")">
+                        <input type="checkbox" class="pref-toggle"
+                               data-type="@((int)pref.NotificationType)"
+                               data-channel="@((int)pref.Channel)"
+                        @(pref.IsEnabled ? "checked" : "") />
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            }
+        </div>
+    }
+}
+
+<form id="updateForm" method="post" style="display:none;">
+    @Html.AntiForgeryToken()
+</form>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.pref-toggle').forEach(function(toggle) {
+            toggle.addEventListener('change', function() {
+                var notificationType = parseInt(this.dataset.type);
+                var channel = parseInt(this.dataset.channel);
+                var isEnabled = this.checked;
+
+                fetch('@Url.Action("Update", "NotificationPreferences")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('#updateForm input[name="__RequestVerificationToken"]').value
+                    },
+                    body: JSON.stringify({
+                        notificationType: notificationType,
+                        channel: channel,
+                        isEnabled: isEnabled
+                    })
+                })
+                .then(function(response) {
+                    if (!response.ok) {
+                        throw new Error('Failed to update preference');
+                    }
+                    toastr.success('Preference updated successfully');
+                })
+                .catch(function(error) {
+                    toastr.error('Failed to update preference');
+                    toggle.checked = !isEnabled;
+                });
+            });
+        });
+    </script>
+}
+
+@functions {
+    string FormatNotificationType(NotificationType type)
+    {
+        return type switch
+        {
+            NotificationType.AppointmentConfirmed => "Appointment Confirmed",
+            NotificationType.AppointmentCancelled => "Appointment Cancelled",
+            NotificationType.AppointmentReminder => "Appointment Reminder",
+            NotificationType.AbnormalLabResult => "Abnormal Lab Result",
+            NotificationType.PrescriptionExpiryWarning => "Prescription Expiry Warning",
+            NotificationType.InvoiceIssued => "Invoice Issued",
+            NotificationType.PaymentReceived => "Payment Received",
+            NotificationType.InvoiceOverdue => "Invoice Overdue",
+            NotificationType.CustomAdminMessage => "Admin Messages",
+            _ => type.ToString()
+        };
+    }
+}

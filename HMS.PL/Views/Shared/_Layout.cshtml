@@ -692,6 +692,47 @@
                             </li>
                         }
 
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="sidebar-collapsible" style="margin: 0;">
+                                <hr style="border:none; border-top:1px solid rgba(255,255,255,0.07); margin: 0.75rem 0 0.35rem;">
+                                <span style="font-size: 0.6rem; font-weight: 700; color: rgba(255,255,255,0.25);
+                                             text-transform: uppercase; letter-spacing: 0.13em;">Notifications</span>
+                            </li>
+
+                            <li class="nav-item">
+                                <a asp-controller="Notifications" asp-action="Index"
+                                   class="nav-link sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Notifications" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "sidebar-active" : "")">
+                                    <span class="sidebar-icon" style="background: rgba(0,120,212,0.18); color: #4da3e8;">
+                                        <i class="fas fa-bell"></i>
+                                    </span>
+                                    <span class="sidebar-collapsible">Notifications</span>
+                                    <span id="sidebarNotifBadge" style="
+                                        display: none;
+                                        width: 18px; height: 18px;
+                                        background: #ef4444;
+                                        border-radius: 50%;
+                                        margin-left: auto;
+                                        flex-shrink: 0;
+                                        font-size: 0.6rem;
+                                        color: #fff;
+                                        text-align: center;
+                                        line-height: 18px;
+                                        font-weight: 700;"></span>
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a asp-controller="NotificationPreferences" asp-action="Index"
+                                   class="nav-link sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "NotificationPreferences" ? "sidebar-active" : "")">
+                                    <span class="sidebar-icon" style="background: rgba(245,158,11,0.15); color: #fbbf24;">
+                                        <i class="fas fa-cog"></i>
+                                    </span>
+                                    <span class="sidebar-collapsible">Preferences</span>
+                                </a>
+                            </li>
+                        }
+
                         @if (User.IsInRole("SuperAdmin") || User.IsInRole("HospitalAdmin"))
                         {
                             <li class="sidebar-collapsible" style="margin: 0;">
@@ -725,6 +766,15 @@
                                    style="padding-left: 2.4rem;">
                                     <i class="fas fa-history" style="width:28px; text-align:center; font-size:0.7rem; color:rgba(255,255,255,0.35); flex-shrink:0;"></i>
                                     <span class="sidebar-collapsible">Audit Log</span>
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a asp-controller="Notifications" asp-action="AdminLog"
+                                   class="nav-link sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "AdminLog" ? "sidebar-active" : "")"
+                                   style="padding-left: 2.4rem;">
+                                    <i class="fas fa-clipboard-list" style="width:28px; text-align:center; font-size:0.7rem; color:rgba(255,255,255,0.35); flex-shrink:0;"></i>
+                                    <span class="sidebar-collapsible">Notification Log</span>
                                 </a>
                             </li>
                         }
@@ -873,6 +923,64 @@
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <!-- SignalR Client -->
     <script src="https://cdn.jsdelivr.net/npm/@@microsoft/signalr/dist/browser/signalr.min.js"></script>
+
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        var signalrUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        <script>
+            (function() {
+                var connection = new signalR.HubConnectionBuilder()
+                    .withUrl('/hubs/notifications')
+                    .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
+                    .build();
+
+                var badgeEl = document.getElementById('sidebarNotifBadge');
+                var dotEl = document.getElementById('signalrDot');
+                var labelEl = document.getElementById('signalrLabel');
+
+                function setConnected(connected) {
+                    if (dotEl) {
+                        dotEl.style.background = connected ? '#10b981' : '#ef4444';
+                    }
+                    if (labelEl) {
+                        labelEl.textContent = connected ? 'Connected' : 'Disconnected';
+                    }
+                }
+
+                connection.on('ReceiveNotification', function(notification) {
+                    toastr.info(notification.body || notification.subject, 'New Notification');
+                    if (badgeEl) {
+                        var current = parseInt(badgeEl.textContent) || 0;
+                        badgeEl.textContent = current + 1;
+                        badgeEl.style.display = 'block';
+                    }
+                });
+
+                connection.onreconnecting(function() {
+                    setConnected(false);
+                    if (labelEl) labelEl.textContent = 'Reconnecting...';
+                });
+
+                connection.onreconnected(function() {
+                    setConnected(true);
+                    connection.invoke('JoinUserGroup', '@signalrUserId').catch(function() {});
+                });
+
+                connection.onclose(function() {
+                    setConnected(false);
+                    if (labelEl) labelEl.textContent = 'Disconnected';
+                });
+
+                connection.start().then(function() {
+                    setConnected(true);
+                    return connection.invoke('JoinUserGroup', '@signalrUserId');
+                }).catch(function(err) {
+                    setConnected(false);
+                    console.error('SignalR connection error:', err);
+                });
+            })();
+        </script>
+    }
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

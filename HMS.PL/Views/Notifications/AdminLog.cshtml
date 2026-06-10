@@ -1,0 +1,203 @@
+@using HMS.BLL.Shared
+@using HMS.BLL.Shared.Dtos.NotificationDtos.Results
+@using HMS.DAL.Models.Enums.NotificationEnums
+@model HMS.PL.ViewModels.NotificationModule.AdminNotificationLogViewModel
+
+@{
+    ViewData["Title"] = "Admin Notification Log";
+}
+
+@section Styles {
+    <style>
+        .admin-notif-header {
+            background: linear-gradient(135deg, #1a3a5c 0%, #2563a8 100%);
+            color: white;
+            padding: 28px 32px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 8px 32px rgba(26,58,92,.18);
+        }
+        .filter-card {
+            background: #fff;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        .log-table { font-size: 0.85rem; }
+        .log-table th { background: #f8fafc; color: #64748b; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 2px solid #e2e8f0; padding: 12px 8px; }
+        .log-table td { padding: 10px 8px; vertical-align: middle; border-bottom: 1px solid #f1f5f9; }
+        .log-table tr:hover td { background: #f8fafc; }
+        .notif-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .badge-email { background: #dbeafe; color: #1e40af; }
+        .badge-sms { background: #fce7f3; color: #831843; }
+        .badge-push { background: #d1fae5; color: #065f46; }
+        .badge-sent { background: #d1fae5; color: #065f46; }
+        .badge-pending { background: #fef3c7; color: #92400e; }
+        .badge-failed { background: #fee2e2; color: #991b1b; }
+        .badge-skipped { background: #f1f5f9; color: #64748b; }
+        .page-link-custom {
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            color: #1e293b;
+            font-size: 0.84rem;
+            text-decoration: none;
+        }
+        .page-active { background: #1a3a5c; color: #fff; border-color: #1a3a5c; }
+        .table-container { background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+        .empty-state { text-align: center; padding: 60px 20px; color: #94a3b8; }
+    </style>
+}
+
+<div class="admin-notif-header">
+    <div>
+        <div class="notif-header-title" style="font-size:1.75rem;font-weight:700;">
+            <i class="fas fa-clipboard-list me-2"></i>Admin Notification Log
+        </div>
+        <div style="font-size:.875rem;opacity:.75;margin-top:4px;">Full notification audit across all recipients</div>
+    </div>
+</div>
+
+<div class="filter-card">
+    <form method="get" class="row g-3 align-items-end">
+        <div class="col-md-2">
+            <label class="form-label" style="font-size:0.8rem;font-weight:600;color:#64748b;">Channel</label>
+            <select name="Channel" class="form-select form-select-sm">
+                <option value="">All</option>
+                @foreach (var ch in Enum.GetValues<NotificationChannel>())
+                {
+                    <option value="@ch" selected="@(Model.Filter.Channel == ch)">@ch</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label" style="font-size:0.8rem;font-weight:600;color:#64748b;">Type</label>
+            <select name="NotificationType" class="form-select form-select-sm">
+                <option value="">All</option>
+                @foreach (var nt in Enum.GetValues<NotificationType>())
+                {
+                    <option value="@nt" selected="@(Model.Filter.NotificationType == nt)">@nt</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label" style="font-size:0.8rem;font-weight:600;color:#64748b;">Status</label>
+            <select name="DeliveryStatus" class="form-select form-select-sm">
+                <option value="">All</option>
+                @foreach (var ds in Enum.GetValues<DeliveryStatus>())
+                {
+                    <option value="@ds" selected="@(Model.Filter.DeliveryStatus == ds)">@ds</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label" style="font-size:0.8rem;font-weight:600;color:#64748b;">From</label>
+            <input type="date" name="From" value="@Model.Filter.From?.ToString("yyyy-MM-dd")" class="form-control form-control-sm" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label" style="font-size:0.8rem;font-weight:600;color:#64748b;">To</label>
+            <input type="date" name="To" value="@Model.Filter.To?.ToString("yyyy-MM-dd")" class="form-control form-control-sm" />
+        </div>
+        <div class="col-md-2 d-flex gap-2">
+            <button type="submit" class="btn btn-sm" style="background:#1a3a5c;color:#fff;border-radius:8px;padding:0.4rem 1.2rem;">Filter</button>
+            <a asp-action="AdminLog" class="btn btn-sm" style="background:#f1f5f9;color:#64748b;border-radius:8px;padding:0.4rem 1.2rem;">Clear</a>
+        </div>
+    </form>
+</div>
+
+@if (!Model.PaginatedResult.Data.Any())
+{
+    <div class="empty-state">
+        <i class="far fa-clipboard" style="font-size:3rem;margin-bottom:16px;"></i>
+        <h5 style="color:#64748b;">No notifications found</h5>
+        <p style="font-size:0.9rem;">No notifications match the current filters.</p>
+    </div>
+}
+else
+{
+    <div class="table-container">
+        <table class="table log-table mb-0">
+            <thead>
+                <tr>
+                    <th>Recipient</th>
+                    <th>Type</th>
+                    <th>Channel</th>
+                    <th>Subject</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th>Failure</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var notif in Model.PaginatedResult.Data)
+                {
+                    <tr>
+                        <td>
+                            <div style="font-weight:600;color:#1e293b;font-size:0.8rem;">@notif.RecipientType</div>
+                            <div style="font-size:0.72rem;color:#94a3b8;">@notif.RelatedEntityId</div>
+                        </td>
+                        <td><span style="font-size:0.75rem;color:#475569;">@notif.NotificationType</span></td>
+                        <td>
+                            <span class="notif-badge
+                                @(notif.Channel == NotificationChannel.Email ? "badge-email" :
+                                  notif.Channel == NotificationChannel.SMS ? "badge-sms" : "badge-push")">
+                                @notif.Channel
+                            </span>
+                        </td>
+                        <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                            <span title="@notif.Subject">@notif.Subject</span>
+                        </td>
+                        <td>
+                            <span class="notif-badge
+                                @(notif.DeliveryStatus == DeliveryStatus.Sent ? "badge-sent" :
+                                  notif.DeliveryStatus == DeliveryStatus.Pending ? "badge-pending" :
+                                  notif.DeliveryStatus == DeliveryStatus.Failed ? "badge-failed" : "badge-skipped")">
+                                @notif.DeliveryStatus
+                            </span>
+                        </td>
+                        <td style="font-size:0.75rem;color:#64748b;white-space:nowrap;">
+                            @notif.CreatedAt.LocalDateTime.ToString("MMM dd, yyyy")
+                        </td>
+                        <td style="font-size:0.75rem;color:#ef4444;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="@notif.FailureReason">
+                            @notif.FailureReason
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    var totalPages = (int)Math.Ceiling((double)Model.PaginatedResult.TotalCount / Model.PaginatedResult.PageSize);
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center" style="gap:4px;">
+            <li class="page-item @(Model.PaginatedResult.PageIndex <= 1 ? "disabled" : "")">
+                <a class="page-link page-link-custom" asp-all-route-data="@(new Dictionary<string,string> { { "PageIndex", "1" } })">
+                    <i class="fas fa-angle-double-left"></i>
+                </a>
+            </li>
+            @for (var i = 1; i <= totalPages; i++)
+            {
+                <li class="page-item @(i == Model.PaginatedResult.PageIndex ? "active" : "")">
+                    <a class="page-link page-link-custom @(i == Model.PaginatedResult.PageIndex ? "page-active" : "")"
+                       asp-all-route-data="@(new Dictionary<string,string> { { "PageIndex", i.ToString() } })">@i</a>
+                </li>
+            }
+            <li class="page-item @(Model.PaginatedResult.PageIndex >= totalPages ? "disabled" : "")">
+                <a class="page-link page-link-custom" asp-all-route-data="@(new Dictionary<string,string> { { "PageIndex", totalPages.ToString() } })">
+                    <i class="fas fa-angle-double-right"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+}
