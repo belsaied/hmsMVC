@@ -22,6 +22,8 @@ namespace HMS.BLL.Services.Implementations.WardBedModule
     {
         public async Task<AdmissionResultDto> AdmitPatientAsync(CreateAdmissionDto dto)
         {
+            using var tx = await _unitOfWork.BeginTransactionAsync();
+
             var patientRepo = _unitOfWork.GetRepository<Patient, int>();
             var patient = await patientRepo.GetByIdAsync(dto.PatientId);
             if (patient is null) throw new PatientNotFoundException(dto.PatientId);
@@ -62,6 +64,7 @@ namespace HMS.BLL.Services.Implementations.WardBedModule
             bed.Status = BedStatus.Occupied;
             bedRepo.Update(bed);
             await _unitOfWork.SaveChangesAsync();
+            await tx.CommitAsync();
             await _cacheService.RemoveAsync(CacheKeys.WardOccupancy);
             await _cacheService.RemoveAsync(CacheKeys.RoomBeds(bed.RoomId));
 
@@ -156,6 +159,8 @@ namespace HMS.BLL.Services.Implementations.WardBedModule
         public async Task<AdmissionResultDto> TransferPatientAsync(
             int admissionId, TransferBedDto dto)
         {
+            using var tx = await _unitOfWork.BeginTransactionAsync();
+
             var admissionRepo = _unitOfWork.GetRepository<Admission, int>();
             var admission = await admissionRepo.GetByIdAsync(
                 new AdmissionWithDetailsSpecification(admissionId));
@@ -203,6 +208,7 @@ namespace HMS.BLL.Services.Implementations.WardBedModule
             bedRepo.Update(newBed);
 
             await _unitOfWork.SaveChangesAsync();
+            await tx.CommitAsync();
 
             await _notifier.NotifyDashboardAsync("BedTransferred", new
             {

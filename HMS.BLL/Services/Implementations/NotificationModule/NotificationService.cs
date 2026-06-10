@@ -288,10 +288,11 @@ namespace HMS.BLL.Services.Implementations.NotificationModule
                         break;
                     case NotificationChannel.Push:
                         await _pushSender.SendAsync(recipientId.ToString(), new { subject, body });
-                        notification.DeliveryStatus = DeliveryStatus.Sent;
-                        notification.SentAt = DateTimeOffset.UtcNow;
                         break;
                 }
+
+                notification.DeliveryStatus = DeliveryStatus.Sent;
+                notification.SentAt = DateTimeOffset.UtcNow;
             }
             catch (Exception ex)
             {

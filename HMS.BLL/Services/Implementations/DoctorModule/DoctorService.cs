@@ -66,7 +66,7 @@ namespace HMS.BLL.Services.Implementations.DoctorModule
             }
             catch
             {
-                
+                // Email failure should not prevent doctor registration
             }
 
             return _mapper.Map<DoctorResultDto>(saved);

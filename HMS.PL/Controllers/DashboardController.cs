@@ -146,6 +146,7 @@ namespace HMS.PL.Controllers
             return View(vm);
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetBedSummary()
         {
@@ -158,6 +159,7 @@ namespace HMS.PL.Controllers
             });
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> QuickSearch(string q, string type = "all")
         {
@@ -207,6 +209,7 @@ namespace HMS.PL.Controllers
             return Json(results);
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetDashboardStats()
         {

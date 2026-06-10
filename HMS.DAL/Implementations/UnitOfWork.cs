@@ -20,6 +20,9 @@ namespace HMS.DAL.Implementations
                 (_) => new GenericRepository<TEntity, TKey>(_dbContext));
 
         public async Task<int> SaveChangesAsync() => await _dbContext.SaveChangesAsync();
-        
+
+        public async Task<Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction> BeginTransactionAsync()
+            => await _dbContext.Database.BeginTransactionAsync();
+
     }
 }

@@ -15,7 +15,7 @@ using Stripe;
 using Invoice = HMS.DAL.Models.BillingModule.Invoice;
 using PaymentMethod = HMS.DAL.Models.Enums.BillingEnums.PaymentMethod;
 
-namespace Services.Implementations.BillingModule
+namespace HMS.BLL.Services.Implementations.BillingModule
 {
     public sealed class PaymentService (IUnitOfWork _unitOfWork
         , IMapper _mapper, INotificationService _notificationService, IConfiguration _config,ILogger<PaymentService> _logger) : IPaymentService
@@ -57,7 +57,7 @@ namespace Services.Implementations.BillingModule
             }
 
             // Stripe requires amounts in the smallest currency unit (cents for USD)
-            var amountInCents = (long)(invoice.OutstandingBalance * 100);
+            var amountInCents = (long)Math.Round(invoice.OutstandingBalance * 100);
 
             var options = new PaymentIntentCreateOptions
             {
@@ -153,7 +153,8 @@ namespace Services.Implementations.BillingModule
             Stripe.Event stripeEvent;
             try
             {
-                stripeEvent = EventUtility.ConstructEvent(payload, stripeSignature, webhookSecret);
+                var tolerance = _config.GetValue<int>("StripeSettings:WebhookToleranceSeconds", 600);
+                stripeEvent = EventUtility.ConstructEvent(payload, stripeSignature, webhookSecret, tolerance, throwOnApiVersionMismatch: false);
             }
             catch (StripeException ex)
             {
@@ -249,7 +250,7 @@ namespace Services.Implementations.BillingModule
                 var refundOptions = new RefundCreateOptions
                 {
                     PaymentIntent = payment.StripePaymentIntentId,
-                    Amount = (long)(amount * 100),
+                    Amount = (long)Math.Round(amount * 100),
                     Reason = RefundReasons.RequestedByCustomer
                 };
                 var refundService = new RefundService();

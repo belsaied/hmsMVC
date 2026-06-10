@@ -1,5 +1,6 @@
 ﻿using HMS.BLL.ServicesAbstraction.Contracts;
 using HMS.BLL.Services.Exceptions;
+using Microsoft.AspNetCore.Authorization;
 using HMS.BLL.Shared.Dtos.PatientModule.PatientDtos;
 using HMS.BLL.Shared.Dtos.PatientModule.AllergyDtos;
 using HMS.BLL.Shared.Dtos.PatientModule.EmergencyContactsDtos;
@@ -7,11 +8,13 @@ using HMS.BLL.Shared.Dtos.PatientModule.Medical_History_Dtos;
 using HMS.BLL.Shared.Dtos.MedicalRecordsDto;
 using HMS.BLL.Shared.Parameters;
 using HMS.DAL.Models.Enums.PatientEnums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace HMS.PL.Controllers
 {
+    [Authorize]
     public class PatientsController : Controller
     {
         private readonly IServiceManager _services;

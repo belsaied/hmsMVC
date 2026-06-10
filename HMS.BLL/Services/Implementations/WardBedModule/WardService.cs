@@ -20,8 +20,8 @@ namespace HMS.BLL.Services.Implementations.WardBedModule
             var repo = _unitOfWork.GetRepository<Ward, int>();
 
             // BR: Ward Name must be unique
-            var all = await repo.GetAllAsync(asNoTracking: true);
-            if (all.Any(w => w.Name.ToLower() == dto.Name.ToLower()))
+            var duplicateExists = await repo.CountAsync(new WardByNameSpecification(dto.Name)) > 0;
+            if (duplicateExists)
                 throw new DuplicateWardNameException(dto.Name);
 
             var ward = _mapper.Map<Ward>(dto);

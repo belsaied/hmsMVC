@@ -854,16 +854,17 @@
         closeButton: true,
         progressBar: true,
         positionClass: 'toast-top-right',
-        timeOut: 4000
+        timeOut: 10000,
+        extendedTimeOut: 5000
         };
 
         @if (TempData["Success"] != null)
         {
-            <text>toastr.success(@Html.Raw(Json.Serialize(TempData["Success"]?.ToString())));</text>
+            <text>toastr.success(@Html.Raw(Json.Serialize(TempData["Success"]?.ToString())), '', { timeOut: 6000 });</text>
         }
         @if (TempData["Error"] != null)
         {
-            <text>toastr.error(@Html.Raw(Json.Serialize(TempData["Error"]?.ToString())));</text>
+            <text>toastr.error(@Html.Raw(Json.Serialize(TempData["Error"]?.ToString())), '', { timeOut: 15000 });</text>
         }
         @if (TempData["Warning"] != null)
         {

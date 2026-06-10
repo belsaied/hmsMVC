@@ -1,7 +1,7 @@
-﻿using HMS.BLL.Services.Specifications.NotificationModule.NotificationSpecification;
+﻿using HMS.BLL.Services.Specifications.MedicalRecordModule;
+using HMS.BLL.Services.Specifications.NotificationModule.NotificationSpecification;
 using HMS.BLL.ServicesAbstraction.Contracts.NotificationService;
 using HMS.DAL.Contracts;
-using HMS.DAL.Models.Enums.MedicalRecordEnums;
 using HMS.DAL.Models.Enums.NotificationEnums;
 using HMS.DAL.Models.MedicalRecordModule;
 using HMS.DAL.Models.NotificationModule;
@@ -19,9 +19,7 @@ namespace HMS.BLL.Services.Implementations.NotificationModule.Jobs
             var targetDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(7));
 
             var prescRepo = _unitOfWork.GetRepository<Prescription, int>();
-            var prescriptions = (await prescRepo.GetAllAsync(asNoTracking: true))
-                .Where(p => p.Status == PrescriptionStatus.Active && p.ExpiresAt == targetDate)
-                .ToList();
+            var prescriptions = (await prescRepo.GetAllAsync(new PrescriptionsExpiringOnSpecification(targetDate))).ToList();
 
             if (!prescriptions.Any())
             {

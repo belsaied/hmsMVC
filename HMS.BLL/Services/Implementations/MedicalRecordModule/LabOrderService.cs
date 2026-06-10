@@ -12,7 +12,7 @@ using HMS.BLL.Services.Specifications.MedicalRecordModule;
 using HMS.BLL.Shared.Dtos.MedicalRecordsDto;
 using HMS.BLL.Shared.Dtos.NotificationDtos.Events;
 
-namespace Services.Implementations.MedicalRecordModule
+namespace HMS.BLL.Services.Implementations.MedicalRecordModule
 {
     public class LabOrderService (IUnitOfWork _unitOfWork, IMapper _mapper,ILogger<LabOrderService> _logger ,INotificationService _notificationService) : ILabOrderService
     {

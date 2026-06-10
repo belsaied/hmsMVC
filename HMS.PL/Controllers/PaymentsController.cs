@@ -2,6 +2,7 @@ using HMS.BLL.Services.Exceptions;
 using HMS.BLL.ServicesAbstraction.Contracts;
 using HMS.PL.ViewModels.BillingModule;
 using Microsoft.AspNetCore.Mvc;
+using Stripe;
 
 namespace HMS.PL.Controllers
 {
@@ -9,11 +10,13 @@ namespace HMS.PL.Controllers
     {
         private readonly IServiceManager _services;
         private readonly IConfiguration _configuration;
+        private readonly ILogger<PaymentsController> _logger;
 
-        public PaymentsController(IServiceManager services, IConfiguration configuration)
+        public PaymentsController(IServiceManager services, IConfiguration configuration, ILogger<PaymentsController> logger)
         {
             _services = services;
             _configuration = configuration;
+            _logger = logger;
         }
 
         public async Task<IActionResult> RecordCash(Guid invoiceId)
@@ -82,6 +85,7 @@ namespace HMS.PL.Controllers
         public async Task<IActionResult> StripeWebhook()
         {
             Request.EnableBuffering();
+            Request.Body.Position = 0;
             string payload;
             using (var reader = new StreamReader(Request.Body, leaveOpen: true))
             {
@@ -97,8 +101,14 @@ namespace HMS.PL.Controllers
                 await _services.PaymentService.HandleStripeWebhookAsync(payload, signature);
                 return Ok();
             }
+            catch (StripeException ex)
+            {
+                _logger.LogError(ex, "Stripe webhook validation failed for event");
+                return BadRequest($"Stripe error: {ex.Message}");
+            }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Unhandled exception in StripeWebhook");
                 return BadRequest(ex.Message);
             }
         }

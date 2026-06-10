@@ -18,8 +18,7 @@ using HMS.BLL.Shared.Common;
 using HMS.PL.Authorization;
 using HMS.PL.Hubs;
 using Microsoft.AspNetCore.Authorization;
-using Services.Implementations.BillingModule;
-using Services.Implementations.MedicalRecordModule;
+
 
 namespace HMS.PL.Extensions
 {

@@ -15,7 +15,7 @@ using HMS.BLL.Shared.Dtos.BillingModule.Results;
 using HMS.BLL.Shared.Dtos.NotificationDtos.Events;
 using HMS.BLL.Shared.Parameters;
 
-namespace Services.Implementations.BillingModule
+namespace HMS.BLL.Services.Implementations.BillingModule
 {
     public sealed class InvoiceService (IUnitOfWork _unitOfWork
         , IMapper _mapper , IInvoicePdfGenerator _pdfGenerator,ILogger<InvoiceService> _logger ,INotificationService _notificationService) : IInvoiceService
@@ -131,9 +131,9 @@ namespace Services.Implementations.BillingModule
         {
             var invoice = await LoadInvoiceWithDetailsAsync(invoiceId);
 
-            if (invoice.Status != InvoiceStatus.Draft)
+            if (invoice.Status is InvoiceStatus.Paid or InvoiceStatus.Cancelled)
                 throw new InvalidInvoiceStatusTransitionException(invoice.Status.ToString(),
-                    "AddLineItem — only Draft invoices accept new line items");
+                    "AddLineItem — paid or cancelled invoices cannot be modified");
 
             var li = MapToLineItem(request);
             li.InvoiceId = invoiceId;
@@ -151,9 +151,9 @@ namespace Services.Implementations.BillingModule
         {
             var invoice = await LoadInvoiceWithDetailsAsync(invoiceId);
 
-            if (invoice.Status != InvoiceStatus.Draft)
+            if (invoice.Status is InvoiceStatus.Paid or InvoiceStatus.Cancelled)
                 throw new InvalidInvoiceStatusTransitionException(invoice.Status.ToString(),
-                    "RemoveLineItem — only Draft invoices can be modified");
+                    "RemoveLineItem — paid or cancelled invoices cannot be modified");
 
             var item = invoice.LineItems.FirstOrDefault(li => li.Id == lineItemId)
                        ?? throw new NotFoundException($"Line item '{lineItemId}' not found on invoice '{invoiceId}'.");
@@ -199,7 +199,7 @@ namespace Services.Implementations.BillingModule
             {
                 byte[]? pdfBytes = null;
                 try { pdfBytes = _pdfGenerator.Generate(invoice, patient?.FirstName + " " + patient?.LastName, patient?.Email ?? ""); }
-                catch {  }
+                catch (Exception pdfEx) { _logger.LogWarning(pdfEx, "[PDF] Failed to generate invoice PDF for {Id}", invoice.Id); }
 
                 await _notificationService.SendInvoiceIssuedAsync(new InvoiceNotificationEvent
                 {
@@ -286,8 +286,21 @@ namespace Services.Implementations.BillingModule
             var today = DateTime.UtcNow.ToString("yyyyMMdd");
             var prefix = $"INV-{today}-";
 
-            var count = await repo.CountAsync(new InvoicesByDatePrefixSpecification(today));
-            return $"{prefix}{(count + 1):D6}";
+            var maxRetries = 3;
+            for (var attempt = 1; attempt <= maxRetries; attempt++)
+            {
+                var count = await repo.CountAsync(new InvoicesByDatePrefixSpecification(today));
+                var invoiceNumber = $"{prefix}{(count + 1):D6}";
+
+                var exists = await repo.CountAsync(new InvoicesByNumberSpecification(invoiceNumber));
+                if (exists == 0)
+                    return invoiceNumber;
+
+                if (attempt == maxRetries)
+                    break;
+            }
+
+            return $"{prefix}{Guid.NewGuid():N}"[..20];
         }
     }
 }

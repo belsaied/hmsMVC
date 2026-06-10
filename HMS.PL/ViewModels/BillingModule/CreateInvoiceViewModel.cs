@@ -34,7 +34,7 @@ namespace HMS.PL.ViewModels.BillingModule
         [Range(1, int.MaxValue)]
         public int Quantity { get; set; } = 1;
 
-        [Range(0, double.MaxValue, ErrorMessage = "Unit price cannot be negative.")]
+        [Range(typeof(decimal), "0", "999999999.99", ErrorMessage = "Unit price cannot be negative.")]
         public decimal UnitPrice { get; set; }
 
         public bool IsAutoAdded { get; set; }

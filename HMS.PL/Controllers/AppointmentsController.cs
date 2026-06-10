@@ -106,8 +106,6 @@ namespace HMS.PL.Controllers
                 ModelState.AddModelError(string.Empty, ex.Message);
             }
 
-            System.Diagnostics.Debug.WriteLine($"[Book] Validation failed — DoctorId={dto.DoctorId}, Date={dto.AppointmentDate:yyyy-MM-dd} ({dto.AppointmentDate.DayOfWeek}), StartTime={dto.StartTime:HH:mm}, Type={dto.Type}");
-
             await PopulateBookDropdownsAsync();
             return View(dto);
         }
@@ -358,6 +356,7 @@ namespace HMS.PL.Controllers
             // Doctors — collect all pages, then filter to those with schedule
             var allDoctors = new List<DoctorResultDto>();
             int page = 1;
+            int maxPages = 50;
             PaginatedResult<DoctorResultDto> pageResult;
             do
             {
@@ -365,7 +364,7 @@ namespace HMS.PL.Controllers
                     new() { PageIndex = page, PageSize = 20 });
                 allDoctors.AddRange(pageResult.Data);
                 page++;
-            } while (allDoctors.Count < pageResult.TotalCount);
+            } while (allDoctors.Count < pageResult.TotalCount && page <= maxPages);
 
             // Keep only active doctors with at least one available schedule day
             var scheduledDoctors = new List<DoctorResultDto>();

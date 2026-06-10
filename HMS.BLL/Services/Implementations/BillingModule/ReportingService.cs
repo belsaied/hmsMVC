@@ -10,7 +10,7 @@ using HMS.BLL.Services.Specifications.PatientModule;
 using HMS.BLL.Shared.Dtos.BillingModule.Results;
 using HMS.BLL.Shared.Parameters;
 
-namespace Services.Implementations.BillingModule
+namespace HMS.BLL.Services.Implementations.BillingModule
 {
     public sealed class ReportingService (IUnitOfWork _unitOfWork , IMapper _mapper) : IReportingService
     {

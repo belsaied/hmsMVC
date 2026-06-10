@@ -9,7 +9,7 @@ namespace HMS.BLL.Services.Specifications.BillingModule
     : base(i =>
         (i.Status == InvoiceStatus.Issued || i.Status == InvoiceStatus.PartiallyPaid)
         && i.DueDate.HasValue
-        && i.DueDate.Value < DateOnly.FromDateTime(DateTime.UtcNow))
+        && i.DueDate.Value < DateOnly.FromDateTime(DateTime.Now))
         { }
     }
 }

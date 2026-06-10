@@ -48,8 +48,7 @@ namespace HMS.BLL.Services.Implementations.MedicalRecordModule
                 throw new PatientNotFoundException(patientId);
 
             var vitalRepo = _unitOfWork.GetRepository<VitalSign, int>();
-            var vitals = await vitalRepo.GetAllAsync(new PatientVitalHistorySpecification(patientId));
-            var latest = vitals.FirstOrDefault(); // already ordered desc by RecordedAt
+            var latest = await vitalRepo.GetByIdAsync(new LatestVitalSignSpecification(patientId));
             return latest is null ? null : _mapper.Map<VitalSignResultDto>(latest);
         }
     }

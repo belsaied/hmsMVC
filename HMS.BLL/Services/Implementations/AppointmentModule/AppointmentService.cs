@@ -43,7 +43,7 @@ namespace HMS.BLL.Services.Implementations.AppointmentModule
                 throw new BusinessRuleException("Only Active doctors can receive bookings.");
 
             // 3. Date must be today or in the future
-            if (dto.AppointmentDate < DateOnly.FromDateTime(DateTime.UtcNow))
+            if (dto.AppointmentDate < DateOnly.FromDateTime(DateTime.Now))
                 throw new ValidationException(new[] { "Appointment date must be today or in the future." });
 
             // 4. StartTime must fall within a DoctorSchedule slot for that DayOfWeek
@@ -201,7 +201,7 @@ namespace HMS.BLL.Services.Implementations.AppointmentModule
                 throw new BusinessRuleException("Appointment is already cancelled.");
 
             var appointmentDateTime = apt.AppointmentDate.ToDateTime(apt.StartTime);
-            if (DateTime.UtcNow > appointmentDateTime.AddHours(-2))
+            if (DateTime.Now > appointmentDateTime.AddHours(-2))
                 throw new BusinessRuleException(
                     "Cannot cancel an appointment less than 2 hours before start time.");
 

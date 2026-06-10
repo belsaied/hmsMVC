@@ -13,7 +13,7 @@ using HMS.BLL.Shared.Dtos.MedicalRecordsDto;
 using HMS.BLL.Shared.Parameters;
 using HMS.BLL.ServicesAbstraction.Contracts;
 
-namespace Services.Implementations.MedicalRecordModule
+namespace HMS.BLL.Services.Implementations.MedicalRecordModule
 {
     public class MedicalRecordService (IUnitOfWork _unitOfWork , IMapper _mapper,ICacheService _cacheService) : IMedicalRecordService
     {

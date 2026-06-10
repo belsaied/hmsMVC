@@ -3,6 +3,7 @@ using HMS.BLL.ServicesAbstraction.Contracts;
 using HMS.BLL.Shared.Dtos.BillingModule.Requests;
 using HMS.BLL.Shared.Parameters;
 using HMS.DAL.Models.Enums.BillingEnums;
+using HMS.DAL.Models.Enums.PatientEnums;
 using HMS.PL.ViewModels.BillingModule;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -86,6 +87,7 @@ namespace HMS.PL.Controllers
         public async Task<IActionResult> Create(int? patientId, int? appointmentId)
         {
             PopulateLineItemTypeDropdown();
+            await PopulatePatientsDropdownAsync(patientId);
 
             var vm = new CreateInvoiceViewModel
             {
@@ -182,6 +184,7 @@ namespace HMS.PL.Controllers
             if (!ModelState.IsValid)
             {
                 PopulateLineItemTypeDropdown();
+                await PopulatePatientsDropdownAsync(vm.PatientId);
                 return View(vm);
             }
 
@@ -211,6 +214,7 @@ namespace HMS.PL.Controllers
             {
                 ModelState.AddModelError(string.Empty, ex.Message);
                 PopulateLineItemTypeDropdown();
+                await PopulatePatientsDropdownAsync(vm.PatientId);
                 return View(vm);
             }
         }
@@ -219,6 +223,15 @@ namespace HMS.PL.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddLineItem(Guid invoiceId, AddLineItemRequest request)
         {
+            if (!ModelState.IsValid)
+            {
+                var errors = string.Join("; ", ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage));
+                TempData["Error"] = "Validation failed: " + errors;
+                return RedirectToAction(nameof(Details), new { id = invoiceId });
+            }
+
             try
             {
                 await _services.InvoiceService.AddLineItemAsync(invoiceId, request);
@@ -247,6 +260,113 @@ namespace HMS.PL.Controllers
             }
 
             return RedirectToAction(nameof(Details), new { id = invoiceId });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SuggestLineItems(Guid id)
+        {
+            try
+            {
+                var invoice = await _services.InvoiceService.GetInvoiceByIdAsync(id);
+                var patientId = invoice.PatientId;
+                var billedRefs = invoice.LineItems
+                    .Where(li => li.ReferenceId != null)
+                    .Select(li => li.ReferenceId!)
+                    .ToHashSet();
+
+                var added = 0;
+
+                // 1. Completed appointments not yet billed
+                try
+                {
+                    var appointments = await _services.AppointmentService.GetPatientAppointmentsAsync(patientId);
+                    foreach (var appt in appointments.Where(a => a.Status == "Completed"))
+                    {
+                        var refId = appt.Id.ToString();
+                        if (billedRefs.Contains(refId)) continue;
+
+                        decimal fee = 0m;
+                        try
+                        {
+                            var doctor = await _services.DoctorService.GetDoctorByIdAsync(appt.DoctorId);
+                            fee = doctor.ConsultationFee;
+                        }
+                        catch { }
+
+                        await _services.InvoiceService.AddLineItemAsync(id, new AddLineItemRequest
+                        {
+                            Description = $"Consultation — Dr. {appt.DoctorName} ({appt.AppointmentDate:dd MMM yyyy})",
+                            LineItemType = LineItemType.Consultation,
+                            ReferenceId = refId,
+                            Quantity = 1,
+                            UnitPrice = fee
+                        });
+                        added++;
+                    }
+                }
+                catch { }
+
+                // 2. Completed lab orders not yet billed
+                try
+                {
+                    var labOrders = await _services.LabOrderService.GetPatientLabOrdersAsync(patientId);
+                    foreach (var lo in labOrders.Where(l => l.Status == "Completed"))
+                    {
+                        var refId = lo.Id.ToString();
+                        if (billedRefs.Contains(refId)) continue;
+
+                        await _services.InvoiceService.AddLineItemAsync(id, new AddLineItemRequest
+                        {
+                            Description = $"Lab: {lo.TestName}",
+                            LineItemType = LineItemType.LabTest,
+                            ReferenceId = refId,
+                            Quantity = 1,
+                            UnitPrice = 0m
+                        });
+                        added++;
+                    }
+                }
+                catch { }
+
+                // 3. Active admission not yet billed
+                try
+                {
+                    var admissions = await _services.AdmissionService.GetPatientAdmissionHistoryAsync(patientId);
+                    var active = admissions.FirstOrDefault(a => a.Status == "Active");
+                    if (active != null)
+                    {
+                        var refId = active.Id.ToString();
+                        if (!billedRefs.Contains(refId))
+                        {
+                            var days = (DateTimeOffset.UtcNow - new DateTimeOffset(active.AdmissionDate, TimeSpan.Zero)).Days;
+                            if (days < 1) days = 1;
+
+                            await _services.InvoiceService.AddLineItemAsync(id, new AddLineItemRequest
+                            {
+                                Description = $"Admission — Ward {active.WardName}, Bed {active.BedNumber} ({days} day(s))",
+                                LineItemType = LineItemType.Other,
+                                ReferenceId = refId,
+                                Quantity = days,
+                                UnitPrice = 0m
+                            });
+                            added++;
+                        }
+                    }
+                }
+                catch { }
+
+                if (added > 0)
+                    TempData["Success"] = $"{added} service(s) added from patient history.";
+                else
+                    TempData["Success"] = "No unbilled services found for this patient.";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+            }
+
+            return RedirectToAction(nameof(Details), new { id });
         }
 
         public async Task<IActionResult> Issue(Guid id)
@@ -386,6 +506,28 @@ namespace HMS.PL.Controllers
                 Enum.GetValues<LineItemType>()
                     .Select(v => new { Value = (int)v, Text = v.ToString() }),
                 "Value", "Text");
+        }
+
+        private async Task PopulatePatientsDropdownAsync(int? selectedPatientId)
+        {
+            try
+            {
+                var patients = await _services.PatientService.GetAllPatientsAsync(
+                    new PatientSpecificationParameters
+                    {
+                        Status = PatientStatus.Active,
+                        PageSize = 20,
+                        PageIndex = 1
+                    });
+
+                ViewBag.PatientList = new SelectList(
+                    patients.Data.Select(p => new { p.Id, FullName = $"{p.FirstName} {p.LastName}" }),
+                    "Id", "FullName", selectedPatientId);
+            }
+            catch
+            {
+                ViewBag.PatientList = new SelectList(Enumerable.Empty<SelectListItem>());
+            }
         }
     }
 }

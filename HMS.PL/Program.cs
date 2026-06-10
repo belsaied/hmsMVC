@@ -33,13 +33,25 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
 
-app.UseHangfireDashboard("/hangfire");
+app.UseHangfireDashboard("/hangfire", new DashboardOptions
+{
+    Authorization = [new HangfireAdminAuthorizationFilter()]
+});
 
 await app.SeedDatabaseAsync();
 
 app.UseExceptionHandlingMiddlewares();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+// Raw body buffering for Stripe webhook — must be before UseRouting
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.StartsWithSegments("/Payments/StripeWebhook"))
+        context.Request.EnableBuffering();
+    await next();
+});
+
 app.UseRouting();
 app.UseCors("DevPolicy");
 app.UseAuthentication();
@@ -52,14 +64,6 @@ app.UseWebSockets();
 app.MapHub<AppointmentHub>("/hubs/appointments");
 app.MapHub<WardHub>("/hubs/beds");
 app.MapHub<NotificationHub>("/hubs/notifications");
-
-// ── Raw body buffering for Stripe webhook ────────────────────────────────
-app.Use(async (context, next) =>
-{
-    if (context.Request.Path.StartsWithSegments("/Payments/StripeWebhook"))
-        context.Request.EnableBuffering();
-    await next();
-});
 
 // ── MVC Routes ────────────────────────────────────────────────────────────
 app.MapControllerRoute(
