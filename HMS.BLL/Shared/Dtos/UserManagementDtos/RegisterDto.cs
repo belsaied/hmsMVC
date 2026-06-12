@@ -6,12 +6,12 @@ namespace HMS.BLL.Shared.Dtos.UserManagementDtos
     public record RegisterDto
     {
         [Required, MinLength(2), MaxLength(50),
-         RegularExpression(@"^[\p{L}\s'\-]+$",
+         RegularExpression(@"^[a-zA-Z\s'\-]+$",
              ErrorMessage = "First name can only contain letters, spaces, hyphens, and apostrophes.")]
         public string FirstName { get; init; } = string.Empty;
 
         [Required, MinLength(2), MaxLength(50),
-         RegularExpression(@"^[\p{L}\s'\-]+$",
+         RegularExpression(@"^[a-zA-Z\s'\-]+$",
              ErrorMessage = "Last name can only contain letters, spaces, hyphens, and apostrophes.")]
         public string LastName { get; init; } = string.Empty;
 
@@ -30,7 +30,7 @@ namespace HMS.BLL.Shared.Dtos.UserManagementDtos
         public PatientRegistrationInfo? PatientInfo { get; init; }
     }
 
-    public record PatientRegistrationInfo
+    public record PatientRegistrationInfo : IValidatableObject
     {
         [Required, Phone, MinLength(11), MaxLength(15)]
         public string Phone { get; init; } = string.Empty;
@@ -41,11 +41,21 @@ namespace HMS.BLL.Shared.Dtos.UserManagementDtos
         [Required]
         public Gender Gender { get; init; }
 
-        [Required, MinLength(14), MaxLength(14)]
+        [Required, MinLength(14), MaxLength(14),
+         RegularExpression(@"^\d{14}$",
+             ErrorMessage = "National ID must be 14 digits and contain numbers only.")]
         public string NationalId { get; init; } = string.Empty;
 
         [Required]
         public PatientAddressInfo Address { get; init; } = null!;
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (DateOfBirth >= DateTime.Today)
+            {
+                yield return new ValidationResult("Date of birth cannot be in the future.", new[] { nameof(DateOfBirth) });
+            }
+        }
     }
 
     public record PatientAddressInfo

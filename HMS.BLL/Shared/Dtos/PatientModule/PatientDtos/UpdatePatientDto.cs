@@ -6,12 +6,12 @@ namespace HMS.BLL.Shared.Dtos.PatientModule.PatientDtos
     public record UpdatePatientDto
     {
         [MinLength(2), MaxLength(50),
-         RegularExpression(@"^[\p{L}\s'\-]+$",
+         RegularExpression(@"^[a-zA-Z\s'\-]+$",
              ErrorMessage = "First name can only contain letters, spaces, hyphens, and apostrophes.")]
         public string? FirstName { get; init; }
 
         [MinLength(2), MaxLength(50),
-         RegularExpression(@"^[\p{L}\s'\-]+$",
+         RegularExpression(@"^[a-zA-Z\s'\-]+$",
              ErrorMessage = "Last name can only contain letters, spaces, hyphens, and apostrophes.")]
         public string? LastName { get; init; }
 

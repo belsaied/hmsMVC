@@ -569,7 +569,7 @@
         </div>
 
         <!-- Deactivate Card -->
-        @if (Model.Status == "Active")
+        @if (Model.Status == "Active" && (User.IsInRole("SuperAdmin") || User.IsInRole("HospitalAdmin")))
         {
             <div class="patient-profile-card p-3">
                 <p style="font-size:0.82rem;color:var(--hms-text-muted);margin-bottom:10px">

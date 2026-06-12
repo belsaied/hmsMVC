@@ -28,6 +28,7 @@ namespace HMS.PL.Controllers
 
         // ── LIST ────────────────────────────────────────────────────────────────
 
+        [Authorize(Roles = "SuperAdmin,HospitalAdmin")]
         public async Task<IActionResult> Index(string? search, string? status, int pageIndex = 1)
         {
             var parameters = new PatientSpecificationParameters
@@ -179,6 +180,7 @@ namespace HMS.PL.Controllers
         // ── DEACTIVATE ──────────────────────────────────────────────────────────
 
         [HttpPost]
+        [Authorize(Roles = "SuperAdmin,HospitalAdmin")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Deactivate(int id)
         {
@@ -195,7 +197,7 @@ namespace HMS.PL.Controllers
             {
                 TempData["Error"] = "Patient not found.";
             }
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Details), new { id });
         }
 
         // ── ALLERGIES ───────────────────────────────────────────────────────────

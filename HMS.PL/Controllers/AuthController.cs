@@ -28,6 +28,7 @@ namespace HMS.PL.Controllers
 
         [AllowAnonymous]
         [HttpGet]
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public async Task<IActionResult> Login(string? returnUrl = null)
         {
             if (User.Identity?.IsAuthenticated == true)

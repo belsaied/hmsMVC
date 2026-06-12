@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace HMS.PL.ViewModels.AuthModule
 {
-    public class RegisterViewModel
+    public class RegisterViewModel : IValidatableObject
     {
         [Required, MinLength(2), MaxLength(50)]
         public string FirstName { get; set; } = string.Empty;
@@ -32,11 +32,20 @@ namespace HMS.PL.ViewModels.AuthModule
 
         [Required, MinLength(14), MaxLength(14)]
         [Display(Name = "National ID")]
+        [RegularExpression(@"^\d{14}$", ErrorMessage = "National ID must be 14 digits and contain numbers only.")]
         public string NationalId { get; set; } = string.Empty;
 
         public string? Street { get; set; }
         public string? City { get; set; }
         public string? Country { get; set; }
         public string? PostalCode { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (DateOfBirth >= DateTime.Today)
+            {
+                yield return new ValidationResult("Date of birth cannot be in the future.", new[] { nameof(DateOfBirth) });
+            }
+        }
     }
 }
